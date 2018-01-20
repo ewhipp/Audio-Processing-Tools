@@ -1,0 +1,56 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2017
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - Standalone Plugin", "AmericanUniversityCompressor_StandalonePlugin.vcxproj", "{50A418E0-EB56-987E-525A-E87D17B56D93}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - VST", "AmericanUniversityCompressor_VST.vcxproj", "{97C77B7E-6657-5C17-BF93-BBB3CCF81504}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - VST3", "AmericanUniversityCompressor_VST3.vcxproj", "{BE1E5EF2-846F-084C-6440-E9050E40C12E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - AAX", "AmericanUniversityCompressor_AAX.vcxproj", "{6263A55C-524D-3B7B-9EB3-7C350E0870DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - Shared Code", "AmericanUniversityCompressor_SharedCode.vcxproj", "{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97C77B7E-6657-5C17-BF93-BBB3CCF81504}.Debug|x64.ActiveCfg = Debug|x64
+		{97C77B7E-6657-5C17-BF93-BBB3CCF81504}.Debug|x64.Build.0 = Debug|x64
+		{97C77B7E-6657-5C17-BF93-BBB3CCF81504}.Release|x64.ActiveCfg = Release|x64
+		{97C77B7E-6657-5C17-BF93-BBB3CCF81504}.Release|x64.Build.0 = Release|x64
+		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Debug|x64.ActiveCfg = Debug|x64
+		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Debug|x64.Build.0 = Debug|x64
+		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Release|x64.ActiveCfg = Release|x64
+		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Release|x64.Build.0 = Release|x64
+		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Debug|x64.ActiveCfg = Debug|x64
+		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Debug|x64.Build.0 = Debug|x64
+		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Release|x64.ActiveCfg = Release|x64
+		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Release|x64.Build.0 = Release|x64
+		{50A418E0-EB56-987E-525A-E87D17B56D93}.Debug|x64.ActiveCfg = Debug|x64
+		{50A418E0-EB56-987E-525A-E87D17B56D93}.Debug|x64.Build.0 = Debug|x64
+		{50A418E0-EB56-987E-525A-E87D17B56D93}.Release|x64.ActiveCfg = Release|x64
+		{50A418E0-EB56-987E-525A-E87D17B56D93}.Release|x64.Build.0 = Release|x64
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}.Debug|x64.ActiveCfg = Debug|x64
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}.Debug|x64.Build.0 = Debug|x64
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}.Release|x64.ActiveCfg = Release|x64
+		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
