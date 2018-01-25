@@ -17,13 +17,17 @@
 /**
 */
 class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor
-
 {
 public:
     //==============================================================================
     AmericanUniversityCompressorAudioProcessor();
     ~AmericanUniversityCompressorAudioProcessor();
 
+    float currentdB;
+    float currentRMS;
+    static float rmsAmp(int n, float *);
+    float rms2dB(float amp);
+    
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -56,7 +60,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
+    
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)

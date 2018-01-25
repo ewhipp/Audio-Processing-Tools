@@ -130,31 +130,58 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
 }
 #endif
 
+/*
+ * Is there a method to get the host buffer/block size?
+ *   buffer.getNumSamples --> test with a label
+ *      buffer.getSample --> gets a sample from the buffer
+ * Call the rms amp function in the process block function
+ * Assign the output to the slider
+ * Convert to dB scale
+ * Change the buffer size in the host
+ * Double check the AUdioSampleBuffer class
+ */
+
+
+float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, float *buffer)
+{
+    float total;
+    total = 0.0;
+    for(int i = 0; i < n; i++)
+        total += buffer[i] * buffer[i];
+    
+    total /= n;
+    total = sqrt(total);
+    return total;
+}
+
+// Rms to dB
+float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
+{
+    float dbAmplitude;
+    if (rmsAmplitude < 0) { rmsAmplitude = 0; }
+    dbAmplitude = 20 * (log10(rmsAmplitude)/0.00001) - 100;
+    return dbAmplitude;
+}
+
 // Decibels class provides decibelsToGain 1.0 = 0dB
 // Decibels class provides gainToDecibel ""
 
+// Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        currentRMS = rmsAmp(buffer.getNumSamples(), channelData);
+        currentdB = rms2dB(currentRMS);
     }
 }
 

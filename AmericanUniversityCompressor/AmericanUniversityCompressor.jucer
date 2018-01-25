@@ -14,6 +14,7 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0">
   <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
+      <FILE id="QRfJxX" name="AudioMeter.h" compile="0" resource="0" file="Source/AudioMeter.h"/>
       <FILE id="RW0kKj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="t36e9O" name="PluginProcessor.h" compile="0" resource="0"

@@ -8,14 +8,14 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
 
+#include "PluginEditor.h"
 
 //==============================================================================
 AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p) 
+: AudioProcessorEditor (&p), processor (p)
 {
+    
     addAndMakeVisible(threshold);
     threshold.setSliderStyle(Slider::LinearVertical);
     threshold.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
@@ -75,57 +75,50 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(ratioLabel);
     ratioLabel.setText("Ratio", dontSendNotification);
     ratioLabel.setJustificationType(Justification::centredBottom);
-   
     
-    setSize (400, 150);
-}
+    addAndMakeVisible(rmsValue);
+    rmsValue.setLevel(0.0f);
+    
+    addAndMakeVisible(rmsValueLabel);
+    rmsValueLabel.setText("RMS", dontSendNotification);
+    rmsValueLabel.attachToComponent(&rmsValue, false);
+    
+    
+    addAndMakeVisible(rms2DBValue);
+    rms2DBValue.setLevel(0.0f);
+    
+    addAndMakeVisible(rms2DBValueLabel);
+    rms2DBValueLabel.setText("dB", dontSendNotification);
+    rms2DBValueLabel.attachToComponent(&rms2DBValue, false);
 
+    
+    startTimerHz(30);
+
+    setSize (800, 600);
+}
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
 {
+    
 }
+
 
 /*
  * This function handles the acquisition of the slider values/ the changes.
  */
 void AmericanUniversityCompressorAudioProcessorEditor::sliderValueChanged(Slider* slider)
-{/*
-    // Make the ratio come out as a real ratio (1:8) etc.
-  if(slider == &ratio)
-  {
-      if (ratio.getValue() == 0.125)
-      {
-          ratio.setTextValueSuffix("");
-          ratio.setTextValueSuffix("1:8");
-      }
-      else if (ratio.getValue() == 0.250)
-      {
-          ratio.setTextValueSuffix("1:4");
-      }
-      else if (ratio.getValue() == 0.375)
-      {
-          ratio.setTextValueSuffix("3:8");
-      }
-      else if (ratio.getValue() == 0.5)
-      {
-          ratio.setTextValueSuffix("1:2");
-      }
-      else if (ratio.getValue() == 0.625)
-      {
-          ratio.setTextValueSuffix("5:8");
-      }
-      else if (ratio.getValue() == 0.750)
-      {
-          ratio.setTextValueSuffix("3:4");
-      }
-      else if (ratio.getValue() == 0.875)
-      {
-          ratio.setTextValueSuffix("7:8");
-      }
-      else
-      {
-          ratio.setTextValueSuffix("1:1");
-      }
-  }*/
+{
+}
+
+void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
+{
+    
+    rmsValue.setLevel(processor.currentRMS);
+    rmsValueLabel.setText(std::to_string(processor.currentRMS),
+                          dontSendNotification);
+
+    rms2DBValue.setLevel(processor.currentdB);
+    rms2DBValueLabel.setText(std::to_string(processor.currentdB),
+                             dontSendNotification);
 }
 
 //==============================================================================
@@ -142,8 +135,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
 void AmericanUniversityCompressorAudioProcessorEditor::resized()
 {
     auto pluginWindow = getLocalBounds();
-    auto SliderArea = pluginWindow.removeFromBottom(100);
-    auto labelArea = pluginWindow.removeFromBottom(100);
+    auto SliderArea = pluginWindow.removeFromBottom(150);
+    auto labelArea = pluginWindow.removeFromBottom(25);
    
     thresholdLabel.setBounds(labelArea.removeFromLeft(80));
     threshold.setBounds(SliderArea.removeFromLeft(80));
@@ -160,4 +153,10 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     makeupGainLabel.setBounds(labelArea.removeFromLeft(80));
     makeupGain.setBounds(SliderArea.removeFromLeft(80));
     
+    rmsValue.setBounds(SliderArea.removeFromRight(40));
+    rmsValueLabel.setBounds(labelArea.removeFromLeft(40));
+    
+    rms2DBValue.setBounds(SliderArea.removeFromRight(40));
+    rms2DBValueLabel.setBounds(labelArea.removeFromRight(40));
+
 }
