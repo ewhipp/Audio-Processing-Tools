@@ -9,6 +9,7 @@
 */
 
 #include "PluginProcessor.h"
+#include "CompressorProcessor.h"
 #include "PluginEditor.h"
 
 
@@ -25,6 +26,36 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                        )
 #endif
 {
+    addParameter(makeupGain = new AudioParameterFloat ("makeupGain",
+                                                       "Make-up Gain",
+                                                       0.0f,
+                                                       100.0f,
+                                                       0.0f));
+    
+    addParameter(threshold = new AudioParameterFloat ("threshold",
+                                                      "Threshold",
+                                                      -96.0f,
+                                                      0.0f,
+                                                      -16.0f));
+    
+    addParameter(ratio = new AudioParameterFloat ("ratio",
+                                                  "Ratio",
+                                                  0.0f,
+                                                  1.0f,
+                                                  0.25f));
+    
+   addParameter(release = new AudioParameterFloat ("release",
+                                                   "Release",
+                                                   0.0f,
+                                                   1000.0f,
+                                                   0.250f));
+    
+    addParameter(attack = new AudioParameterFloat ("attack",
+                                                   "Attack",
+                                                   0.0f,
+                                                   1000.0f,
+                                                   0.250f));
+    
 }
 
 AmericanUniversityCompressorAudioProcessor::~AmericanUniversityCompressorAudioProcessor()
@@ -137,17 +168,16 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
  * Call the rms amp function in the process block function
  * Assign the output to the slider
  * Convert to dB scale
- * Change the buffer size in the host
- * Double check the AUdioSampleBuffer class
+ * Double check the AudioSampleBuffer class
  */
 
 
-float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, float *buffer)
+float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buffer)
 {
     float total;
     total = 0.0;
     for(int i = 0; i < n; i++)
-        total += buffer[i] * buffer[i];
+        total += powf(buffer[i],2.0);// * buffer[i];
     
     total /= n;
     total = sqrt(total);
@@ -155,14 +185,14 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, float *buffer)
 }
 
 // Rms to dB
+/*
 float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
 {
     float dbAmplitude;
-    if (rmsAmplitude < 0) { rmsAmplitude = 0; }
-    dbAmplitude = 20 * (log10(rmsAmplitude)/0.00001) - 100;
+    dbAmplitude = 20.0f * (log10f(rmsAmplitude)/0.00001f) - 100.0f;// -6.0206
     return dbAmplitude;
 }
-
+*/
 // Decibels class provides decibelsToGain 1.0 = 0dB
 // Decibels class provides gainToDecibel ""
 
@@ -175,13 +205,20 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-
+    
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        float* channelData = buffer.getWritePointer (channel);
+        const float* channelData = buffer.getReadPointer(channel);
+        
         currentRMS = rmsAmp(buffer.getNumSamples(), channelData);
-        currentdB = rms2dB(currentRMS);
+        currentdB = Decibels::gainToDecibels(*channelData);
+        
+        // For more information: see CompressorProcessor.h
+        currentOvershoot = (currentRMS - *threshold);
+        desiredGain = (currentOvershoot / *ratio) + *threshold;
+        gainFactor = desiredGain / currentRMS;
+        
+        buffer.applyGain(gainFactor);
     }
 }
 
@@ -199,15 +236,25 @@ AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor()
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
+    // store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    MemoryOutputStream (destData, true).writeFloat(*makeupGain);
+    MemoryOutputStream (destData, true).writeFloat(*threshold);
+    MemoryOutputStream (destData, true).writeFloat(*ratio);
+    MemoryOutputStream (destData, true).writeFloat(*release);
+    MemoryOutputStream (destData, true).writeFloat(*attack);
 }
 
 void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
+    // estore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    *makeupGain = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
+    *threshold = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
+    *ratio = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
+    *release = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
+    *attack = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
 }
 
 //==============================================================================

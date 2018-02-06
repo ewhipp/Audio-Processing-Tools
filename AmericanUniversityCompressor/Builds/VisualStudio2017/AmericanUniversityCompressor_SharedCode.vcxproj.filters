@@ -2244,6 +2244,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\CompressorProcessor.h">
+      <Filter>AmericanUniversityCompressor\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\AudioMeter.h">
       <Filter>AmericanUniversityCompressor\Source</Filter>
     </ClInclude>

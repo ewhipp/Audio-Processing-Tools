@@ -24,21 +24,42 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
                                                           private Timer
 {
 public:
+    
+    enum
+    {
+        parameterControlHeight = 40,
+        paramaterControlLabelWidth = 80,
+        parameterControlWidth = 300
+    };
+    
     AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
-
 
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
     void sliderValueChanged (Slider* slider) override;
+    void sliderDragStarted (Slider* slider) override;
+    void sliderDragEnded (Slider* slider) override;
     void timerCallback() override;
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     AmericanUniversityCompressorAudioProcessor& processor;
     
+    // Easly retrieve the parameters for the sliders
+    AudioParameterFloat* getParameterForSlider(Slider* slider)
+    {
+        const OwnedArray<AudioProcessorParameter>& params = getAudioProcessor()->getParameters();
+        return dynamic_cast<AudioParameterFloat*> (params[paramSliders.indexOf(slider)]);
+    }
+    
+    // Parameters
+    OwnedArray<Slider> paramSliders;
+    OwnedArray<Label> paramLabels;
     // MARK: Sliders & Knobs for the Compressor
+    
+    /*
     Slider makeupGain;
     Label makeupGainLabel;
     
@@ -53,7 +74,7 @@ private:
     
     Slider threshold;
     Label thresholdLabel;
-        
+     */
     AudioMeter rmsValue;
     Label rmsValueLabel;
     

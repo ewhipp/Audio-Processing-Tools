@@ -25,8 +25,11 @@ public:
 
     float currentdB;
     float currentRMS;
-    static float rmsAmp(int n, float *);
-    float rms2dB(float amp);
+    float calculateOvershoot(float rmsAmp, float threshold);
+    float calculateDesiredGain(float threshold, float ratio, float Overshoot);
+    float calculateGainFactor(float desiredGain, float rmsAmp);
+    float rmsAmp(int n, const float *buffer);
+    float rms2dB(float rmsAmplitude);
     
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -62,6 +65,15 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
 private:
+    AudioParameterFloat* makeupGain;
+    AudioParameterFloat* threshold;
+    AudioParameterFloat* ratio;
+    AudioParameterFloat* attack;
+    AudioParameterFloat* release;
+    
+    float currentOvershoot;
+    float desiredGain;
+    float gainFactor;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
 };
