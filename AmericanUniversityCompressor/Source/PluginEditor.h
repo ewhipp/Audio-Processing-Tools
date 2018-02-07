@@ -42,9 +42,10 @@ public:
     void sliderDragStarted (Slider* slider) override;
     void sliderDragEnded (Slider* slider) override;
     void timerCallback() override;
+    
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+    // This reference is provided as a quick way for your editor to access the processor object
+    // that created it.
     AmericanUniversityCompressorAudioProcessor& processor;
     
     // Easly retrieve the parameters for the sliders
@@ -57,24 +58,7 @@ private:
     // Parameters
     OwnedArray<Slider> paramSliders;
     OwnedArray<Label> paramLabels;
-    // MARK: Sliders & Knobs for the Compressor
-    
-    /*
-    Slider makeupGain;
-    Label makeupGainLabel;
-    
-    Slider attackTime;
-    Label attackTimeLabel;
-    
-    Slider releaseTime;
-    Label releaseTimeLabel;
-    
-    Slider ratio;
-    Label ratioLabel;
-    
-    Slider threshold;
-    Label thresholdLabel;
-     */
+   
     AudioMeter rmsValue;
     Label rmsValueLabel;
     
@@ -82,4 +66,23 @@ private:
     Label rms2DBValueLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
+    
+    // MARK: Sliders & Knobs for the Compressor
+    
+    /*
+     Slider makeupGain;
+     Label makeupGainLabel;
+     
+     Slider attackTime;
+     Label attackTimeLabel;
+     
+     Slider releaseTime;
+     Label releaseTimeLabel;
+     
+     Slider ratio;
+     Label ratioLabel;
+     
+     Slider threshold;
+     Label thresholdLabel;
+     */
 };

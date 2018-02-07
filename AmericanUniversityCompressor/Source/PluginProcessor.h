@@ -74,6 +74,7 @@ private:
     float currentOvershoot;
     float desiredGain;
     float gainFactor;
+    float thresholdRMS;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
 };

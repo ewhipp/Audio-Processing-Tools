@@ -41,6 +41,15 @@ public:
         gainFactor = desiredGain / currentRMS;
         return gainFactor;
     }
+    
+    // Ms --> Sample function
+    
+    // Make ramp function
+    //
+    // Over how many samples does the compression att occur / release
+    
+    // Get sample rate?
+    
 private:
     float gainFactor;
     float desiredGain;

@@ -26,34 +26,35 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                        )
 #endif
 {
-    addParameter(makeupGain = new AudioParameterFloat ("makeupGain",
+    addParameter(makeupGain =   new AudioParameterFloat ("makeupGain",
                                                        "Make-up Gain",
                                                        0.0f,
-                                                       100.0f,
+                                                       12.0f,
                                                        0.0f));
     
-    addParameter(threshold = new AudioParameterFloat ("threshold",
+    addParameter(threshold =    new AudioParameterFloat ("threshold",
                                                       "Threshold",
-                                                      -96.0f,
+                                                      -100.0f,
                                                       0.0f,
                                                       -16.0f));
     
-    addParameter(ratio = new AudioParameterFloat ("ratio",
+    // Change to integers 1 --> 100
+    addParameter(ratio =        new AudioParameterFloat ("ratio",
                                                   "Ratio",
-                                                  0.0f,
                                                   1.0f,
-                                                  0.25f));
+                                                  100.0f,
+                                                  2.0f));
     
-   addParameter(release = new AudioParameterFloat ("release",
+   addParameter(release =       new AudioParameterFloat ("release",
                                                    "Release",
                                                    0.0f,
-                                                   1000.0f,
+                                                   1.0000f,
                                                    0.250f));
     
-    addParameter(attack = new AudioParameterFloat ("attack",
+    addParameter(attack =       new AudioParameterFloat ("attack",
                                                    "Attack",
                                                    0.0f,
-                                                   1000.0f,
+                                                   1.0000f,
                                                    0.250f));
     
 }
@@ -161,17 +162,6 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
 }
 #endif
 
-/*
- * Is there a method to get the host buffer/block size?
- *   buffer.getNumSamples --> test with a label
- *      buffer.getSample --> gets a sample from the buffer
- * Call the rms amp function in the process block function
- * Assign the output to the slider
- * Convert to dB scale
- * Double check the AudioSampleBuffer class
- */
-
-
 float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buffer)
 {
     float total;
@@ -193,8 +183,6 @@ float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
     return dbAmplitude;
 }
 */
-// Decibels class provides decibelsToGain 1.0 = 0dB
-// Decibels class provides gainToDecibel ""
 
 // Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -209,16 +197,24 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         const float* channelData = buffer.getReadPointer(channel);
-        
+
+        float tempThresh = *threshold;
         currentRMS = rmsAmp(buffer.getNumSamples(), channelData);
-        currentdB = Decibels::gainToDecibels(*channelData);
+        currentdB = Decibels::gainToDecibels(currentRMS);
+        thresholdRMS = Decibels::decibelsToGain(tempThresh);
+        gainFactor = 1.0f;
         
         // For more information: see CompressorProcessor.h
-        currentOvershoot = (currentRMS - *threshold);
-        desiredGain = (currentOvershoot / *ratio) + *threshold;
-        gainFactor = desiredGain / currentRMS;
-        
-        buffer.applyGain(gainFactor);
+        //
+        // TODO: conditional logic for these moments?
+        if ( currentRMS > thresholdRMS)
+        {
+            currentOvershoot = (currentRMS - thresholdRMS);
+            desiredGain = (currentOvershoot / *ratio) + thresholdRMS;
+            gainFactor = desiredGain / currentRMS;
+            buffer.applyGain(gainFactor);
+            buffer.applyGain(*makeupGain);
+        }
     }
 }
 
