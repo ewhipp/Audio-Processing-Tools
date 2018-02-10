@@ -113,7 +113,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
 
     g.setColour (Colours::white);
-    g.setFont (15.0f);
+    g.setFont (12.0f);
     g.drawFittedText ("American University Audio Compressor Example", getLocalBounds(), Justification::centredTop, 1);
 }
 
@@ -139,83 +139,5 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     rmsValueLabel.setBounds(LabelArea.removeFromLeft(100));
     rms2DBValue.setBounds(MeterArea.removeFromLeft(100));
     rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(100));
-    
-    /*
-     releaseTimeLabel.setBounds(labelArea.removeFromLeft(80))
-     releaseTime.setBounds(SliderArea.removeFromLeft(80));
-     
-     makeupGainLabel.setBounds(labelArea.removeFromLeft(80));
-     makeupGain.setBounds(SliderArea.removeFromLeft(80));
-     
-     thresholdLabel.setBounds(labelArea.removeFromLeft(80));
-     threshold.setBounds(SliderArea.removeFromLeft(80));
-     
-     ratioLabel.setBounds(labelArea.removeFromLeft(80));
-     ratio.setBounds(SliderArea.removeFromLeft(80));
-     
-     attackTimeLabel.setBounds(labelArea.removeFromLeft(80));
-     attackTime.setBounds(SliderArea.removeFromLeft(80));;*/
 }
 
-
-/* For init if audio parameters don't work long term --?
- addAndMakeVisible(threshold);
- threshold.setSliderStyle(Slider::LinearVertical);
- threshold.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
- threshold.setRange(-96.0, 0.0);
- threshold.setTextValueSuffix("dB");
- threshold.addListener(this);
- 
- addAndMakeVisible(thresholdLabel);
- thresholdLabel.setText("Threshold", dontSendNotification);
- //thresholdLabel.attachToComponent(&threshold, true);
- thresholdLabel.setJustificationType(Justification::centredBottom);
- 
- addAndMakeVisible(attackTime);
- attackTime.setSliderStyle(Slider::Rotary);
- attackTime.setRange(0.00, 1000.00);
- attackTime.setTextValueSuffix("ms");
- attackTime.addListener(this);
- attackTime.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
- 
- addAndMakeVisible(attackTimeLabel);
- attackTimeLabel.setText("Attack", dontSendNotification);
- // attackTimeLabel.attachToComponent(&attackTime, true);
- attackTimeLabel.setJustificationType(Justification::centredBottom);
- 
- addAndMakeVisible(releaseTime);
- releaseTime.setSliderStyle(Slider::Rotary);
- 
- releaseTime.setRange(0.00, 1000.00);
- releaseTime.setTextValueSuffix("ms");
- releaseTime.addListener(this);
- releaseTime.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
- addAndMakeVisible(releaseTimeLabel);
- releaseTimeLabel.setText("Release", dontSendNotification);
- releaseTimeLabel.setJustificationType(Justification::centredBottom);
- //releaseTimeLabel.attachToComponent(&releaseTime, true);
- 
- 
- addAndMakeVisible(makeupGain);
- makeupGain.setSliderStyle(Slider::Rotary);
- makeupGain.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
- makeupGain.setRange(0.00, 100.00);
- makeupGain.setTextValueSuffix("dB");
- makeupGain.addListener(this);
- 
- addAndMakeVisible(makeupGainLabel);
- makeupGainLabel.setText("Makeup Gain", dontSendNotification);
- makeupGainLabel.setJustificationType(Justification::centredBottom);
- // makeupGainLabel.attachToComponent(&makeupGain, true);
- 
- 
- addAndMakeVisible(ratio);
- ratio.setSliderStyle(Slider::Rotary);
- ratio.setTextBoxStyle(Slider::TextBoxBelow, true, 125, 25);
- ratio.setRange(0.00, 1.00, 0.125);
- ratio.addListener(this);
- 
- addAndMakeVisible(ratioLabel);
- ratioLabel.setText("Ratio", dontSendNotification);
- ratioLabel.setJustificationType(Justification::centredBottom);
- */

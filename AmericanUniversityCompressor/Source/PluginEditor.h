@@ -66,23 +66,4 @@ private:
     Label rms2DBValueLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
-    
-    // MARK: Sliders & Knobs for the Compressor
-    
-    /*
-     Slider makeupGain;
-     Label makeupGainLabel;
-     
-     Slider attackTime;
-     Label attackTimeLabel;
-     
-     Slider releaseTime;
-     Label releaseTimeLabel;
-     
-     Slider ratio;
-     Label ratioLabel;
-     
-     Slider threshold;
-     Label thresholdLabel;
-     */
 };

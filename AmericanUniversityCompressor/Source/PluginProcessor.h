@@ -71,6 +71,7 @@ private:
     AudioParameterFloat* attack;
     AudioParameterFloat* release;
     
+    float rampedGain;
     float currentOvershoot;
     float desiredGain;
     float gainFactor;

@@ -128,8 +128,7 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    rampedGain = *makeupGain;
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
@@ -174,15 +173,6 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buf
     return total;
 }
 
-// Rms to dB
-/*
-float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
-{
-    float dbAmplitude;
-    dbAmplitude = 20.0f * (log10f(rmsAmplitude)/0.00001f) - 100.0f;// -6.0206
-    return dbAmplitude;
-}
-*/
 
 // Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -190,7 +180,16 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
-    
+
+    // How JUCE explains to ramp the gain;    
+    const float currentGain = *makeupGain;
+
+    if (currentGain == rampedGain) { buffer.applyGain (currentGain); }
+    else {
+        buffer.applyGainRamp (0, buffer.getNumSamples(), rampedGain, currentGain);
+        rampedGain = currentGain;
+    }
+
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
@@ -259,3 +258,14 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AmericanUniversityCompressorAudioProcessor();
 }
+
+
+// Rms to dB
+/*
+float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
+{
+    float dbAmplitude;
+    dbAmplitude = 20.0f * (log10f(rmsAmplitude)/0.00001f) - 100.0f;// -6.0206
+    return dbAmplitude;
+}
+*/
