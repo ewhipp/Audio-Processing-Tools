@@ -471,8 +471,8 @@
 			isa = PBXGroup;
 			children = (
 				69DFD380B68C631709F0F907 /* PluginProcessor.cpp */,
-				C320DCFB7180439DA32307D8 /* PluginProcessor.h */,
 				6DFD671508074665D9B00326 /* PluginEditor.cpp */,
+				C320DCFB7180439DA32307D8 /* PluginProcessor.h */,
 				2429F3161777164CB1EE17EB /* PluginEditor.h */,
 				E6174672AD28EF45B0AF2118 /* AudioMeter.h */,
 				0468B80D31DE63581CA90BE5 /* CompressorProcessor.h */,

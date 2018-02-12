@@ -30,6 +30,7 @@ public:
     float calculateGainFactor(float desiredGain, float rmsAmp);
     float rmsAmp(int n, const float *buffer);
     float rms2dB(float rmsAmplitude);
+    float calculateMillis(AudioParameterFloat*, int);
     
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -70,7 +71,7 @@ private:
     AudioParameterFloat* ratio;
     AudioParameterFloat* attack;
     AudioParameterFloat* release;
-    
+        
     float rampedGain;
     float currentOvershoot;
     float desiredGain;

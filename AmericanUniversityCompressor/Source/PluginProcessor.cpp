@@ -103,8 +103,7 @@ double AmericanUniversityCompressorAudioProcessor::getTailLengthSeconds() const
 
 int AmericanUniversityCompressorAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int AmericanUniversityCompressorAudioProcessor::getCurrentProgram()
@@ -133,8 +132,7 @@ void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRat
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -173,6 +171,14 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buf
     return total;
 }
 
+// Calculate time to wait for attack/release sliders for more info: see CompressorProcessor.h
+float AmericanUniversityCompressorAudioProcessor::calculateMillis(AudioParameterFloat* slider,
+                                                                  int n)
+{
+    float timeToWaste;
+    timeToWaste = *slider * n;
+    return timeToWaste;
+}
 
 // Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -181,39 +187,47 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // How JUCE explains to ramp the gain;    
-    const float currentGain = *makeupGain;
-
+    //int sampleAttackTime = compFuncs.calculateMilliseconds(*attack, buffer.getNumSamples());
+    
+    // Gain ramp to smooth the compressor affect and reduce inconsistencies
+    // How JUCE says to do it
+    /*
     if (currentGain == rampedGain) { buffer.applyGain (currentGain); }
-    else {
+    else
+    {
         buffer.applyGainRamp (0, buffer.getNumSamples(), rampedGain, currentGain);
         rampedGain = currentGain;
     }
-
+    */
+    // Clear the buffer in order to reduce the chances of returning feedback
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         const float* channelData = buffer.getReadPointer(channel);
+        const float currentGain = *makeupGain;
 
         float tempThresh = *threshold;
-        currentRMS = rmsAmp(buffer.getNumSamples(), channelData);
-        currentdB = Decibels::gainToDecibels(currentRMS);
+        currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
+        currentdB =    Decibels::gainToDecibels(currentRMS);
         thresholdRMS = Decibels::decibelsToGain(tempThresh);
-        gainFactor = 1.0f;
+        gainFactor =   1.0f;
+        *makeupGain = 1.0f;
         
-        // For more information: see CompressorProcessor.h
-        //
-        // TODO: conditional logic for these moments?
-        if ( currentRMS > thresholdRMS)
+        // How to use makeup Gain plus the system gain?
+        if (currentRMS > thresholdRMS)
         {
             currentOvershoot = (currentRMS - thresholdRMS);
             desiredGain = (currentOvershoot / *ratio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
-            buffer.applyGain(gainFactor);
-            buffer.applyGain(*makeupGain);
+            if (*makeupGain == true) { buffer.applyGain(gainFactor + *makeupGain); }
         }
+        
+        float numberOfSamplesToApplyGain = calculateMillis(attack, buffer.getNumSamples());
+        buffer.applyGainRamp(0, numberOfSamplesToApplyGain, rampedGain, currentGain);
+        buffer.applyGain(1.0 + *makeupGain);
     }
 }
 

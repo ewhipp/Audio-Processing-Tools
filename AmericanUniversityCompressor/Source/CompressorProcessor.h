@@ -16,6 +16,8 @@
 
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "chrono"
+#include "ctime"
 
 class CompressorProcessor
 {
@@ -43,12 +45,19 @@ public:
     }
     
     // Ms --> Sample function
-    
-    // Make ramp function
-    //
-    // Over how many samples does the compression att occur / release
-    
-    // Get sample rate?
+    // Take in sample rate
+    // take in current slider value
+    // 1 = 44.1k samples, 0.5 = 22.05k samples 0.0 = no wait
+    float calculateMilliseconds(AudioParameterFloat* sliderValue,
+                               AudioSampleBuffer& targetSamples)
+    {
+        float timeToWaste;
+        int systemSampleRate = targetSamples.getNumSamples();
+        // Multiply slider value by the sample rate in order to see how many
+        // samples it must take?
+        timeToWaste = *sliderValue * systemSampleRate;
+        return timeToWaste;
+    }
     
 private:
     float gainFactor;
