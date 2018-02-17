@@ -11,7 +11,7 @@
     When attack/release are 0  -- Check!
     Makeup Gain as an additive to normal gain  Check!
     Test signals for attack/release
-    Display the currentGain etc on a label
+    Display the currentGain etc on a label  Check!
  
   ==============================================================================
 */
@@ -60,13 +60,13 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
    addParameter(release =       new AudioParameterFloat ("release",
                                                    "Release",
                                                    0.0f,
-                                                   1000.0f,
+                                                   5000.0f,
                                                    300.0f));
     
     addParameter(attack =       new AudioParameterFloat ("attack",
                                                    "Attack",
                                                    0.0f,
-                                                   1000.0f,
+                                                   5000.0f,
                                                    300.0f));
     
 }
@@ -325,7 +325,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         currentGain = blockTargetGain;
         
         float temporaryMakeupGain = *makeupGain;
-        temporaryMakeupGain =Decibels::decibelsToGain(temporaryMakeupGain);
+        temporaryMakeupGain = Decibels::decibelsToGain(temporaryMakeupGain);
         buffer.applyGain(temporaryMakeupGain);
     }
 }

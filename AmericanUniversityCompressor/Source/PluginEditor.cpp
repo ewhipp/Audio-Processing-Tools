@@ -49,11 +49,13 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     
     
     addAndMakeVisible(rms2DBValue);
-    
     addAndMakeVisible(rms2DBValueLabel);
     rms2DBValueLabel.setText("dB", dontSendNotification);
     rms2DBValueLabel.attachToComponent(&rms2DBValue, false);
+
+    addAndMakeVisible(currentGainEditor);
 }
+
 
 // Destructor
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
@@ -104,6 +106,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rms2DBValue.setLeveldB(processor.currentdB);
     rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
                              dontSendNotification);
+    
+    currentGainEditor.setText(std::to_string(processor.currentGain), dontSendNotification);
 }
 
 //==============================================================================
@@ -139,5 +143,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     rmsValueLabel.setBounds(LabelArea.removeFromLeft(100));
     rms2DBValue.setBounds(MeterArea.removeFromLeft(100));
     rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(100));
+    currentGainEditor.setBounds(0.0, 0.0, 100.0, 100.0);
+    
 }
 

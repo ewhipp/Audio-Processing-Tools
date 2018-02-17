@@ -23,6 +23,7 @@ public:
     AmericanUniversityCompressorAudioProcessor();
     ~AmericanUniversityCompressorAudioProcessor();
 
+    float currentGain;
     float currentdB;
     float currentRMS;
     float calculateOvershoot(float rmsAmp, float threshold);
@@ -72,7 +73,6 @@ private:
     AudioParameterFloat* attack;
     AudioParameterFloat* release;
         
-    float currentGain;
     float blockTargetGain;
     float currentOvershoot;
     float desiredGain;

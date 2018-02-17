@@ -64,6 +64,7 @@ private:
     
     AudioMeter rms2DBValue;
     Label rms2DBValueLabel;
+    Label currentGainEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
 };
