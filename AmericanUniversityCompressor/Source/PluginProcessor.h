@@ -30,7 +30,7 @@ public:
     float calculateGainFactor(float desiredGain, float rmsAmp);
     float rmsAmp(int n, const float *buffer);
     float rms2dB(float rmsAmplitude);
-    float calculateMillis(AudioParameterFloat*, int);
+    float calculateNumSamples(AudioParameterFloat*, int, int);
     
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -72,11 +72,22 @@ private:
     AudioParameterFloat* attack;
     AudioParameterFloat* release;
         
-    float rampedGain;
+    float currentGain;
+    float blockTargetGain;
     float currentOvershoot;
     float desiredGain;
     float gainFactor;
     float thresholdRMS;
+    float numberOfSamplesToApplyGain;
+    float startingGain;
+    float gainRange;
+    
+    int timeSinceRelease;
+    int timeSinceAttack;
+    bool attackFlag;
+    bool releaseFlag;
+    bool attackIsZero;
+    bool releaseIsZero;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
 };

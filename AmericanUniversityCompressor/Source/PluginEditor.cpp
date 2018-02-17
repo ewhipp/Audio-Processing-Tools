@@ -102,7 +102,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 
     // Update the dB meter
     rms2DBValue.setLeveldB(processor.currentdB);
-    rms2DBValueLabel.setText(std::to_string(processor.currentdB),
+    rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
                              dontSendNotification);
 }
 

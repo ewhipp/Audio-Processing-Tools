@@ -5,6 +5,14 @@
 
     It contains the basic framework code for a JUCE plugin processor.
 
+ 
+    For 20 - 2 - 18
+    Attack/Release to millis -- Check!
+    When attack/release are 0  -- Check!
+    Makeup Gain as an additive to normal gain  Check!
+    Test signals for attack/release
+    Display the currentGain etc on a label
+ 
   ==============================================================================
 */
 
@@ -26,6 +34,10 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                        )
 #endif
 {
+    gainFactor =   1.0f;
+    attackFlag = false;
+    timeSinceAttack = 0;
+    
     addParameter(makeupGain =   new AudioParameterFloat ("makeupGain",
                                                        "Make-up Gain",
                                                        0.0f,
@@ -42,20 +54,20 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
     addParameter(ratio =        new AudioParameterFloat ("ratio",
                                                   "Ratio",
                                                   1.0f,
-                                                  100.0f,
-                                                  2.0f));
+                                                  1000.0f,
+                                                  1.0f));
     
    addParameter(release =       new AudioParameterFloat ("release",
                                                    "Release",
                                                    0.0f,
-                                                   1.0000f,
-                                                   0.250f));
+                                                   1000.0f,
+                                                   300.0f));
     
     addParameter(attack =       new AudioParameterFloat ("attack",
                                                    "Attack",
                                                    0.0f,
-                                                   1.0000f,
-                                                   0.250f));
+                                                   1000.0f,
+                                                   300.0f));
     
 }
 
@@ -127,7 +139,7 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    rampedGain = *makeupGain;
+    currentGain = 1.0f;
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
@@ -171,12 +183,24 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buf
     return total;
 }
 
+/*
+ * Attack and release start in milliseconds convert to seconds and then samples and round
+ * divide the slider value by 1000 * by sample rate
+ * Then:
+ */
 // Calculate time to wait for attack/release sliders for more info: see CompressorProcessor.h
-float AmericanUniversityCompressorAudioProcessor::calculateMillis(AudioParameterFloat* slider,
-                                                                  int n)
+float AmericanUniversityCompressorAudioProcessor::calculateNumSamples(AudioParameterFloat* slider,
+                                                                      int n, int blockSize)
 {
     float timeToWaste;
-    timeToWaste = *slider * n;
+    float sliderValue = *slider;
+    // Convert to seconds
+    sliderValue = *slider / 1000;
+    // Multiply by sample rate
+    // How many samples we should waste.
+    timeToWaste = sliderValue * n;
+    // If blocksize is greater than the samples we should waste, we should just go straight to the value
+    if (blockSize > timeToWaste) { timeToWaste = 0;}
     return timeToWaste;
 }
 
@@ -186,19 +210,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
-
-    //int sampleAttackTime = compFuncs.calculateMilliseconds(*attack, buffer.getNumSamples());
     
-    // Gain ramp to smooth the compressor affect and reduce inconsistencies
-    // How JUCE says to do it
-    /*
-    if (currentGain == rampedGain) { buffer.applyGain (currentGain); }
-    else
-    {
-        buffer.applyGainRamp (0, buffer.getNumSamples(), rampedGain, currentGain);
-        rampedGain = currentGain;
-    }
-    */
     // Clear the buffer in order to reduce the chances of returning feedback
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -206,28 +218,115 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        
         const float* channelData = buffer.getReadPointer(channel);
-        const float currentGain = *makeupGain;
-
         float tempThresh = *threshold;
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
         currentdB =    Decibels::gainToDecibels(currentRMS);
         thresholdRMS = Decibels::decibelsToGain(tempThresh);
-        gainFactor =   1.0f;
-        *makeupGain = 1.0f;
         
-        // How to use makeup Gain plus the system gain?
-        if (currentRMS > thresholdRMS)
+        
+        // We are over the threshold when we have previously been under
+        if (currentRMS > thresholdRMS && !attackFlag)
         {
+            startingGain = currentGain;
+            double sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
+            numberOfSamplesToApplyGain = calculateNumSamples(attack, sampleRate, buffer.getNumSamples());
+            
+            attackFlag = true;
+            releaseFlag = false;
+            timeSinceAttack = 0;
             currentOvershoot = (currentRMS - thresholdRMS);
-            desiredGain = (currentOvershoot / *ratio) + thresholdRMS;
+            if (*ratio == 0) { *ratio = 1;}
+            desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
-            if (*makeupGain == true) { buffer.applyGain(gainFactor + *makeupGain); }
+            timeSinceAttack += buffer.getNumSamples();
+            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+            gainRange = startingGain - gainFactor;
+            blockTargetGain = startingGain - (rampProgress * gainRange);
+            if (numberOfSamplesToApplyGain == 0)
+            {
+                blockTargetGain = 1.0f;;
+            }
+        }
+        // When we are already attacking and we are above thresh
+        else if (currentRMS > thresholdRMS && attackFlag)
+        {
+            timeSinceAttack += buffer.getNumSamples();
+            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+            if (rampProgress >= 1)
+            {
+                blockTargetGain = gainFactor;
+                attackFlag = false;
+                if (numberOfSamplesToApplyGain == 0)
+                {
+                    blockTargetGain = 1.0f;;
+                }
+            }
+            else
+            {
+                blockTargetGain = startingGain - (rampProgress * gainRange);
+                if (numberOfSamplesToApplyGain == 0)
+                {
+                    blockTargetGain = 1.0f;;
+                }
+            }
         }
         
-        float numberOfSamplesToApplyGain = calculateMillis(attack, buffer.getNumSamples());
-        buffer.applyGainRamp(0, numberOfSamplesToApplyGain, rampedGain, currentGain);
-        buffer.applyGain(1.0 + *makeupGain);
+        // When we are under after previously attacking
+        else if (currentRMS <= thresholdRMS && attackFlag && !releaseFlag)
+        {
+            startingGain = currentGain;
+            double sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
+            numberOfSamplesToApplyGain = calculateNumSamples(release, sampleRate, buffer.getNumSamples());
+            attackFlag = false;
+            releaseFlag = true;
+            timeSinceAttack = 0; // time since release TODO change
+            gainFactor = 1.0f;
+            timeSinceAttack += buffer.getNumSamples();
+            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+            gainRange = startingGain + gainFactor ;
+            blockTargetGain = startingGain + (rampProgress * gainRange);
+            if (numberOfSamplesToApplyGain == 0)
+            {
+                blockTargetGain = 1.0f;;
+            }
+        }
+        
+        // When we are under the threshold and releasing
+        else if (currentRMS <= thresholdRMS && !attackFlag && releaseFlag)
+        {
+            timeSinceAttack += buffer.getNumSamples();
+            float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
+            if (rampProgress >= 1)
+            {
+                blockTargetGain = gainFactor;
+                if (numberOfSamplesToApplyGain == 0)
+                {
+                    blockTargetGain = 1.0f;;
+                }
+            }
+            else
+            {
+                blockTargetGain = startingGain + (rampProgress * gainRange);
+                if (numberOfSamplesToApplyGain == 0)
+                {
+                    blockTargetGain = 1.0f;;
+                }
+            }
+        }
+        
+        // Convert make up gain value to a decibel value
+        // After conversion, we can use it to apply gain in decibel form
+        // to the level
+        
+        
+        buffer.applyGainRamp(0, buffer.getNumSamples(), currentGain, blockTargetGain);
+        currentGain = blockTargetGain;
+        
+        float temporaryMakeupGain = *makeupGain;
+        temporaryMakeupGain =Decibels::decibelsToGain(temporaryMakeupGain);
+        buffer.applyGain(temporaryMakeupGain);
     }
 }
 
@@ -272,14 +371,3 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AmericanUniversityCompressorAudioProcessor();
 }
-
-
-// Rms to dB
-/*
-float AmericanUniversityCompressorAudioProcessor::rms2dB(float rmsAmplitude)
-{
-    float dbAmplitude;
-    dbAmplitude = 20.0f * (log10f(rmsAmplitude)/0.00001f) - 100.0f;// -6.0206
-    return dbAmplitude;
-}
-*/

@@ -49,7 +49,7 @@ public:
     // take in current slider value
     // 1 = 44.1k samples, 0.5 = 22.05k samples 0.0 = no wait
     float calculateMilliseconds(AudioParameterFloat* sliderValue,
-                               AudioSampleBuffer& targetSamples)
+                               AudioSampleBuffer& targetSamples) // change to int
     {
         float timeToWaste;
         int systemSampleRate = targetSamples.getNumSamples();
