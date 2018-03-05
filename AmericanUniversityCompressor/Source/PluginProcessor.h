@@ -69,7 +69,9 @@ public:
 private:
     AudioParameterFloat* makeupGain;
     AudioParameterFloat* threshold;
-    AudioParameterFloat* ratio;
+    // AudioParameterFloat* ratio;
+    AudioProcessorValueTreeState ratio;
+    
     AudioParameterFloat* attack;
     AudioParameterFloat* release;
         

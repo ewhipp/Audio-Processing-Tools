@@ -31,7 +31,8 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+    ratio(*this, nullptr)
 #endif
 {
     gainFactor =   1.0f;
@@ -55,13 +56,6 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                                                       0.0f,
                                                       -16.0f));
     
-    // Change to integers 1 --> 100
-    addParameter(ratio =        new AudioParameterFloat ("ratio",
-                                                  "Ratio",
-                                                  1.0f,
-                                                  1000.0f,
-                                                  1.0f));
-    
    addParameter(release =       new AudioParameterFloat ("release",
                                                    "Release",
                                                    0.0f,
@@ -73,6 +67,20 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                                                    0.0f,
                                                    5000.0f,
                                                    300.0f));
+    
+    ratio.createAndAddParameter("ratio", "Ratio", TRANS ("Ratio"),
+                                NormalisableRange<float>(0.1, 10.0, 0.01),
+                                2,
+                                [](float value) { return "1 : " + String (value, 1); },
+                                [](const String& text) { return text.substring(3).getFloatValue(); }, false, true, false);
+    
+    ratio.state = ValueTree (Identifier ("AmericanUniversityCompressor"));
+    // Change to integers 1 --> 100
+    /* addParameter(ratio =        new AudioParameterFloat ("ratio",
+     "Ratio",
+     1.0f,
+     1000.0f,
+     1.0f));*/
     
 }
 
@@ -222,7 +230,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        
+        float currentRatio = *ratio.getRawParameterValue("ratio");
         const float* channelData = buffer.getReadPointer(channel);
         float tempThresh = *threshold;
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
@@ -239,10 +247,10 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             timeSinceAttack = 0;
             currentOvershoot = (currentRMS - thresholdRMS);
             
-            if (*ratio == 0)
-                *ratio = 1;
+            if (currentRatio == 0)
+                currentRatio = 1;
             
-            desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
+            desiredGain  = (currentOvershoot / currentRatio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
             timeSinceAttack += buffer.getNumSamples();
             
@@ -322,9 +330,9 @@ bool AmericanUniversityCompressorAudioProcessor::hasEditor() const
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor()
+AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor() 
 {
-    return new AmericanUniversityCompressorAudioProcessorEditor (*this);
+    return new AmericanUniversityCompressorAudioProcessorEditor (*this, ratio);
 }
 
 //==============================================================================
@@ -335,7 +343,7 @@ void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBloc
     // as intermediaries to make it easy to save and load complex data.
     MemoryOutputStream (destData, true).writeFloat(*makeupGain);
     MemoryOutputStream (destData, true).writeFloat(*threshold);
-    MemoryOutputStream (destData, true).writeFloat(*ratio);
+    //MemoryOutputStream (destData, true).writeFloat(*ratio);
     MemoryOutputStream (destData, true).writeFloat(*release);
     MemoryOutputStream (destData, true).writeFloat(*attack);
 }
@@ -346,7 +354,7 @@ void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void
     // whose contents will have been created by the getStateInformation() call.
     *makeupGain = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
     *threshold = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
-    *ratio = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
+    //*ratio = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
     *release = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
     *attack = MemoryInputStream(data, static_cast<size_t>(sizeInBytes), false).readFloat();
 }

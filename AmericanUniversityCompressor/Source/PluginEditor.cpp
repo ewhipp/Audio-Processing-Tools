@@ -12,8 +12,8 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent)
-: AudioProcessorEditor (&parent), processor (parent)
+AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
+: AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts)
 {
     // Get audio processor parameters
     const OwnedArray<AudioProcessorParameter>& params = parent.getParameters();
@@ -38,9 +38,12 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
         }
     }
     
-    startTimerHz(30);
-    setSize (580, 350);
-
+    // Test AVTS
+    ratioLabel.setText("Ratio", dontSendNotification);
+    addAndMakeVisible(ratioLabel);
+    addAndMakeVisible(ratioSlider);
+    ratioAttachment = new SliderAttachment (valueTreeState, "ratio", ratioSlider);
+    
     // Make meters visible
     addAndMakeVisible(rmsValue);
     addAndMakeVisible(rmsValueLabel);
@@ -54,6 +57,9 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     rms2DBValueLabel.attachToComponent(&rms2DBValue, false);
 
     addAndMakeVisible(currentGainEditor);
+    
+    startTimerHz(30);
+    setSize (580, 350);
 }
 
 
@@ -144,6 +150,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     rms2DBValue.setBounds(MeterArea.removeFromLeft(100));
     rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(100));
     currentGainEditor.setBounds(0.0, 0.0, 100.0, 100.0);
+    ratioSlider.setBounds(50.0, 0.0, 100.0, 100.0);
+    ratioLabel.setBounds(150.0, 0.0, 100.0, 100.0);
     
 }
 

@@ -24,6 +24,8 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
                                                           private Timer
 {
 public:
+    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+
     
     enum
     {
@@ -32,7 +34,7 @@ public:
         parameterControlWidth = 300
     };
     
-    AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&);
+    AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&, AudioProcessorValueTreeState&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
 
     //==============================================================================
@@ -56,8 +58,14 @@ private:
     }
     
     // Parameters
+    AudioProcessorValueTreeState& valueTreeState;
+    AudioProcessorValueTreeState& valueTreeState;
+    
     OwnedArray<Slider> paramSliders;
     OwnedArray<Label> paramLabels;
+    Label ratioLabel;
+    Slider ratioSlider;
+    ScopedPointer<SliderAttachment> ratioAttachment;
    
     AudioMeter rmsValue;
     Label rmsValueLabel;

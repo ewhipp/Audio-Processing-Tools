@@ -46,17 +46,6 @@ public:
      *
      *
      */
-    float* getSliderValue(float slider)
-    {
-        return &slider;
-    }
-    
-    float engageCompressor(float currentGain, float blockSize,
-                           float sampleRate)
-    {
-        // use getSliderValue for the different sliders
-    }
-    
     float calculateOvershoot(float currentRMS, float currentThreshold)
     {
         overshoot = currentRMS - currentThreshold;
