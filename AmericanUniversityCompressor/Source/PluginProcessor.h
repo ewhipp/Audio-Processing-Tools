@@ -82,12 +82,13 @@ private:
     float startingGain;
     float gainRange;
     
+    double sampleRate;
+    
     int timeSinceRelease;
     int timeSinceAttack;
     bool attackFlag;
     bool releaseFlag;
-    bool attackIsZero;
-    bool releaseIsZero;
+    bool isReleasing;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
 };

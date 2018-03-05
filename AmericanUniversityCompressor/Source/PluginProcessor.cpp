@@ -36,7 +36,12 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
 {
     gainFactor =   1.0f;
     attackFlag = false;
+    releaseFlag = true;
     timeSinceAttack = 0;
+    timeSinceRelease = 0; // set this to 1 so that we initiali
+    numberOfSamplesToApplyGain = 1;
+    sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
+
     
     addParameter(makeupGain =   new AudioParameterFloat ("makeupGain",
                                                        "Make-up Gain",
@@ -176,7 +181,7 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buf
     float total;
     total = 0.0;
     for(int i = 0; i < n; i++)
-        total += powf(buffer[i],2.0);// * buffer[i];
+        total += powf(buffer[i],2.0);
     
     total /= n;
     total = sqrt(total);
@@ -186,7 +191,6 @@ float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buf
 /*
  * Attack and release start in milliseconds convert to seconds and then samples and round
  * divide the slider value by 1000 * by sample rate
- * Then:
  */
 // Calculate time to wait for attack/release sliders for more info: see CompressorProcessor.h
 float AmericanUniversityCompressorAudioProcessor::calculateNumSamples(AudioParameterFloat* slider,
@@ -227,30 +231,32 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         
         
         // We are over the threshold when we have previously been under
-        if (currentRMS > thresholdRMS && !attackFlag)
+        if (currentRMS > thresholdRMS && !attackFlag && !releaseFlag)
         {
             startingGain = currentGain;
-            double sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
             numberOfSamplesToApplyGain = calculateNumSamples(attack, sampleRate, buffer.getNumSamples());
-            
             attackFlag = true;
-            releaseFlag = false;
             timeSinceAttack = 0;
             currentOvershoot = (currentRMS - thresholdRMS);
-            if (*ratio == 0) { *ratio = 1;}
+            
+            if (*ratio == 0)
+                *ratio = 1;
+            
             desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
             timeSinceAttack += buffer.getNumSamples();
-            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-            gainRange = startingGain - gainFactor;
-            blockTargetGain = startingGain - (rampProgress * gainRange);
+            
             if (numberOfSamplesToApplyGain == 0)
+                blockTargetGain = gainFactor;
+            else
             {
-                blockTargetGain = 1.0f;;
+                float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+                gainRange = startingGain - gainFactor;
+                blockTargetGain = startingGain - (rampProgress * gainRange);
             }
         }
         // When we are already attacking and we are above thresh
-        else if (currentRMS > thresholdRMS && attackFlag)
+        else if (currentRMS > thresholdRMS && attackFlag && !releaseFlag)
         {
             timeSinceAttack += buffer.getNumSamples();
             float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
@@ -258,72 +264,52 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             {
                 blockTargetGain = gainFactor;
                 attackFlag = false;
-                if (numberOfSamplesToApplyGain == 0)
-                {
-                    blockTargetGain = 1.0f;;
-                }
+                releaseFlag = true;
             }
             else
             {
                 blockTargetGain = startingGain - (rampProgress * gainRange);
-                if (numberOfSamplesToApplyGain == 0)
-                {
-                    blockTargetGain = 1.0f;;
-                }
             }
         }
         
-        // When we are under after previously attacking
-        else if (currentRMS <= thresholdRMS && attackFlag && !releaseFlag)
+        // When we first go back under after previously attacking
+        else if (currentRMS <= thresholdRMS && releaseFlag && !isReleasing)
         {
             startingGain = currentGain;
-            double sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
             numberOfSamplesToApplyGain = calculateNumSamples(release, sampleRate, buffer.getNumSamples());
-            attackFlag = false;
-            releaseFlag = true;
-            timeSinceAttack = 0; // time since release TODO change
+            timeSinceRelease = 0; // time since release TODO change
             gainFactor = 1.0f;
-            timeSinceAttack += buffer.getNumSamples();
-            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-            gainRange = startingGain + gainFactor ;
-            blockTargetGain = startingGain + (rampProgress * gainRange);
+            isReleasing = true;
+            timeSinceRelease += buffer.getNumSamples();
             if (numberOfSamplesToApplyGain == 0)
+                blockTargetGain = gainFactor;
+            else
             {
-                blockTargetGain = 1.0f;;
+                float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
+                gainRange = startingGain + gainFactor ;
+                blockTargetGain = startingGain + (rampProgress * gainRange);
             }
         }
         
-        // When we are under the threshold and releasing
-        else if (currentRMS <= thresholdRMS && !attackFlag && releaseFlag)
+        // When we are under the threshold and releasing. This is also our starting condition if we're below thresh
+        else if (currentRMS <= thresholdRMS && releaseFlag && isReleasing)
         {
-            timeSinceAttack += buffer.getNumSamples();
+            timeSinceRelease += buffer.getNumSamples();
             float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
             if (rampProgress >= 1)
             {
                 blockTargetGain = gainFactor;
-                if (numberOfSamplesToApplyGain == 0)
-                {
-                    blockTargetGain = 1.0f;;
-                }
+                releaseFlag = false;
+                isReleasing = false;
             }
             else
-            {
                 blockTargetGain = startingGain + (rampProgress * gainRange);
-                if (numberOfSamplesToApplyGain == 0)
-                {
-                    blockTargetGain = 1.0f;;
-                }
-            }
         }
-        
-        // Convert make up gain value to a decibel value
-        // After conversion, we can use it to apply gain in decibel form
-        // to the level
-        
         
         buffer.applyGainRamp(0, buffer.getNumSamples(), currentGain, blockTargetGain);
         currentGain = blockTargetGain;
         
+        // Convert the gain to a dB value first, then apply as a dB value.
         float temporaryMakeupGain = *makeupGain;
         temporaryMakeupGain = Decibels::decibelsToGain(temporaryMakeupGain);
         buffer.applyGain(temporaryMakeupGain);

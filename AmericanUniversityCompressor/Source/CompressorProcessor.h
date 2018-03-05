@@ -15,15 +15,47 @@
 */
 
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "chrono"
-#include "ctime"
 
 class CompressorProcessor
 {
 public:
     CompressorProcessor() {}
     ~CompressorProcessor() {}
+    
+    
+    /*
+     * Planning for refactoring the compressor:
+     * This is what we need --
+     *      A solution for long expanses of code in the process audio block.. encapsulation.
+     * -- REQUIREMENTS --
+     * 1) When the attack goes over
+     *      a) Take note of the currentGain
+     *      b) calculate number of samples to apply gain
+     *      c) Engage the attack flag
+     *      d) Calculate overshoot
+     *      e) Ratio handling (Can go anywhere)
+     *      f) Calculate desiredGain
+     *      g) Calculate gainFactor
+     *      h) Add onto the timeSinceAttack --> should probably be a pointer to processor variable
+     *      i) calculate & apply blockTargetGain (bTG will be our return value
+     * 2) When the attack has been over
+     * 3) When release is engaged
+     * 4) When release is continuing to engage
+     *
+     * -- DEFINED VARIABLES --
+     *
+     *
+     */
+    float* getSliderValue(float slider)
+    {
+        return &slider;
+    }
+    
+    float engageCompressor(float currentGain, float blockSize,
+                           float sampleRate)
+    {
+        // use getSliderValue for the different sliders
+    }
     
     float calculateOvershoot(float currentRMS, float currentThreshold)
     {
@@ -44,22 +76,9 @@ public:
         return gainFactor;
     }
     
-    // Ms --> Sample function
-    // Take in sample rate
-    // take in current slider value
-    // 1 = 44.1k samples, 0.5 = 22.05k samples 0.0 = no wait
-    float calculateMilliseconds(AudioParameterFloat* sliderValue,
-                               AudioSampleBuffer& targetSamples) // change to int
-    {
-        float timeToWaste;
-        int systemSampleRate = targetSamples.getNumSamples();
-        // Multiply slider value by the sample rate in order to see how many
-        // samples it must take?
-        timeToWaste = *sliderValue * systemSampleRate;
-        return timeToWaste;
-    }
     
 private:
+    float timeSinceAttack;
     float gainFactor;
     float desiredGain;
     float overshoot;

@@ -107,7 +107,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
                              dontSendNotification);
     
-    currentGainEditor.setText(std::to_string(processor.currentGain), dontSendNotification);
+    currentGainEditor.setText(std::to_string(processor.currentGain) + " current gain", dontSendNotification);
 }
 
 //==============================================================================
