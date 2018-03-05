@@ -20,13 +20,10 @@
 /**
 */
 class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
-                                                          public Slider::Listener,
                                                           private Timer
 {
 public:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-
-    
     enum
     {
         parameterControlHeight = 40,
@@ -40,29 +37,28 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void sliderValueChanged (Slider* slider) override;
-    void sliderDragStarted (Slider* slider) override;
-    void sliderDragEnded (Slider* slider) override;
     void timerCallback() override;
     
 private:
-    // This reference is provided as a quick way for your editor to access the processor object
-    // that created it.
     AmericanUniversityCompressorAudioProcessor& processor;
-    
-    // Easly retrieve the parameters for the sliders
-    AudioParameterFloat* getParameterForSlider(Slider* slider)
-    {
-        const OwnedArray<AudioProcessorParameter>& params = getAudioProcessor()->getParameters();
-        return dynamic_cast<AudioParameterFloat*> (params[paramSliders.indexOf(slider)]);
-    }
-    
-    // Parameters
-    AudioProcessorValueTreeState& valueTreeState;
     AudioProcessorValueTreeState& valueTreeState;
     
-    OwnedArray<Slider> paramSliders;
-    OwnedArray<Label> paramLabels;
+    Label makeupGainLabel;
+    Slider makeupGainSlider;
+    ScopedPointer<SliderAttachment> makeupAttachment;
+    
+    Label attackLabel;
+    Slider attackSlider;
+    ScopedPointer<SliderAttachment> attackAttachment;
+    
+    Label thresholdLabel;
+    Slider thresholdSlider;
+    ScopedPointer<SliderAttachment> thresholdAttachment;
+    
+    Label releaseLabel;
+    Slider releaseSlider;
+    ScopedPointer<SliderAttachment> releaseAttachment;
+    
     Label ratioLabel;
     Slider ratioSlider;
     ScopedPointer<SliderAttachment> ratioAttachment;

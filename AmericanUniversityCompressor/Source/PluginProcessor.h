@@ -31,7 +31,7 @@ public:
     float calculateGainFactor(float desiredGain, float rmsAmp);
     float rmsAmp(int n, const float *buffer);
     float rms2dB(float rmsAmplitude);
-    float calculateNumSamples(AudioParameterFloat*, int, int);
+    float calculateNumSamples(float*, int, int);
     
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -67,13 +67,9 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
 private:
-    AudioParameterFloat* makeupGain;
-    AudioParameterFloat* threshold;
-    // AudioParameterFloat* ratio;
-    AudioProcessorValueTreeState ratio;
     
-    AudioParameterFloat* attack;
-    AudioParameterFloat* release;
+    AudioProcessorValueTreeState parameters;
+    
         
     float blockTargetGain;
     float currentOvershoot;

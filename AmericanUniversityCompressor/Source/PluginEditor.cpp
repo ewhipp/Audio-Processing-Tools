@@ -12,54 +12,12 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
-: AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts)
+AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent,
+                                                                                                    AudioProcessorValueTreeState &vts)
+:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts)
 {
-    // Get audio processor parameters
-    const OwnedArray<AudioProcessorParameter>& params = parent.getParameters();
-    
-    // Attach components to audio processor GUI elements
-    for(int i = 0; i < params.size(); ++i)
-    {
-        if(const AudioParameterFloat* param = dynamic_cast<AudioParameterFloat*>(params[i]))
-        {
-            Slider* genericSlider;
-            paramSliders.add(genericSlider = new Slider(param->name));
-            genericSlider->setRange (param->range.start, param->range.end);
-            genericSlider->setSliderStyle(Slider::LinearHorizontal);
-            genericSlider->setValue(*param);
-            
-            genericSlider->addListener(this);
-            addAndMakeVisible(genericSlider);
-            
-            Label* genericLabel;
-            paramLabels.add(genericLabel = new Label(param->name, param->name));
-            addAndMakeVisible(genericLabel);
-        }
-    }
-    
-    // Test AVTS
-    ratioLabel.setText("Ratio", dontSendNotification);
-    addAndMakeVisible(ratioLabel);
-    addAndMakeVisible(ratioSlider);
-    ratioAttachment = new SliderAttachment (valueTreeState, "ratio", ratioSlider);
-    
-    // Make meters visible
-    addAndMakeVisible(rmsValue);
-    addAndMakeVisible(rmsValueLabel);
-    rmsValueLabel.setText("RMS", dontSendNotification);
-    rmsValueLabel.attachToComponent(&rmsValue, false);
-    
-    
-    addAndMakeVisible(rms2DBValue);
-    addAndMakeVisible(rms2DBValueLabel);
-    rms2DBValueLabel.setText("dB", dontSendNotification);
-    rms2DBValueLabel.attachToComponent(&rms2DBValue, false);
-
-    addAndMakeVisible(currentGainEditor);
-    
-    startTimerHz(30);
-    setSize (580, 350);
+    startTimer(30);
+    setSize(580, 350);
 }
 
 
@@ -70,39 +28,10 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
 
 
  // This function handles the acquisition of the slider values/ the changes.
-void AmericanUniversityCompressorAudioProcessorEditor::sliderValueChanged(Slider* slider)
-{
-    if (AudioParameterFloat* param = getParameterForSlider(slider))
-        *param = (float) slider->getValue();
-}
-
- // This function responds to the handling of moving a slider value
-void AmericanUniversityCompressorAudioProcessorEditor::sliderDragStarted(Slider* slider)
-{
-    if (AudioParameterFloat* param = getParameterForSlider(slider))
-        param->beginChangeGesture();
-}
-
-// This function handles the end of handling for a slider value
-void AmericanUniversityCompressorAudioProcessorEditor::sliderDragEnded(Slider* slider)
-{
-    if (AudioParameterFloat* param = getParameterForSlider(slider))
-        param->endChangeGesture();
-}
 
 // Repaint the meters. For more info on meter creation see AudioMeter.h
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
-    // Initalize and retrieve parameters from the audio processor
-    const OwnedArray<AudioProcessorParameter>& params = getAudioProcessor()->getParameters();
-    for (int i = 0; i < params.size(); ++i)
-    {
-        if(const AudioParameterFloat* param = dynamic_cast<AudioParameterFloat*>(params[i]))
-        {
-            if (i < paramSliders.size())
-                paramSliders[i]->setValue(*param);
-        }
-    }
     // Update rms meter
     rmsValue.setLevelRMS(processor.currentRMS);
     rmsValueLabel.setText(std::to_string(processor.currentRMS),
@@ -133,16 +62,6 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     auto someSpace = pluginWindow.removeFromTop(145);
     auto MeterArea = pluginWindow.removeFromLeft(200);
     auto LabelArea = MeterArea.removeFromTop(25);
-   
-    // Slider parameters
-    for(int i = 0; i <paramSliders.size(); ++i)
-    {
-        Rectangle<int> parameterBounds = pluginWindow.removeFromTop(parameterControlHeight);
-        Rectangle<int> labelBounds = parameterBounds.removeFromLeft(paramaterControlLabelWidth);
-
-        paramLabels[i]->setBounds (labelBounds);
-        paramSliders[i]->setBounds (parameterBounds);
-    }
     
     // Meters
     rmsValue.setBounds(MeterArea.removeFromLeft(100));
