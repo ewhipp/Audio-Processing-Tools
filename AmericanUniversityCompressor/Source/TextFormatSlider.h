@@ -1,11 +1,15 @@
-//
-//  TextFormatSlider.h
-//  AmericanUniversityCompressor
-//
-//  Created by Erik Whipp on 3/6/18.
-//
+/*
+  ==============================================================================
+
+    TextFormatSlider.h
+    Created: 6 Mar 2018 7:31:06am
+    Author:  Erik Whipp
+
+  ==============================================================================
+*/
 
 #pragma once
+#include "../JuceLibraryCode/JuceHeader.h"
 
 class TextFormatSlider : public Slider
 {

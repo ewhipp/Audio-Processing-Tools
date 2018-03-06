@@ -13,7 +13,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "AudioMeter.h"
-#include "TextFormatSlider.h"
 
 
 

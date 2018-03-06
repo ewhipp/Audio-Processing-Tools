@@ -11,9 +11,11 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="AmericanUniversityCompressorAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0">
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.1">
   <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
+      <FILE id="rX3puK" name="TextFormatSlider.h" compile="0" resource="0"
+            file="Source/TextFormatSlider.h"/>
       <FILE id="SzfGh9" name="CompressorProcessor.h" compile="0" resource="0"
             file="Source/CompressorProcessor.h"/>
       <FILE id="QRfJxX" name="AudioMeter.h" compile="0" resource="0" file="Source/AudioMeter.h"/>
@@ -124,4 +126,7 @@
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>
