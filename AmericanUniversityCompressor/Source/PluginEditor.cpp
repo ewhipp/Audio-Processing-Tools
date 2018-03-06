@@ -20,32 +20,32 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     // rotary sliders
     attackLabel.setText("Attack", dontSendNotification);
     addAndMakeVisible(attackLabel);
-    attackSlider = new Slider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow);
+    attackSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 3);
     addAndMakeVisible (attackSlider);
     attackAttachment = new SliderAttachment (valueTreeState, "attack", *attackSlider);
     
     releaseLabel.setText ("Release", dontSendNotification);
     addAndMakeVisible (releaseLabel);
-    releaseSlider = new Slider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow);
+    releaseSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 3);
     addAndMakeVisible(releaseSlider);
     releaseAttachment = new SliderAttachment (valueTreeState, "release", *releaseSlider);
     
     ratioLabel.setText ("Ratio", dontSendNotification);
     addAndMakeVisible (ratioLabel);
-    ratioSlider = new Slider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow);
+    ratioSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 4);
     addAndMakeVisible (ratioSlider);
     ratioAttachment = new SliderAttachment (valueTreeState, "ratio", *ratioSlider);
     
     // horizontal Sliders
     makeupGainLabel.setText("Make-up", dontSendNotification);
     addAndMakeVisible(makeupGainLabel);
-    makeupGainSlider = new Slider (Slider::LinearVertical, Slider::TextBoxBelow);
+    makeupGainSlider = new TextFormatSlider (Slider::LinearVertical, Slider::TextBoxBelow, 1);
     addAndMakeVisible(makeupGainSlider);
     makeupAttachment = new SliderAttachment (valueTreeState, "makeUpGain", *makeupGainSlider);
     
     thresholdLabel.setText("Threshold", dontSendNotification);
     addAndMakeVisible(thresholdLabel);
-    thresholdSlider = new Slider (Slider::LinearVertical, Slider::TextBoxBelow);
+    thresholdSlider = new TextFormatSlider (Slider::LinearVertical, Slider::TextBoxBelow, 1);
     addAndMakeVisible(thresholdSlider);
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
@@ -105,8 +105,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
 void AmericanUniversityCompressorAudioProcessorEditor::resized()
 {
     Rectangle<int> pluginWindow = getLocalBounds();
-    currentGainEditor.setBounds(pluginWindow.removeFromTop(25).removeFromLeft(100));
-
+    currentGainEditor.setBounds(240, 50, 25, 300);
     auto MeterArea = pluginWindow.removeFromLeft(100);
     auto sliderLabelArea = pluginWindow.removeFromTop(50);
     thresholdLabel.setBounds(sliderLabelArea.removeFromLeft(100));

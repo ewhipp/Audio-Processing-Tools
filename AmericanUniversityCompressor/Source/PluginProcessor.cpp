@@ -239,7 +239,11 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
-    
+    float* makeupGain = parameters.getRawParameterValue("makeUpGain");
+    float* threshold = parameters.getRawParameterValue("threshold");
+    float* attack = parameters.getRawParameterValue("attack");
+    float* release = parameters.getRawParameterValue("release");
+    float* ratio = parameters.getRawParameterValue("ratio");
     
     
     // Clear the buffer in order to reduce the chances of returning feedback
@@ -250,16 +254,10 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         // get parameter values
-        float* makeupGain = parameters.getRawParameterValue("makeUpGain");
-        float* threshold = parameters.getRawParameterValue("threshold");
-        float* attack = parameters.getRawParameterValue("attack");
-        float* release = parameters.getRawParameterValue("release");
-        float* ratio = parameters.getRawParameterValue("ratio");
         const float* channelData = buffer.getReadPointer(channel);
-        float tempThresh = *threshold;
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
         currentdB =    Decibels::gainToDecibels(currentRMS);
-        thresholdRMS = Decibels::decibelsToGain(tempThresh);
+        thresholdRMS = Decibels::decibelsToGain(*threshold);
         
         
         // We are over the threshold when we have previously been under

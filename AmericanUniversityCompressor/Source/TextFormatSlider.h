@@ -37,12 +37,12 @@ public:
             case Gain:
                 return String (Decibels::gainToDecibels (value, -80.0), 1) + " dB";
             case Milliseconds:
-                if (value >= 1.0)
-                    return String (value, 2) + " s";
+                if (value >= 1000.0)
+                    return String ((value / 1000), 2) + " s";
                 else
-                    return String (roundToInt (value * 1000.0)) + " ms";
+                    return String (roundToInt (value)) + " ms";
             case Ratio:
-                return "1 : " + String (value, 1);
+                return "1:" + String (value, 0);
             default:
                 return Slider::getTextFromValue (value);
         }
@@ -51,23 +51,25 @@ public:
     // What our slider values will ultimately be.
     double getValueFromText (const String& text) override
     {
-        case Level:
-            return text.trimCharactersAtEnd (" dB").getFloatValue();
-        case Gain:
-            return Decibels::decibelsToGain (text.trimCharactersAtEnd (" dB").getFloatValue(), -80.0f);
-        case Milliseconds:
-            if (text.endsWith ("ms"))
-                return text.trimCharactersAtEnd (" ms").getFloatValue() * 0.001f;
-            else
-                return text.trimCharactersAtEnd (" s").getFloatValue();
-        case Ratio:
-            return text.trimCharactersAtStart ("1 : ").getFloatValue();
-        default:
-            return Slider::getValueFromText (text.trimCharactersAtEnd (" %"));
+        switch(type) {
+            case Level:
+                return text.trimCharactersAtEnd (" dB").getFloatValue();
+            case Gain:
+                return Decibels::decibelsToGain (text.trimCharactersAtEnd (" dB").getFloatValue(), -80.0f);
+            case Milliseconds:
+                if (text.endsWith ("ms"))
+                    return text.trimCharactersAtEnd (" ms").getFloatValue() * 0.001f;
+                else
+                    return text.trimCharactersAtEnd (" s").getFloatValue();
+            case Ratio:
+                return text.trimCharactersAtStart ("1:").getFloatValue();
+            default:
+                return Slider::getValueFromText (text.trimCharactersAtEnd (" %"));
+        }
     }
     
-    void setNumberType (const int t) { type = t; }
+    void setSliderType (const int t) { type = t; }
     
 private:
     int type = None;
-}
+};

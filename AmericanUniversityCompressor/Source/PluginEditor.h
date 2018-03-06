@@ -13,6 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "AudioMeter.h"
+#include "TextFormatSlider.h"
 
 
 
@@ -40,34 +41,39 @@ public:
     void timerCallback() override;
     
 private:
+    // Essentials
     AmericanUniversityCompressorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
     
+    // Sliders/Labels
     Label makeupGainLabel;
-    ScopedPointer<Slider> makeupGainSlider;
+    ScopedPointer<TextFormatSlider> makeupGainSlider;
     ScopedPointer<SliderAttachment> makeupAttachment;
     
     Label thresholdLabel;
-    ScopedPointer<Slider> thresholdSlider;
+    ScopedPointer<TextFormatSlider> thresholdSlider;
     ScopedPointer<SliderAttachment> thresholdAttachment;
     
     Label attackLabel;
-    ScopedPointer<Slider> attackSlider;
+    ScopedPointer<TextFormatSlider> attackSlider;
     ScopedPointer<SliderAttachment> attackAttachment;
     
     Label releaseLabel;
-    ScopedPointer<Slider> releaseSlider;
+    ScopedPointer<TextFormatSlider> releaseSlider;
     ScopedPointer<SliderAttachment> releaseAttachment;
     
     Label ratioLabel;
-    ScopedPointer<Slider> ratioSlider;
+    ScopedPointer<TextFormatSlider> ratioSlider;
     ScopedPointer<SliderAttachment> ratioAttachment;
    
+    // Meters
     AudioMeter rmsValue;
     Label rmsValueLabel;
     
     AudioMeter rms2DBValue;
     Label rms2DBValueLabel;
+    
+    // Debugging
     Label currentGainEditor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
