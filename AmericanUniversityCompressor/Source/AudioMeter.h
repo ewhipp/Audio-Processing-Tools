@@ -55,8 +55,8 @@ public:
     
     void setLeveldB(float newLevel)
     {
-        level = newLevel + 100.0f;
-        level = jlimit(-100.0f, 100.0f, newLevel);
+        level = newLevel;
+        level = jlimit(0.0f, 100.0f, newLevel);
         repaint();
     }
 

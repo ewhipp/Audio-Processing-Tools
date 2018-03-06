@@ -13,6 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "AudioMeter.h"
+#include "TextFormatSlider.h"
 
 
 
@@ -44,23 +45,23 @@ private:
     AudioProcessorValueTreeState& valueTreeState;
     
     Label makeupGainLabel;
-    Slider makeupGainSlider;
+    ScopedPointer<Slider> makeupGainSlider;
     ScopedPointer<SliderAttachment> makeupAttachment;
     
-    Label attackLabel;
-    Slider attackSlider;
-    ScopedPointer<SliderAttachment> attackAttachment;
-    
     Label thresholdLabel;
-    Slider thresholdSlider;
+    ScopedPointer<Slider> thresholdSlider;
     ScopedPointer<SliderAttachment> thresholdAttachment;
     
+    Label attackLabel;
+    ScopedPointer<Slider> attackSlider;
+    ScopedPointer<SliderAttachment> attackAttachment;
+    
     Label releaseLabel;
-    Slider releaseSlider;
+    ScopedPointer<Slider> releaseSlider;
     ScopedPointer<SliderAttachment> releaseAttachment;
     
     Label ratioLabel;
-    Slider ratioSlider;
+    ScopedPointer<Slider> ratioSlider;
     ScopedPointer<SliderAttachment> ratioAttachment;
    
     AudioMeter rmsValue;

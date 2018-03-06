@@ -44,7 +44,7 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
     sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
 
     parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
-                                 NormalisableRange<float>(0.0f, 12.0f, 0.001f), 0.0f,
+                                 NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
                                  [] (float value)
                                  {
                                      if (value < 0.001f)  return String (value) + "µs";
@@ -88,56 +88,17 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
     
     parameters.createAndAddParameter("makeUpGain", "Make-up Gain", TRANS("Make-up Gain"),
                                  NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
-                                 [] (float value)
-                                    { return String (value, 1) + "dB"; },
-                                 [] (const String& text)
-                                    { return text.substring(0, text.length() - 2).getFloatValue(); });
+                                     [] (float value) { return String (Decibels::gainToDecibels(value)) + " dB"; },
+                                     [] (const String& text) { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); },
+                                     false, true, false);
 
-    parameters.createAndAddParameter("ratio", "Ratio", TRANS ("Ratio"),
-                                NormalisableRange<float>(0.1, 10.0, 0.01),
-                                2,
-                                [](float value)
-                                     { return "1 : " + String (value, 1); }, // return 1:n
-                                [](const String& text)
-                                     { return text.substring(3).getFloatValue(); }, false, true, false); // retrieve n
+    parameters.createAndAddParameter("ratio", "Ratio", String(),
+                                NormalisableRange<float>(0.0f, 10.0, 1.0f),
+                                2.0f,
+                                [](float value) { return "1:" + String (value, 1); }, // return 1:n
+                                [](const String& text) { return text.substring(3).getFloatValue(); }); // retrieve n
     
     parameters.state = ValueTree (Identifier ("AmericanUniversityCompressor"));
-    
-    
-    // Change to integers 1 --> 100
-    /*
-     
-     addParameter(ratio =        new AudioParameterFloat ("ratio",
-     "Ratio",
-     1.0f,
-     1000.0f,
-     1.0f));
-     
-     addParameter(makeupGain =   new AudioParameterFloat ("makeupGain",
-     "Make-up Gain",
-     0.0f,
-     12.0f,
-     0.0f));
-     
-     addParameter(threshold =    new AudioParameterFloat ("threshold",
-     "Threshold",
-     -100.0f,
-     0.0f,
-     -16.0f));
-     
-     addParameter(release =       new AudioParameterFloat ("release",
-     "Release",
-     0.0f,
-     5000.0f,
-     300.0f));
-     
-     addParameter(attack =       new AudioParameterFloat ("attack",
-     "Attack",
-     0.0f,
-     5000.0f,
-     300.0f));
-     */
-    
 }
 
 AmericanUniversityCompressorAudioProcessor::~AmericanUniversityCompressorAudioProcessor()
@@ -279,12 +240,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
     
-    // get parameter values
-     float* makeupGain = parameters.getRawParameterValue("makeUpGain");
-     float* threshold = parameters.getRawParameterValue("threshold");
-     float* attack = parameters.getRawParameterValue("attack");
-     float* release = parameters.getRawParameterValue("release");
-     float* ratio = parameters.getRawParameterValue("ratio");
+    
     
     // Clear the buffer in order to reduce the chances of returning feedback
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -293,6 +249,12 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+        // get parameter values
+        float* makeupGain = parameters.getRawParameterValue("makeUpGain");
+        float* threshold = parameters.getRawParameterValue("threshold");
+        float* attack = parameters.getRawParameterValue("attack");
+        float* release = parameters.getRawParameterValue("release");
+        float* ratio = parameters.getRawParameterValue("ratio");
         const float* channelData = buffer.getReadPointer(channel);
         float tempThresh = *threshold;
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
@@ -301,11 +263,12 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         
         
         // We are over the threshold when we have previously been under
-        if (currentRMS > thresholdRMS && !attackFlag && !releaseFlag)
+        if (currentRMS > thresholdRMS && !attackFlag)
         {
             startingGain = currentGain;
             numberOfSamplesToApplyGain = calculateNumSamples(attack, sampleRate, buffer.getNumSamples());
             attackFlag = true;
+            releaseFlag = false;
             timeSinceAttack = 0;
             currentOvershoot = (currentRMS - thresholdRMS);
             
@@ -326,7 +289,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             }
         }
         // When we are already attacking and we are above thresh
-        else if (currentRMS > thresholdRMS && attackFlag && !releaseFlag)
+        else if (currentRMS > thresholdRMS && attackFlag)
         {
             timeSinceAttack += buffer.getNumSamples();
             float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
@@ -334,7 +297,6 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             {
                 blockTargetGain = gainFactor;
                 attackFlag = false;
-                releaseFlag = true;
             }
             else
             {
@@ -343,13 +305,14 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         }
         
         // When we first go back under after previously attacking
-        else if (currentRMS <= thresholdRMS && releaseFlag && !isReleasing)
+        else if (currentRMS <= thresholdRMS && attackFlag)
         {
+            attackFlag = false;
+            releaseFlag = true;
             startingGain = currentGain;
             numberOfSamplesToApplyGain = calculateNumSamples(release, sampleRate, buffer.getNumSamples());
             timeSinceRelease = 0; // time since release TODO change
             gainFactor = 1.0f;
-            isReleasing = true;
             timeSinceRelease += buffer.getNumSamples();
             if (numberOfSamplesToApplyGain == 0)
                 blockTargetGain = gainFactor;
@@ -362,15 +325,13 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         }
         
         // When we are under the threshold and releasing. This is also our starting condition if we're below thresh
-        else if (currentRMS <= thresholdRMS && releaseFlag && isReleasing)
+        else if (currentRMS <= thresholdRMS && releaseFlag)
         {
             timeSinceRelease += buffer.getNumSamples();
             float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
             if (rampProgress >= 1)
             {
                 blockTargetGain = gainFactor;
-                releaseFlag = false;
-                isReleasing = false;
             }
             else
                 blockTargetGain = startingGain + (rampProgress * gainRange);
@@ -380,9 +341,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         currentGain = blockTargetGain;
         
         // Convert the gain to a dB value first, then apply as a dB value.
-        float temporaryMakeupGain = *makeupGain;
-        temporaryMakeupGain = Decibels::decibelsToGain(temporaryMakeupGain);
-        buffer.applyGain(temporaryMakeupGain);
+        buffer.applyGain(Decibels::decibelsToGain(*makeupGain));
     }
 }
 

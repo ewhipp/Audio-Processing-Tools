@@ -185,6 +185,7 @@
 		0D8D60E18967DABAE8989854 /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_gui_extra; path = "~/JUCE/modules/juce_gui_extra"; sourceTree = "<absolute>"; };
 		0FDAF45FFA6F36A2D9763139 /* include_juce_gui_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_basics.mm; path = ../../JuceLibraryCode/include_juce_gui_basics.mm; sourceTree = SOURCE_ROOT; };
 		15286C2E643B46C085FC932B /* juce_audio_formats */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_audio_formats; path = "~/JUCE/modules/juce_audio_formats"; sourceTree = "<absolute>"; };
+		19BF9C77204EBE7D007F3E72 /* TextFormatSlider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextFormatSlider.h; sourceTree = "<group>"; };
 		1E0A0A2A879B7ED1148B1F0E /* juce_audio_processors */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_audio_processors; path = "~/JUCE/modules/juce_audio_processors"; sourceTree = "<absolute>"; };
 		1F4B9A5389B719D29D9C799F /* AmericanUniversityCompressor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AmericanUniversityCompressor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2351AEE4B149C7ABCCC52870 /* JuceHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = SOURCE_ROOT; };
@@ -476,6 +477,7 @@
 				2429F3161777164CB1EE17EB /* PluginEditor.h */,
 				E6174672AD28EF45B0AF2118 /* AudioMeter.h */,
 				0468B80D31DE63581CA90BE5 /* CompressorProcessor.h */,
+				19BF9C77204EBE7D007F3E72 /* TextFormatSlider.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";

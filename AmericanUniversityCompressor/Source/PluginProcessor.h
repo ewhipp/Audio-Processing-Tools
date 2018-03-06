@@ -69,8 +69,6 @@ public:
 private:
     
     AudioProcessorValueTreeState parameters;
-    
-        
     float blockTargetGain;
     float currentOvershoot;
     float desiredGain;
