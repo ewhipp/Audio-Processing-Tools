@@ -41,6 +41,7 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
     timeSinceAttack = 0;
     timeSinceRelease = 0; // set this to 1 so that we initiali
     numberOfSamplesToApplyGain = 1;
+    lastOvershoot = -1;
     sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
 
     parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
@@ -93,10 +94,16 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                                      false, true, false);
 
     parameters.createAndAddParameter("ratio", "Ratio", String(),
-                                NormalisableRange<float>(0.0f, 10.0, 1.0f),
+                                NormalisableRange<float>(1.0f, 10.0, 1.0f),
                                 2.0f,
                                 [](float value) { return "1:" + String (value, 1); }, // return 1:n
                                 [](const String& text) { return text.substring(3).getFloatValue(); }); // retrieve n
+    
+  /*  parameters.addParameterListener("attack", this);
+    parameters.addParameterListener("release", this);
+    parameters.addParameterListener("threshold", this);
+    parameters.addParameterListener("makeUpGain", this);
+    parameters.addParameterListener("ratio", this); */
     
     parameters.state = ValueTree (Identifier ("AmericanUniversityCompressor"));
 }
@@ -169,8 +176,8 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    currentGain = 1.0f;
-}
+    currentGainFactor = 1.0f;
+    }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
 {
@@ -244,6 +251,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     float* attack = parameters.getRawParameterValue("attack");
     float* release = parameters.getRawParameterValue("release");
     float* ratio = parameters.getRawParameterValue("ratio");
+
     
     
     // Clear the buffer in order to reduce the chances of returning feedback
@@ -254,94 +262,97 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         // get parameter values
+        
         const float* channelData = buffer.getReadPointer(channel);
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
         currentdB =    Decibels::gainToDecibels(currentRMS);
         thresholdRMS = Decibels::decibelsToGain(*threshold);
         
-        
+        currentOvershoot = (currentRMS - thresholdRMS);
+
         // We are over the threshold when we have previously been under
-        if (currentRMS > thresholdRMS && !attackFlag)
+        if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
         {
-            startingGain = currentGain;
+            startingGainFactor = currentGainFactor;
             numberOfSamplesToApplyGain = calculateNumSamples(attack, sampleRate, buffer.getNumSamples());
             attackFlag = true;
-            releaseFlag = false;
             timeSinceAttack = 0;
-            currentOvershoot = (currentRMS - thresholdRMS);
-            
-            if (*ratio == 0.0f)
-                *ratio = 1.0f;
             
             desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
             timeSinceAttack += buffer.getNumSamples();
             
             if (numberOfSamplesToApplyGain == 0)
-                blockTargetGain = gainFactor;
+                blockTargetGainFactor = gainFactor;
             else
             {
                 float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-                gainRange = startingGain - gainFactor;
-                blockTargetGain = startingGain - (rampProgress * gainRange);
+                gainFactorRange = startingGainFactor - gainFactor;
+                blockTargetGainFactor = startingGainFactor - (rampProgress * gainFactorRange);
             }
         }
         // When we are already attacking and we are above thresh
-        else if (currentRMS > thresholdRMS && attackFlag)
+        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
         {
             timeSinceAttack += buffer.getNumSamples();
             float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
             if (rampProgress >= 1)
-            {
-                blockTargetGain = gainFactor;
-                attackFlag = false;
-            }
+                blockTargetGainFactor = gainFactor;
             else
-            {
-                blockTargetGain = startingGain - (rampProgress * gainRange);
-            }
+                blockTargetGainFactor = startingGainFactor - (rampProgress * gainFactorRange);
         }
         
         // When we first go back under after previously attacking
         else if (currentRMS <= thresholdRMS && attackFlag)
         {
             attackFlag = false;
-            releaseFlag = true;
-            startingGain = currentGain;
+            startingGainFactor = currentGainFactor;
             numberOfSamplesToApplyGain = calculateNumSamples(release, sampleRate, buffer.getNumSamples());
-            timeSinceRelease = 0; // time since release TODO change
+            timeSinceRelease = 0;
             gainFactor = 1.0f;
             timeSinceRelease += buffer.getNumSamples();
             if (numberOfSamplesToApplyGain == 0)
-                blockTargetGain = gainFactor;
+                blockTargetGainFactor = gainFactor;
             else
             {
                 float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
-                gainRange = startingGain + gainFactor ;
-                blockTargetGain = startingGain + (rampProgress * gainRange);
+                gainFactorRange = gainFactor - startingGainFactor;
+                blockTargetGainFactor = startingGainFactor + (rampProgress * gainFactorRange);
             }
         }
         
         // When we are under the threshold and releasing. This is also our starting condition if we're below thresh
-        else if (currentRMS <= thresholdRMS && releaseFlag)
+        else if (currentRMS <= thresholdRMS && !attackFlag)
         {
             timeSinceRelease += buffer.getNumSamples();
             float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
             if (rampProgress >= 1)
-            {
-                blockTargetGain = gainFactor;
-            }
+                blockTargetGainFactor = gainFactor;
             else
-                blockTargetGain = startingGain + (rampProgress * gainRange);
+                blockTargetGainFactor = startingGainFactor + (rampProgress * gainFactorRange);
         }
         
-        buffer.applyGainRamp(0, buffer.getNumSamples(), currentGain, blockTargetGain);
-        currentGain = blockTargetGain;
-        
+        buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
+        currentGainFactor = blockTargetGainFactor;
         // Convert the gain to a dB value first, then apply as a dB value.
         buffer.applyGain(Decibels::decibelsToGain(*makeupGain));
+        lastOvershoot = currentOvershoot;
     }
 }
+
+// TODO
+/*
+void AmericanUniversityCompressorAudioProcessor::parameterChanged(const String& parameter, float newValue)
+{
+    if(parameter.endsWith(" dB"))
+        newValue = parameter.trimCharactersAtEnd(" dB").getFloatValue();
+    else if (parameter.endsWith (" ms"))
+         newValue = parameter.trimCharactersAtEnd(" ms").getFloatValue();
+    else if (parameter.endsWith(" s"))
+         newValue = parameter.trimCharactersAtEnd(" s").getFloatValue();
+    else
+        newValue = parameter.trimCharactersAtStart ("1:").getFloatValue();
+}*/
 
 //==============================================================================
 bool AmericanUniversityCompressorAudioProcessor::hasEditor() const

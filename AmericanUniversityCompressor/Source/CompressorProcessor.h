@@ -6,11 +6,7 @@
     Author:  Erik Whipp
  
     This file will help calculate the required preliminaries to effectively
-    process the incoming audio. The following are the calculations:
- 
-    calculateOvershoot = RMS - Threshold
-    calculateDesiredGain = (Overshoot / ratio) + threshold
-    calculateGainFactor = desiredGain / RMS
+    process the incoming audio.
   ==============================================================================
 */
 
@@ -46,6 +42,70 @@ public:
      *
      *
      */
+    
+    
+/* We should only need the following for this class
+ *      currentRMS, currentThreshold, currentGain, NoSamplesApplyGain, attackFlag
+ *          The mathematical functions will be calculated separately
+ */
+    
+    // This should return blockTargetGain
+    // Add block size to timeSinceAttack After this
+    float beginAttack(float currentGain, float numberOfSamplesToApplyGain, float currentRMS,
+                      float thresholdRMS, bool attackFlag, float* ratio)
+    {
+        initCurrentGain(currentGain);
+        attackFlag = true;
+        timeSinceAttack = 0;
+        overshoot = calculateOvershoot(currentRMS, thresholdRMS);
+        ratioHandler(ratio);
+        desiredGain = calculateDesiredGain(overshoot, thresholdRMS, *ratio);
+        gainFactor = calculateGainFactor(desiredGain, currentRMS);
+        
+        attackRampProgress(timeSinceAttack, numberOfSamplesToApplyGain, gainFactor,
+                           blockTargetGain, startingGain);
+        return blockTargetGain;
+    }
+    
+    void continueAttack(float timeSinceAttack, float numberOfSamplesToApplyGain)
+    {
+        
+    }
+    
+    void beginRelease()
+    {
+        
+    }
+    
+    void continueRelease()
+    {
+        
+    }
+    
+    void attackRampProgress(float timeSinceAttack, float numberOfSamplesToApplyGain,
+                            float gainFactor, float blockTarget, float gainRightNow)
+    {
+        if (numberOfSamplesToApplyGain == 0)
+            blockTarget = gainFactor;
+        else
+        {
+            float currentProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+            gainRange = gainRightNow - gainFactor;
+            blockTarget = startingGain - (currentProgress * gainRange);
+        }
+    }
+    
+    void ratioHandler(float* ratio)
+    {
+        if (*ratio == 0.0f)
+            *ratio = 1.0f;
+    }
+    
+    void initCurrentGain(float currentGain)
+    {
+        startingGain = currentGain;
+    }
+    
     float calculateOvershoot(float currentRMS, float currentThreshold)
     {
         overshoot = currentRMS - currentThreshold;
@@ -66,10 +126,17 @@ public:
     }
     
     
+    
+    
 private:
     float timeSinceAttack;
     float gainFactor;
     float desiredGain;
     float overshoot;
+    float startingGain;
+    float gainRange;
+    float blockTargetGain;
+    
+    bool attackFlag;
 };
 

@@ -54,7 +54,8 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(rms2DBValue);
     addAndMakeVisible(rms2DBValueLabel);
     addAndMakeVisible(currentGainEditor);
-    
+    addAndMakeVisible(currentThresholdRMS);
+    processor.addChangeListener (this);
     startTimerHz(30);
     setSize(580, 350);
 }
@@ -84,11 +85,13 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
                           dontSendNotification);
 
     // Update the dB meter
-    rms2DBValue.setLeveldB(abs(processor.currentdB));
+    rms2DBValue.setLeveldB(processor.currentdB);
     rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
                              dontSendNotification);
     
-    currentGainEditor.setText(std::to_string(processor.currentGain) + " current gain", dontSendNotification);
+    
+    currentThresholdRMS.setText(std::to_string(processor.thresholdRMS), dontSendNotification);
+    currentGainEditor.setText(std::to_string(processor.currentGainFactor) + " current gain", dontSendNotification);
 }
 
 //==============================================================================
@@ -106,6 +109,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
 {
     Rectangle<int> pluginWindow = getLocalBounds();
     currentGainEditor.setBounds(240, 50, 25, 300);
+    currentThresholdRMS.setBounds(190, 50, 100, 100);
     auto MeterArea = pluginWindow.removeFromLeft(100);
     auto sliderLabelArea = pluginWindow.removeFromTop(50);
     thresholdLabel.setBounds(sliderLabelArea.removeFromLeft(100));
@@ -131,4 +135,10 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     rmsValueLabel.setBounds(LabelArea.removeFromLeft(50));
     rms2DBValue.setBounds(MeterArea.removeFromLeft(50));
     rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(50));
+}
+
+void AmericanUniversityCompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
+{
+    ignoreUnused(sender);
+    repaint();
 }

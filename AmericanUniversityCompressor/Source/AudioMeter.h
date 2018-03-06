@@ -42,7 +42,7 @@ public:
         if (level >= 0)
             g.fillRect(0.0f, 0.0f, (float) getWidth(), (float) getHeight() * level);
         if (level < 0)
-            g.fillRect(0.0f, 0.0f, (float) getWidth(), ((float) getHeight() * level) + 100);
+            g.fillRect(0.0f, 0.0f, (float) getWidth(), ((float) getHeight() * abs(level) / 100));
     }
     
     // The primary function, limits the level between 0.0 and 1.0, then repaints the component.

@@ -16,16 +16,18 @@
 //==============================================================================
 /**
 */
-class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor
+class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor,
+                                                    public ChangeBroadcaster
 {
 public:
     //==============================================================================
     AmericanUniversityCompressorAudioProcessor();
     ~AmericanUniversityCompressorAudioProcessor();
 
-    float currentGain;
+    float currentGainFactor;
     float currentdB;
     float currentRMS;
+    float thresholdRMS;
     float calculateOvershoot(float rmsAmp, float threshold);
     float calculateDesiredGain(float threshold, float ratio, float Overshoot);
     float calculateGainFactor(float desiredGain, float rmsAmp);
@@ -36,6 +38,7 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
+   // void parameterChanged(const String& parameter, float newValue) override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -69,14 +72,14 @@ public:
 private:
     
     AudioProcessorValueTreeState parameters;
-    float blockTargetGain;
+    float blockTargetGainFactor;
     float currentOvershoot;
     float desiredGain;
     float gainFactor;
-    float thresholdRMS;
     float numberOfSamplesToApplyGain;
-    float startingGain;
-    float gainRange;
+    float startingGainFactor;
+    float gainFactorRange;
+    float lastOvershoot;
     
     double sampleRate;
     
