@@ -4,23 +4,12 @@
     This file was auto-generated!
 
     It contains the basic framework code for a JUCE plugin processor.
-
- 
-    For 20 - 2 - 18
-    Attack/Release to millis -- Check!
-    When attack/release are 0  -- Check!
-    Makeup Gain as an additive to normal gain  Check!
-    Test signals for attack/release
-    Display the currentGain etc on a label  Check!
- 
   ==============================================================================
 */
 
 #include "PluginProcessor.h"
 #include "CompressorProcessor.h"
 #include "PluginEditor.h"
-
-
 //==============================================================================
 AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -39,7 +28,7 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
     attackFlag = false;
     releaseFlag = true;
     timeSinceAttack = 0;
-    timeSinceRelease = 0; // set this to 1 so that we initiali
+    timeSinceRelease = 0;
     numberOfSamplesToApplyGain = 1;
     lastOvershoot = -1;
     sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
@@ -98,12 +87,6 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                                 2.0f,
                                 [](float value) { return "1:" + String (value, 1); }, // return 1:n
                                 [](const String& text) { return text.substring(3).getFloatValue(); }); // retrieve n
-    
-  /*  parameters.addParameterListener("attack", this);
-    parameters.addParameterListener("release", this);
-    parameters.addParameterListener("threshold", this);
-    parameters.addParameterListener("makeUpGain", this);
-    parameters.addParameterListener("ratio", this); */
     
     parameters.state = ValueTree (Identifier ("AmericanUniversityCompressor"));
 }
@@ -230,12 +213,8 @@ float AmericanUniversityCompressorAudioProcessor::calculateNumSamples(float* sli
 {
     float timeToWaste;
     float sliderValue = *slider;
-    // Convert to seconds
     sliderValue = *slider / 1000;
-    // Multiply by sample rate
-    // How many samples we should waste.
     timeToWaste = sliderValue * n;
-    // If blocksize is greater than the samples we should waste, we should just go straight to the value
     if (blockSize > timeToWaste) { timeToWaste = 0;}
     return timeToWaste;
 }
@@ -246,13 +225,13 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
+    
+    // Get our parameter values.
     float* makeupGain = parameters.getRawParameterValue("makeUpGain");
     float* threshold = parameters.getRawParameterValue("threshold");
     float* attack = parameters.getRawParameterValue("attack");
     float* release = parameters.getRawParameterValue("release");
     float* ratio = parameters.getRawParameterValue("ratio");
-
-    
     
     // Clear the buffer in order to reduce the chances of returning feedback
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -261,13 +240,10 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        // get parameter values
-        
         const float* channelData = buffer.getReadPointer(channel);
         currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
         currentdB =    Decibels::gainToDecibels(currentRMS);
         thresholdRMS = Decibels::decibelsToGain(*threshold);
-        
         currentOvershoot = (currentRMS - thresholdRMS);
 
         // We are over the threshold when we have previously been under
@@ -280,6 +256,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             
             desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
             gainFactor = desiredGain / currentRMS;
+            
             timeSinceAttack += buffer.getNumSamples();
             
             if (numberOfSamplesToApplyGain == 0)
@@ -334,25 +311,12 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         
         buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
         currentGainFactor = blockTargetGainFactor;
+        
         // Convert the gain to a dB value first, then apply as a dB value.
         buffer.applyGain(Decibels::decibelsToGain(*makeupGain));
         lastOvershoot = currentOvershoot;
     }
 }
-
-// TODO
-/*
-void AmericanUniversityCompressorAudioProcessor::parameterChanged(const String& parameter, float newValue)
-{
-    if(parameter.endsWith(" dB"))
-        newValue = parameter.trimCharactersAtEnd(" dB").getFloatValue();
-    else if (parameter.endsWith (" ms"))
-         newValue = parameter.trimCharactersAtEnd(" ms").getFloatValue();
-    else if (parameter.endsWith(" s"))
-         newValue = parameter.trimCharactersAtEnd(" s").getFloatValue();
-    else
-        newValue = parameter.trimCharactersAtStart ("1:").getFloatValue();
-}*/
 
 //==============================================================================
 bool AmericanUniversityCompressorAudioProcessor::hasEditor() const
@@ -371,14 +335,18 @@ void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBloc
     // store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    
+    ScopedPointer<XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // estore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    
+    ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState != nullptr)
+        if (xmlState->hasTagName (parameters.state.getType()))
+            parameters.state = ValueTree::fromXml (*xmlState);
 }
 
 //==============================================================================

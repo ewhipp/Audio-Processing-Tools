@@ -36,7 +36,6 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible (ratioSlider);
     ratioAttachment = new SliderAttachment (valueTreeState, "ratio", *ratioSlider);
     
-    // horizontal Sliders
     makeupGainLabel.setText("Make-up", dontSendNotification);
     addAndMakeVisible(makeupGainLabel);
     makeupGainSlider = new TextFormatSlider (Slider::LinearVertical, Slider::TextBoxBelow, 1);
@@ -49,6 +48,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(thresholdSlider);
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
+    // Meters and debugging
     addAndMakeVisible(rmsValue);
     addAndMakeVisible(rmsValueLabel);
     addAndMakeVisible(rms2DBValue);
@@ -71,10 +71,9 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
     ratioSlider = nullptr;
     attackSlider = nullptr;
     releaseSlider = nullptr;
+    thresholdSlider = nullptr;
+    makeupGainSlider = nullptr;
 }
-
-
- // This function handles the acquisition of the slider values/ the changes.
 
 // Repaint the meters. For more info on meter creation see AudioMeter.h
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
@@ -88,7 +87,6 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rms2DBValue.setLeveldB(processor.currentdB);
     rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
                              dontSendNotification);
-    
     
     currentThresholdRMS.setText(std::to_string(processor.thresholdRMS), dontSendNotification);
     currentGainEditor.setText(std::to_string(processor.currentGainFactor) + " current gain", dontSendNotification);
