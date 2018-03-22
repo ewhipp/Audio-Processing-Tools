@@ -15,76 +15,69 @@
 class CompressorProcessor
 {
 public:
-    CompressorProcessor(int SampleRate, int BlockSize)
-    {
-        sampleRate = SampleRate;
-        blockSize = BlockSize;
-    }
+    CompressorProcessor(){}
     
     ~CompressorProcessor() {}
    
-    void beginAttack(float currentGain, float numberOfSamplesToApplyGain, float currentRMS,
-                      float thresholdRMS, bool attackFlag, float* ratio, float blockTargetGain)
-    {
-        initCurrentGain (currentGain);
-        attackFlag = true;
-        timeSinceAttack = 0;
-        overshoot = calculateOvershoot(currentRMS, thresholdRMS);
-        desiredGain = calculateDesiredGain(overshoot, thresholdRMS, *ratio);
-        gainFactor = calculateGainFactor(desiredGain, currentRMS);
-        
-        timeSinceAttack += blockSize;
-        attackRampProgress(timeSinceAttack, numberOfSamplesToApplyGain, gainFactor,
-                           blockTargetGain, startingGain);
-        
-    }
-    
-    void continueAttack(float timeSinceAttack, float numberOfSamplesToApplyGain)
-    {
-        timeSinceAttack += blockSize;
-        float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-        if (rampProgress >= 1)
-            blockTargetGain = gainFactor;
-        else
-            blockTargetGain = startingGain - (rampProgress * gainFactor);
-    }
-    
-    void beginRelease(float currentGain, float numberOfSamplesToApplyGain, float blockTargetGain)
-    {
-        attackFlag = false;
-        initCurrentGain (currentGain);
-        timeSinceRelease = 0;
-        gainFactor = 1.0f;
-        timeSinceRelease += blockSize;
-        
-        releaseRampProgress(timeSinceRelease, numberOfSamplesToApplyGain,
-                            gainFactor, blockTargetGain, startingGain);
-    }
-    
-    void continueRelease(float timeSinceRelease, float blockSize, float numberOfSamplesToApplyGain,
-                         float gainFactor, float gainFactorRange, float blockTargetGainFactor)
-    {
-        timeSinceRelease += blockSize;
-        float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
-        if (rampProgress >= 1)
-            blockTargetGainFactor = gainFactor;
-        else
-            blockTargetGainFactor = startingGain + (rampProgress * gainFactorRange);
-    }
-    
-    void attackRampProgress(float timeSinceAttack, float numberOfSamplesToApplyGain,
-                            float gainFactor, float blockTarget, float gainRightNow)
+    void beginAttack(float numberOfSamplesToApplyGain, float blockTargetGain, int timeSinceAttack,
+                     float gainFactor, float startingGainFactor)
     {
         if (numberOfSamplesToApplyGain == 0)
             blockTargetGain = gainFactor;
         else
         {
-            float currentProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-            gainRange = gainRightNow - gainFactor;
-            blockTargetGain = startingGain - (currentProgress * gainRange);
+            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+            float gainFactorRange = startingGainFactor - gainFactor;
+            blockTargetGain = startingGainFactor - (rampProgress * gainFactorRange);
         }
     }
     
+    void continueAttack(float timeSinceAttack, float numberOfSamplesToApplyGain, float blockTargetGain, float gainFactor, float startingGainFactor)
+    {
+        float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+        if (rampProgress >= 1)
+            blockTargetGain = gainFactor;
+        else
+            blockTargetGain = startingGainFactor - (rampProgress * gainFactor);
+    }
+    
+    void beginRelease(float currentGain, float numberOfSamplesToApplyGain, float blockTargetGain, float timeSinceRelease)
+    {
+        float startingGainFactor = currentGain;
+        timeSinceRelease = 0;
+        float gainFactor = 1.0f;
+        if (numberOfSamplesToApplyGain == 0)
+            blockTargetGain = gainFactor;
+        else
+        {
+            float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
+            float gainFactorRange = gainFactor - startingGainFactor;
+            blockTargetGain = startingGainFactor + (rampProgress * gainFactorRange);
+        }
+    }
+    
+    void continueRelease(float timeSinceRelease, float numberOfSamplesToApplyGain,
+                         float gainFactorRange, float blockTargetGainFactor,
+                         float startingGainFactor, float gainFactor)
+    {
+        float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
+        if (rampProgress >= 1)
+            blockTargetGainFactor = gainFactor;
+        else
+            blockTargetGainFactor = startingGainFactor + (rampProgress * gainFactorRange);
+    }
+    
+    void attackRampProgress(float timeSinceAttack, float numberOfSamplesToApplyGain,
+                            float gainFactor, float blockTarget, float startingGainFactor,
+                            float gainFactorRange)
+    {
+        float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
+        if (rampProgress >= 1)
+            blockTarget = gainFactor;
+        else
+            blockTarget = startingGainFactor - (rampProgress * gainFactorRange);
+    }
+/*
     void releaseRampProgress (float timeSinceRelease, float numberOfSamplesToApplyGain,
                               float gainFactor, float blockTarget, float gainRightNow)
     {
@@ -93,27 +86,27 @@ public:
         else
         {
             float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
-            gainRange = gainFactor - gainRightNow;
-            blockTarget = gainFactor + (rampProgress * gainRange);
+            gainFactorRange = gainFactor - gainRightNow;
+            blockTarget = gainFactor + (rampProgress * gainFactorRange);
         }
     }
     
     void initCurrentGain(float currentGain)
     {
-        startingGain = currentGain;
+        startingGainFactor = currentGain;
     }
     
     float calculateOvershoot(float currentRMS, float currentThreshold)
     {
-        overshoot = currentRMS - currentThreshold;
-        return overshoot;
+        currentOvershoot = currentRMS - currentThreshold;
+        return currentOvershoot;
     }
     
     float calculateDesiredGain(float currentOvershoot, float currentThreshold,
                               float currentRatio)
     {
-        desiredGain = (currentOvershoot / currentRatio) + currentThreshold;
-        return desiredGain;
+        desiredGainFactor = (currentOvershoot / currentRatio) + currentThreshold;
+        return desiredGainFactor;
     }
     
     float calculateGainFactor(float desiredGain, float currentRMS)
@@ -122,22 +115,25 @@ public:
         return gainFactor;
     }
     
+    void setBlockSize(int m)
+    {
+        blockSize = m;
+    }
     
+    void setParentSampleRate (int n)
+    {
+        sampleRate = n;
+    }
     
-private:
-    float timeSinceAttack;
-    float timeSinceRelease;
+    int getBlockSize()
+    {
+        return blockSize;
+    }
     
-    float gainFactor;
-    float desiredGain;
-    float overshoot;
-    float startingGain;
-    float gainRange;
-    float blockTargetGain;
-    
-    float sampleRate;
-    float blockSize;
-    
-    bool attackFlag;
+    int getParentSampleRate()
+    {
+        return sampleRate;
+    }
+    */
 };
 

@@ -11,13 +11,16 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "CompressorProcessor.h"
+
 
 
 //==============================================================================
 /**
 */
 class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor,
-                                                    public ChangeBroadcaster
+                                                    public ChangeBroadcaster,
+                                                    public CompressorProcessor
 {
 public:
     //==============================================================================
@@ -68,6 +71,14 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    void beginAttack(float numberOfSamplesToApplyGain, float blockTargetGain, int timeSinceAttack,
+                     float gainFactor, float startingGainFactor, float* ratio, bool attackF);
+    void continueAttack(float timeSinceAttack, float numberOfSamplesToApplyGain,
+                        float blockTargetGain, float gainFactor, float startingGainFactor);
+    void beginRelease(float currentGain, float numberOfSamplesToApplyGain, float blockTargetGain, float timeSinceRelease);
+    void continueRelease(float timeSinceRelease, float numberOfSamplesToApplyGain,
+                         float gainFactorRange, float blockTargetGainFactor,
+                         float startingGainFactor, float gainFactor);
     
 private:
     
