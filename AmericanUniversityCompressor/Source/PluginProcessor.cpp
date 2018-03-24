@@ -23,12 +23,9 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
 parameters(*this, nullptr)
 #endif
 {
-    gainFactor =   1.0f;
     attackFlag = false;
-    releaseFlag = true;
-    timeSinceAttack = 0;
-    timeSinceRelease = 0;
-    numberOfSamplesToApplyGain = 1;
+    CompressorProcessor::setTimeSinceRelease (0);
+    CompressorProcessor::setTimeSinceRelease (0);
     lastOvershoot = -1;
 
     parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
@@ -158,6 +155,8 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentGainFactor = 1.0f;
+    CompressorProcessor::setParentSampleRate(sampleRate);
+    CompressorProcessor::setBlockSize(samplesPerBlock);
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
@@ -244,46 +243,24 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         currentdB =    Decibels::gainToDecibels(currentRMS);
         thresholdRMS = Decibels::decibelsToGain(*threshold);
         currentOvershoot = (currentRMS - thresholdRMS);
-        sampleRate = AmericanUniversityCompressorAudioProcessor::getSampleRate();
 
-        // We are over the threshold when we have previously been under
         if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
         {
-            startingGainFactor = currentGainFactor;
-            numberOfSamplesToApplyGain = calculateNumSamples(attack, sampleRate, buffer.getNumSamples());
-            timeSinceAttack = 0;
-            beginAttack(numberOfSamplesToApplyGain, blockTargetGainFactor,
-                                             timeSinceAttack, gainFactor, startingGainFactor, ratio, attackFlag);
-            timeSinceAttack += buffer.getNumSamples();
-        }
-        // When we are already attacking and we are above thresh
-        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
-        {
-            timeSinceAttack += buffer.getNumSamples();
-
-            continueAttack(timeSinceAttack, numberOfSamplesToApplyGain,
-                            blockTargetGainFactor, gainFactor, startingGainFactor);
+            attackFlag = true;
+            blockTargetGainFactor = CompressorProcessor::beginAttack (currentGainFactor, ratio, attack,
+                                             currentOvershoot, thresholdRMS, currentRMS);
         }
         
-        // When we first go back under after previously attacking
+        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
+            blockTargetGainFactor = CompressorProcessor::continueAttack();
+        
         else if (currentRMS <= thresholdRMS && attackFlag)
         {
             attackFlag = false;
-            startingGainFactor = currentGainFactor;
-            numberOfSamplesToApplyGain = calculateNumSamples(release, sampleRate, buffer.getNumSamples());
-            timeSinceRelease = 0;
-            beginRelease(currentGainFactor, numberOfSamplesToApplyGain,
-                                              blockTargetGainFactor, timeSinceRelease);
-            timeSinceRelease += buffer.getNumSamples();
+            blockTargetGainFactor = CompressorProcessor::beginRelease(currentGainFactor, release);
         }
-        
-        // When we are under the threshold and releasing. This is also our starting condition if we're below thresh
         else if (currentRMS <= thresholdRMS && !attackFlag)
-        {
-            continueRelease(timeSinceRelease, numberOfSamplesToApplyGain,
-                                                 gainFactor, blockTargetGainFactor, currentGainFactor, gainFactor);
-            timeSinceRelease += buffer.getNumSamples();
-        }
+            blockTargetGainFactor = CompressorProcessor::continueRelease();
 
         
         buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
@@ -326,42 +303,6 @@ void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void
             parameters.state = ValueTree::fromXml (*xmlState);
 }
 
-//==============================================================================
-void AmericanUniversityCompressorAudioProcessor::beginAttack(float numberOfSamples, float blockTarget, int timeSinceAtt, float gainF, float startingGain, float* ratio, bool attackF)
-{
-    startingGain = currentGainFactor;
-    attackF = true;
-    timeSinceAtt = 0;
-    desiredGain  = (currentOvershoot / *ratio) + thresholdRMS;
-    gainF = desiredGain / currentRMS;
-    if (numberOfSamplesToApplyGain == 0)
-        blockTargetGainFactor = gainFactor;
-    else
-    {
-        float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-        gainFactorRange = startingGainFactor - gainFactor;
-        blockTargetGainFactor = startingGainFactor - (rampProgress * gainFactorRange);
-    }
-}
-
-void AmericanUniversityCompressorAudioProcessor::continueAttack(float timeSinceAtt, float numberOfSamples, float blockTarget, float gainF, float startingGain)
-{
-    float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-    if (rampProgress >= 1)
-        blockTarget = gainFactor;
-    else
-        blockTargetGainFactor = startingGain - (rampProgress * gainFactorRange);
-}
-
-void AmericanUniversityCompressorAudioProcessor::beginRelease(float currentG, float numberOfSamples, float blockTarget, float timeSinceRel)
-{
-    
-}
-
-void AmericanUniversityCompressorAudioProcessor::continueRelease(float timeSinceRel, float numberOfSamples, float gainFR, float blockTarget, float startingGain, float gainF)
-{
-    
-}
 //==============================================================================
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

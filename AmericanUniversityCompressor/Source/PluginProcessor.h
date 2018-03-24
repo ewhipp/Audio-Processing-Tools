@@ -71,34 +71,14 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    void beginAttack(float numberOfSamplesToApplyGain, float blockTargetGain, int timeSinceAttack,
-                     float gainFactor, float startingGainFactor, float* ratio, bool attackF);
-    void continueAttack(float timeSinceAttack, float numberOfSamplesToApplyGain,
-                        float blockTargetGain, float gainFactor, float startingGainFactor);
-    void beginRelease(float currentGain, float numberOfSamplesToApplyGain, float blockTargetGain, float timeSinceRelease);
-    void continueRelease(float timeSinceRelease, float numberOfSamplesToApplyGain,
-                         float gainFactorRange, float blockTargetGainFactor,
-                         float startingGainFactor, float gainFactor);
-    
 private:
     
     AudioProcessorValueTreeState parameters;
-    float blockTargetGainFactor;
-    float currentOvershoot;
-    float desiredGain;
-    float gainFactor;
-    float numberOfSamplesToApplyGain;
-    float startingGainFactor;
-    float gainFactorRange;
     float lastOvershoot;
-    
-    double sampleRate;
-    
-    int timeSinceRelease;
-    int timeSinceAttack;
+    float currentOvershoot;
+    float blockTargetGainFactor;
     bool attackFlag;
-    bool releaseFlag;
-    bool isReleasing;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
 };
