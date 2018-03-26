@@ -1,0 +1,38 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2017
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Standalone Plugin", "ConvolutionReverb_StandalonePlugin.vcxproj", "{84927B88-1F5D-3B0C-C103-3F407C43F528}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E} = {5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - VST", "ConvolutionReverb_VST.vcxproj", "{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E} = {5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Shared Code", "ConvolutionReverb_SharedCode.vcxproj", "{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Debug|x64.ActiveCfg = Debug|x64
+		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Debug|x64.Build.0 = Debug|x64
+		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Release|x64.ActiveCfg = Release|x64
+		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Release|x64.Build.0 = Release|x64
+		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Debug|x64.ActiveCfg = Debug|x64
+		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Debug|x64.Build.0 = Debug|x64
+		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Release|x64.ActiveCfg = Release|x64
+		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Release|x64.Build.0 = Release|x64
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Debug|x64.ActiveCfg = Debug|x64
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Debug|x64.Build.0 = Debug|x64
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Release|x64.ActiveCfg = Release|x64
+		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
