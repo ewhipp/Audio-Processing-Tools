@@ -15,9 +15,17 @@
 //==============================================================================
 /**
 */
-class ConvolutionReverbAudioProcessor  : public AudioProcessor
+class ConvolutionReverbAudioProcessor  : public AudioProcessor,
+                                         public ChangeBroadcaster
 {
 public:
+    float size;
+    float width;
+    float dry;
+    float wet;
+    float gain;
+    float preDelay;
+    
     //==============================================================================
     ConvolutionReverbAudioProcessor();
     ~ConvolutionReverbAudioProcessor();
@@ -54,10 +62,12 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
-private:
     
+private:
     AudioProcessorValueTreeState parameters;
+    Reverb reverbState;
+    Reverb::Parameters reverbParams;
+    void updateParams();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };

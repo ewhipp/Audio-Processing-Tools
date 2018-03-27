@@ -21,9 +21,89 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+parameters(*this, nullptr)
 {
+    // Pre-delay
+    parameters.createAndAddParameter ("pre_delay", "Pre-delay", TRANS ("Pre-delay"),
+                                      NormalisableRange <float> (0.0f, 5000.0f, 0.001f), 0.0f,
+                                      [] ( float value )
+                                      {
+                                          if ( value < 0.001f ) return String ( value ) + "µs";
+                                          if ( value >= 1000.0f ) return String ( value ) + "s";
+                                          else return String ( value ) + "ms";
+                                      },
+                                      [] (const String& text)
+                                      {
+                                         int lengthNeeded = text.length() - 2;
+                                         if (text.containsAnyOf("µs")) return text.substring(0, lengthNeeded).getFloatValue() * 1000;
+                                         if (text.containsAnyOf("s")) return text.substring(0, lengthNeeded + 1).getFloatValue() / 1000;
+                                         else
+                                             return text.substring(0, lengthNeeded).getFloatValue(); // ms
+                                      }, false, true, false);
+    
+    // Size
+    parameters.createAndAddParameter ("size", "Size", TRANS ("Size"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      { return String ( value * 100.0f ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                      false, true, false );
+    // Dry
+    parameters.createAndAddParameter ("dry", "Dry", TRANS ("Dry"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      { return String ( value * 100.0f ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                        false, true, false );
+    // Wet
+    parameters.createAndAddParameter ("wet", "Wet", TRANS ("Wet"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      { return String ( value * 100.0f ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                      false, true, false );
+    // Width
+    parameters.createAndAddParameter ("width", "Width", TRANS ("Width"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      { return String ( value ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                      false, true, false );
+    // Gain
+    parameters.createAndAddParameter("gain", "Gain", TRANS("Gain"),
+                                     NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
+                                     [] (float value) { return String (Decibels::gainToDecibels(value)) + " dB"; },
+                                     [] (const String& text) { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); },
+                                     false, true, false);
+    
+    // Damping
+    parameters.createAndAddParameter ("damping", "Damping", TRANS ("Damping"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      { return String ( value * 100.0f ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                      false, true, false );
+    
+    // Freeze mode
+    parameters.createAndAddParameter ("freeze", "Freeze", TRANS ("Freeze"),
+                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
+                                      [] ( float value )
+                                      {  return String ( value * 100.0f ) + "%"; },
+                                      [] ( const String& text )
+                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
+                                      false, true, false );
+    // Freq
+    // What to put here?
+    
+    
+    parameters.state = ValueTree (Identifier ("ConvolutionReverb"));
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
@@ -95,8 +175,14 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    reverbState.reset();
+    reverbParams.dryLevel = 0.2f;
+    reverbParams.wetLevel = 0.0f;
+    reverbParams.roomSize = 0.0f;
+    reverbParams.damping = 0.0f;
+    reverbParams.freezeMode = 0.4;
+    reverbState.setSampleRate (sampleRate);
+    reverbState.setParameters (reverbParams);
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -134,28 +220,52 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+    
+    // float*  preDelay = parameters.getRawParameterValue("pre_delay");
+    float*  gain = parameters.getRawParameterValue("gain");
+    float*  width = parameters.getRawParameterValue("width");
+    float*  dry = parameters.getRawParameterValue("dry");
+    float*  wet = parameters.getRawParameterValue("wet");
+    float*  size = parameters.getRawParameterValue("size");
+    float* damping = parameters.getRawParameterValue("damping");
+    float* freeze = parameters.getRawParameterValue("freeze");
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
+   
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+       // auto* channelData = buffer.getWritePointer (channel);
+        
+        // Reset params
+        
+        reverbParams.dryLevel = *dry;
+        reverbParams.wetLevel = *wet;
+        reverbParams.roomSize = *size;
+        reverbParams.damping = *damping;
+        reverbParams.freezeMode = *freeze;
+        reverbParams.width = *width;
+        reverbState.setParameters (reverbParams);
 
-        // ..do something to the data...
+        updateParams();
+        
+        // If mono
+        if (totalNumInputChannels == 1)
+            reverbState.processMono (buffer.getWritePointer(0), buffer.getNumSamples());
+        
+        // If Stereo
+        else if (totalNumInputChannels == 2)
+            reverbState.processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), buffer.getNumSamples());
+        
+        // Apply the gain
+        buffer.applyGain(Decibels::decibelsToGain(*gain));
     }
+}
+
+void ConvolutionReverbAudioProcessor::updateParams()
+{
+    
 }
 
 //==============================================================================
@@ -166,7 +276,7 @@ bool ConvolutionReverbAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* ConvolutionReverbAudioProcessor::createEditor()
 {
-    return new ConvolutionReverbAudioProcessorEditor (*this);
+    return new ConvolutionReverbAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================
@@ -175,12 +285,18 @@ void ConvolutionReverbAudioProcessor::getStateInformation (MemoryBlock& destData
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    ScopedPointer<XmlElement> xml (parameters.state.createXml());
+    copyXmlToBinary (*xml, destData);
 }
 
 void ConvolutionReverbAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    if (xmlState != nullptr)
+        if (xmlState->hasTagName (parameters.state.getType()))
+            parameters.state = ValueTree::fromXml (*xmlState);
 }
 
 //==============================================================================

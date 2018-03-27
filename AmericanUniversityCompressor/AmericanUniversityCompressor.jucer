@@ -4,14 +4,14 @@
               reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.AmericanUniversityCompressor"
               includeBinaryInAppConfig="1" cppLanguageStandard="11" companyCopyright=""
-              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="1" buildRTAS="0"
               buildAAX="1" buildStandalone="1" enableIAA="0" pluginName="AmericanUniversityCompressor"
               pluginDesc="AmericanUniversityCompressor" pluginManufacturer="yourcompany"
               pluginManufacturerCode="Manu" pluginCode="Feop" pluginChannelConfigs=""
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="AmericanUniversityCompressorAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.1">
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0">
   <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
       <FILE id="rX3puK" name="TextFormatSlider.h" compile="0" resource="0"

@@ -21,7 +21,8 @@ public:
         Gain,
         Milliseconds,
         Ratio,
-        Hertz
+        Hertz,
+        Percent
     };
     
     TextFormatSlider (SliderStyle style, TextEntryBoxPosition pos, int typeOfOutput=0) : Slider (style, pos),
@@ -34,21 +35,24 @@ public:
         switch (type)
         {
             case Level:
-                return String (value, 1) + " dB";
+                return String (value, 1) + "dB";
             case Gain:
-                return String (Decibels::gainToDecibels (value, -80.0), 1) + " dB";
+                return String (Decibels::gainToDecibels (value, -80.0), 1) + "dB";
             case Milliseconds:
                 if (value >= 1000.0)
-                    return String ((value / 1000), 2) + " s";
+                    return String ((value / 1000), 2) + "s";
                 else
-                    return String (roundToInt (value)) + " ms";
+                    return String (roundToInt (value)) + "ms";
             case Ratio:
                 return "1:" + String (value, 0);
             case Hertz:
                 if (value >= 1000.0)
-                    return String (value * 0.001, 2) + " khZ";
+                    return String (value * 0.001, 2) + "khZ";
                 else
                     return String (value, 0) + " Hz";
+            case Percent:
+                return String (roundToInt (value * 100.0f)) + "%";
+                
             default:
                 return Slider::getTextFromValue (value);
         }
@@ -61,21 +65,23 @@ public:
             case Level:
                 return text.trimCharactersAtEnd (" dB").getFloatValue();
             case Gain:
-                return Decibels::decibelsToGain (text.trimCharactersAtEnd (" dB").getFloatValue(), -80.0f);
+                return Decibels::decibelsToGain (text.trimCharactersAtEnd ("dB").getFloatValue(), -80.0f);
             case Milliseconds:
                 if (text.endsWith ("ms"))
-                    return text.trimCharactersAtEnd (" ms").getFloatValue() * 0.001f;
+                    return text.trimCharactersAtEnd ("ms").getFloatValue() * 0.001f;
                 else
-                    return text.trimCharactersAtEnd (" s").getFloatValue();
+                    return text.trimCharactersAtEnd ("s").getFloatValue();
             case Ratio:
                 return text.trimCharactersAtStart ("1:").getFloatValue();
             case Hertz:
                 if (text.endsWith ("kHz"))
-                    return text.trimCharactersAtEnd (" kHz").getFloatValue() * 1000.0;
+                    return text.trimCharactersAtEnd ("kHz").getFloatValue() * 1000.0;
                 else
-                    return text.trimCharactersAtEnd (" Hz").getFloatValue();
+                    return text.trimCharactersAtEnd ("Hz").getFloatValue();
+            case Percent:
+                return text.getFloatValue () * 0.01;
             default:
-                return Slider::getValueFromText (text.trimCharactersAtEnd (" %"));
+                return Slider::getValueFromText (text.trimCharactersAtEnd ("%"));
         }
     }
     

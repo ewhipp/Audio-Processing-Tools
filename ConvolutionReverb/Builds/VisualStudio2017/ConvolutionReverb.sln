@@ -1,17 +1,17 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2017
 
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Standalone Plugin", "ConvolutionReverb_StandalonePlugin.vcxproj", "{84927B88-1F5D-3B0C-C103-3F407C43F528}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Standalone Plugin", "ConvolutionReverb_StandalonePlugin.vcxproj", "{60F1D87D-3C9D-AA70-B84C-1611C267B935}"
 	ProjectSection(ProjectDependencies) = postProject
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E} = {5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}
+		{43E53AF0-8222-C72E-1415-1FC022DDB111} = {43E53AF0-8222-C72E-1415-1FC022DDB111}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - VST", "ConvolutionReverb_VST.vcxproj", "{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - VST", "ConvolutionReverb_VST.vcxproj", "{BD4E1A8D-F7F3-3DAB-61DC-BCD7C406DB85}"
 	ProjectSection(ProjectDependencies) = postProject
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E} = {5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}
+		{43E53AF0-8222-C72E-1415-1FC022DDB111} = {43E53AF0-8222-C72E-1415-1FC022DDB111}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Shared Code", "ConvolutionReverb_SharedCode.vcxproj", "{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvolutionReverb - Shared Code", "ConvolutionReverb_SharedCode.vcxproj", "{43E53AF0-8222-C72E-1415-1FC022DDB111}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,18 +19,18 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Debug|x64.ActiveCfg = Debug|x64
-		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Debug|x64.Build.0 = Debug|x64
-		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Release|x64.ActiveCfg = Release|x64
-		{9325B0F1-16E7-FBDF-FB6A-D5A4F6B46985}.Release|x64.Build.0 = Release|x64
-		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Debug|x64.ActiveCfg = Debug|x64
-		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Debug|x64.Build.0 = Debug|x64
-		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Release|x64.ActiveCfg = Release|x64
-		{84927B88-1F5D-3B0C-C103-3F407C43F528}.Release|x64.Build.0 = Release|x64
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Debug|x64.ActiveCfg = Debug|x64
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Debug|x64.Build.0 = Debug|x64
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Release|x64.ActiveCfg = Release|x64
-		{5FBE218D-9B2F-DD81-3193-7E6F61C8C71E}.Release|x64.Build.0 = Release|x64
+		{BD4E1A8D-F7F3-3DAB-61DC-BCD7C406DB85}.Debug|x64.ActiveCfg = Debug|x64
+		{BD4E1A8D-F7F3-3DAB-61DC-BCD7C406DB85}.Debug|x64.Build.0 = Debug|x64
+		{BD4E1A8D-F7F3-3DAB-61DC-BCD7C406DB85}.Release|x64.ActiveCfg = Release|x64
+		{BD4E1A8D-F7F3-3DAB-61DC-BCD7C406DB85}.Release|x64.Build.0 = Release|x64
+		{60F1D87D-3C9D-AA70-B84C-1611C267B935}.Debug|x64.ActiveCfg = Debug|x64
+		{60F1D87D-3C9D-AA70-B84C-1611C267B935}.Debug|x64.Build.0 = Debug|x64
+		{60F1D87D-3C9D-AA70-B84C-1611C267B935}.Release|x64.ActiveCfg = Release|x64
+		{60F1D87D-3C9D-AA70-B84C-1611C267B935}.Release|x64.Build.0 = Release|x64
+		{43E53AF0-8222-C72E-1415-1FC022DDB111}.Debug|x64.ActiveCfg = Debug|x64
+		{43E53AF0-8222-C72E-1415-1FC022DDB111}.Debug|x64.Build.0 = Debug|x64
+		{43E53AF0-8222-C72E-1415-1FC022DDB111}.Release|x64.ActiveCfg = Release|x64
+		{43E53AF0-8222-C72E-1415-1FC022DDB111}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
