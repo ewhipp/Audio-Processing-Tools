@@ -11,25 +11,36 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "FileReader.h"
 
 //==============================================================================
 /**
 */
 class ConvolutionReverbAudioProcessor  : public AudioProcessor,
-                                         public ChangeBroadcaster
+                                         public ChangeBroadcaster,
+                                         public Thread
 {
 public:
-    float size;
-    float width;
     float dry;
     float wet;
-    float gain;
     float preDelay;
     
     //==============================================================================
     ConvolutionReverbAudioProcessor();
     ~ConvolutionReverbAudioProcessor();
 
+    //==============================================================================
+    
+    // Thread safe reading of the convolution file
+    ReferenceCountedArray<FileReader> buffers;
+    FileReader::Ptr currentBuffer;
+    void openFromFileSystem ();
+    String chosenPath;
+    
+    // Remember to delete
+    long long numOSamples;
+    int numOChannels;
+    
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -51,6 +62,8 @@ public:
     bool producesMidi() const override;
     bool isMidiEffect() const override;
     double getTailLengthSeconds() const override;
+    void run() override;
+    void checkForBuffersToFree();
 
     //==============================================================================
     int getNumPrograms() override;
@@ -65,9 +78,8 @@ public:
     
 private:
     AudioProcessorValueTreeState parameters;
-    Reverb reverbState;
-    Reverb::Parameters reverbParams;
-    void updateParams();
+    AudioFormatManager formatManager;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };

@@ -20,71 +20,39 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
     addAndMakeVisible (preDelaySlider);
     preDelayAttachment = new SliderAttachment (valueTreeState, "pre_delay", *preDelaySlider);
     
-    size.setText ("Size", dontSendNotification);
-    addAndMakeVisible (size);
-    sizeSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
-    addAndMakeVisible(sizeSlider);
-    sizeAttachment = new SliderAttachment (valueTreeState, "size", *sizeSlider);
-    
     dry.setText ("Dry", dontSendNotification);
     addAndMakeVisible (dry);
     drySlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
     addAndMakeVisible (drySlider);
     dryAttachment = new SliderAttachment (valueTreeState, "dry", *drySlider);
-    
-    gain.setText("Gain", dontSendNotification);
-    addAndMakeVisible(gain);
-    gainSlider = new TextFormatSlider (Slider::LinearVertical, Slider::TextBoxBelow, 1);
-    addAndMakeVisible(gainSlider);
-    gainAttachment = new SliderAttachment (valueTreeState, "gain", *gainSlider);
-    
+
     wet.setText("Wet", dontSendNotification);
     addAndMakeVisible(wet);
     wetSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
     addAndMakeVisible(wetSlider);
     wetAttachment = new SliderAttachment (valueTreeState, "wet", *wetSlider);
     
-    width.setText("Width", dontSendNotification);
-    addAndMakeVisible(width);
-    widthSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
-    addAndMakeVisible(widthSlider);
-    widthAttachment = new SliderAttachment (valueTreeState, "width", *widthSlider);
+    addAndMakeVisible(loadFileButton);
+    loadFileButton.setButtonText("Load a convolution file..");
+    loadFileButton.onClick = [this] { loadButtonClicked(); };
     
-    freeze.setText("Freeze", dontSendNotification);
-    addAndMakeVisible(freeze);
-    freezeSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
-    addAndMakeVisible(freezeSlider);
-    freezeAttachment = new SliderAttachment (valueTreeState, "freeze", *freezeSlider);
-    
-    damping.setText("Damping", dontSendNotification);
-    addAndMakeVisible(damping);
-    dampingSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 6);
-    addAndMakeVisible(dampingSlider);
-    dampingAttachment = new SliderAttachment (valueTreeState, "damping", *dampingSlider);
+    addAndMakeVisible(viewSamplesButton);
+    viewSamplesButton.setButtonText("View the file content...");
+    viewSamplesButton.onClick = [this] { sampleButtonClicked(); };
     
     processor.addChangeListener (this);
-    setSize (780, 500);
+    setSize (300, 200);
 }
 
 ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
 {
     dryAttachment = nullptr;
     wetAttachment = nullptr;
-    gainAttachment = nullptr;
-    sizeAttachment = nullptr;
     preDelayAttachment = nullptr;
-    widthAttachment = nullptr;
-    dampingAttachment = nullptr;
-    freezeAttachment = nullptr;
     
     preDelaySlider = nullptr;
-    sizeSlider = nullptr;
     drySlider = nullptr;
-    gainSlider = nullptr;
     wetSlider = nullptr;
-    widthSlider = nullptr;
-    dampingSlider = nullptr;
-    freezeSlider = nullptr;
 }
 
 //==============================================================================
@@ -100,36 +68,21 @@ void ConvolutionReverbAudioProcessorEditor::paint (Graphics& g)
 
 void ConvolutionReverbAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
     Rectangle<int> pluginWindow = getLocalBounds();
     auto parameterArea = pluginWindow.removeFromBottom(100);
     auto parameterLabelArea = pluginWindow.removeFromBottom(25);
 
-    pre_delay.setBounds(parameterLabelArea.removeFromLeft(100));
+    pre_delay.setBounds(parameterLabelArea.removeFromLeft(130));
     preDelaySlider->setBounds(parameterArea.removeFromLeft(100));
     
     dry.setBounds(parameterLabelArea.removeFromLeft(100));
     drySlider->setBounds(parameterArea.removeFromLeft(100));
     
-    wet.setBounds(parameterLabelArea.removeFromLeft(100));
+    wet.setBounds(parameterLabelArea.removeFromLeft(35));
     wetSlider->setBounds(parameterArea.removeFromLeft(100));
     
-    size.setBounds(parameterLabelArea.removeFromLeft(100));
-    sizeSlider->setBounds(parameterArea.removeFromLeft(100));
-    
-    width.setBounds(parameterLabelArea.removeFromLeft(100));
-    widthSlider->setBounds(parameterArea.removeFromLeft(100));
-    
-    damping.setBounds(parameterLabelArea.removeFromLeft(100));
-    dampingSlider->setBounds(parameterArea.removeFromLeft(100));
-    
-    freeze.setBounds(parameterLabelArea.removeFromLeft(100));
-    freezeSlider->setBounds(parameterArea.removeFromLeft(100));
-    
-    gain.setBounds(parameterLabelArea.removeFromLeft(100));
-    gainSlider->setBounds(parameterArea.removeFromLeft(100));
-    
+    loadFileButton.setBounds (50, 30, getWidth() - 90, 20);
+    viewSamplesButton.setBounds ( 50, 60, getWidth() - 90, 20);
 }
 
 
@@ -137,4 +90,48 @@ void ConvolutionReverbAudioProcessorEditor::changeListenerCallback(ChangeBroadca
 {
     ignoreUnused (sender);
     repaint();
+}
+
+// Load a file in for convolution
+void ConvolutionReverbAudioProcessorEditor::loadButtonClicked()
+{
+    // System dialog manager
+    FileChooser chosenFile ("Select a .wav file as your impulse response for convolution.",
+                            File::nonexistent,
+                            "*.wav");
+    
+    // Notify the thread of a new file to read
+   if (chosenFile.browseForFileToOpen())
+   {
+       auto file = chosenFile.getResult();
+       auto pathToFile = file.getFullPathName();
+       processor.chosenPath.swapWith (pathToFile);
+       
+       // Probably should make the threads private
+       processor.notify();
+   }
+}
+
+// Get the audio buffer that is currently within the processor
+// view its contents
+void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
+{
+    FileReader::Ptr processAudioBuffer (processor.currentBuffer);
+    auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
+
+    if (currentAudioSampleBuffer != nullptr)
+    {
+        // The values we want to inspect (file values from the input file).
+        for (int i = 0; i < currentAudioSampleBuffer->getNumChannels(); i++)
+        {
+            std::cout << "Channel " << i << "\n";
+            for (int j = 0; j < currentAudioSampleBuffer->getNumSamples(); j++)
+            {
+                std::cout << currentAudioSampleBuffer->getSample (i, j) << " ";
+            }
+            std::cout << "\n";
+        }
+    }
+    // End view samples
+    
 }

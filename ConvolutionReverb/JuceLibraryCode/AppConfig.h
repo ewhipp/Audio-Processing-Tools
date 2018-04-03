@@ -329,7 +329,7 @@
  #define JucePlugin_ManufacturerCode       0x4d616e75 // 'Manu'
 #endif
 #ifndef  JucePlugin_PluginCode
- #define JucePlugin_PluginCode             0x54677074 // 'Tgpt'
+ #define JucePlugin_PluginCode             0x59666433 // 'Yfd3'
 #endif
 #ifndef  JucePlugin_IsSynth
  #define JucePlugin_IsSynth                0

@@ -23,7 +23,7 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                      #endif
                        ),
 #endif
-parameters(*this, nullptr)
+Thread ("Background Thread"), parameters(*this, nullptr)
 {
     // Pre-delay
     parameters.createAndAddParameter ("pre_delay", "Pre-delay", TRANS ("Pre-delay"),
@@ -37,20 +37,13 @@ parameters(*this, nullptr)
                                       [] (const String& text)
                                       {
                                          int lengthNeeded = text.length() - 2;
-                                         if (text.containsAnyOf("µs")) return text.substring(0, lengthNeeded).getFloatValue() * 1000;
-                                         if (text.containsAnyOf("s")) return text.substring(0, lengthNeeded + 1).getFloatValue() / 1000;
+                                         if (text.containsAnyOf("µs"))
+                                             return text.substring(0, lengthNeeded).getFloatValue() * 1000;
+                                         if (text.containsAnyOf("s"))
+                                             return text.substring(0, lengthNeeded + 1).getFloatValue() / 1000;
                                          else
                                              return text.substring(0, lengthNeeded).getFloatValue(); // ms
                                       }, false, true, false);
-    
-    // Size
-    parameters.createAndAddParameter ("size", "Size", TRANS ("Size"),
-                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
-                                      [] ( float value )
-                                      { return String ( value * 100.0f ) + "%"; },
-                                      [] ( const String& text )
-                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
-                                      false, true, false );
     // Dry
     parameters.createAndAddParameter ("dry", "Dry", TRANS ("Dry"),
                                       NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
@@ -67,47 +60,20 @@ parameters(*this, nullptr)
                                       [] ( const String& text )
                                       { return text.trimCharactersAtEnd("%").getFloatValue(); },
                                       false, true, false );
-    // Width
-    parameters.createAndAddParameter ("width", "Width", TRANS ("Width"),
-                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
-                                      [] ( float value )
-                                      { return String ( value ) + "%"; },
-                                      [] ( const String& text )
-                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
-                                      false, true, false );
-    // Gain
-    parameters.createAndAddParameter("gain", "Gain", TRANS("Gain"),
-                                     NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
-                                     [] (float value) { return String (Decibels::gainToDecibels(value)) + " dB"; },
-                                     [] (const String& text) { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); },
-                                     false, true, false);
     
-    // Damping
-    parameters.createAndAddParameter ("damping", "Damping", TRANS ("Damping"),
-                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
-                                      [] ( float value )
-                                      { return String ( value * 100.0f ) + "%"; },
-                                      [] ( const String& text )
-                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
-                                      false, true, false );
-    
-    // Freeze mode
-    parameters.createAndAddParameter ("freeze", "Freeze", TRANS ("Freeze"),
-                                      NormalisableRange <float> (0.0f, 1.0f, 0.01f), 0.5f,
-                                      [] ( float value )
-                                      {  return String ( value * 100.0f ) + "%"; },
-                                      [] ( const String& text )
-                                      { return text.trimCharactersAtEnd("%").getFloatValue(); },
-                                      false, true, false );
     // Freq
     // What to put here?
     
-    
+    // Register reading formats
+    formatManager.registerBasicFormats();
     parameters.state = ValueTree (Identifier ("ConvolutionReverb"));
+    startThread();
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
+    currentBuffer = nullptr;
+    stopThread(4000);
 }
 
 //==============================================================================
@@ -115,6 +81,87 @@ const String ConvolutionReverbAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
+
+//==============================================================================
+// Threading Begin
+void ConvolutionReverbAudioProcessor::run()
+{
+    while (! threadShouldExit())
+    {
+        // Open file system dialog and then check if we need to free any of the
+        // thread buffers
+        openFromFileSystem ();
+        checkForBuffersToFree ();
+        
+        // 500 ms time frame
+        wait (500);
+    }
+}
+
+/*
+ * Threading cont'd
+ * Audio thread should only be referencing one 500ms of file data at a time
+ * This is useful because we don't want to have any audio data glitches and
+ * thus we have file reading on a separate thread.
+ */
+void ConvolutionReverbAudioProcessor::checkForBuffersToFree()
+{
+    for (auto i = buffers.size(); --i >= 0;)
+    {
+        FileReader::Ptr buffer (buffers.getUnchecked (i));
+        
+        // We have used up a 500ms time frame so remove that last buffer.
+        if (buffer->getReferenceCount() == 2)
+            buffers.remove(i);
+    }
+}
+
+// Actually loading the file into memory to be played by the thread buffers
+void ConvolutionReverbAudioProcessor::openFromFileSystem()
+{
+    String filePath;
+    filePath.swapWith (chosenPath);
+    
+    if (filePath.isNotEmpty())
+    {
+        File file (filePath);
+        std::unique_ptr<AudioFormatReader> fileReader (formatManager.createReaderFor(file));
+        
+        if (fileReader.get() != nullptr)
+        {
+            // get the duration of the audio file
+            auto duration = fileReader->lengthInSamples / fileReader->sampleRate;
+            
+            
+            // Do we want to only accept files of a certain length?
+            // 60 second sound file takes 2116,8000 bytes of memory
+            if (duration <= 60)
+            {
+                FileReader::Ptr newBuffer = new FileReader (file.getFileName(), fileReader->numChannels, (int) fileReader->lengthInSamples);
+                
+                // This is where the audio file is placed into our own array buffer
+                fileReader->read(newBuffer->getAudioSampleBuffer(), 0, (int) fileReader->lengthInSamples, 0, true, true);
+                
+                // Add to the thread buffers in the processor
+                currentBuffer = newBuffer;
+                buffers.add (newBuffer);
+                
+                // Save the number of channels/samples upon loading a file
+                numOChannels = fileReader->numChannels;
+                numOSamples = fileReader->lengthInSamples;
+            }
+            else
+            {
+                // Error handling
+                // TODO: create a dialog window or decrease length of file?
+                DBG ("File is too long, please try another file.");
+            }
+        }
+    }
+}
+
+// Threading Completed
+//==============================================================================
 
 bool ConvolutionReverbAudioProcessor::acceptsMidi() const
 {
@@ -175,14 +222,6 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    reverbState.reset();
-    reverbParams.dryLevel = 0.2f;
-    reverbParams.wetLevel = 0.0f;
-    reverbParams.roomSize = 0.0f;
-    reverbParams.damping = 0.0f;
-    reverbParams.freezeMode = 0.4;
-    reverbState.setSampleRate (sampleRate);
-    reverbState.setParameters (reverbParams);
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -221,52 +260,56 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     
-    // float*  preDelay = parameters.getRawParameterValue("pre_delay");
-    float*  gain = parameters.getRawParameterValue("gain");
-    float*  width = parameters.getRawParameterValue("width");
-    float*  dry = parameters.getRawParameterValue("dry");
-    float*  wet = parameters.getRawParameterValue("wet");
-    float*  size = parameters.getRawParameterValue("size");
-    float* damping = parameters.getRawParameterValue("damping");
-    float* freeze = parameters.getRawParameterValue("freeze");
-
+    // Prepare reader by creating pointer to threads
+    FileReader::Ptr processAudioBuffer (currentBuffer);
+    
+    // Clear the buffer if we aren't currently reading audio
+    if (processAudioBuffer == nullptr)
+    {
+        buffer.clear();
+        return;
+    }
+    
+    auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
+    auto currentPos = processAudioBuffer->pos;
+    
+    auto numInputChannels = currentAudioSampleBuffer->getNumSamples();
+    auto numOutputChannels = buffer.getNumChannels();
+    
+    auto outputSamplesRemain = buffer.getNumSamples();
+    auto outputOffset = 0;
+    
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-   
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // Trying to create my own buffer size but hopelessly failing.
+    while (outputSamplesRemain > 0)
     {
-       // auto* channelData = buffer.getWritePointer (channel);
+        auto bufferRestOfSamples = currentAudioSampleBuffer->getNumSamples() - currentPos;
+        auto samplesInCurrentBuffer = jmin (outputSamplesRemain, bufferRestOfSamples);
         
-        // Reset params
-        
-        reverbParams.dryLevel = *dry;
-        reverbParams.wetLevel = *wet;
-        reverbParams.roomSize = *size;
-        reverbParams.damping = *damping;
-        reverbParams.freezeMode = *freeze;
-        reverbParams.width = *width;
-        reverbState.setParameters (reverbParams);
+        // Begin process
+        for (int channel = 0; channel < totalNumInputChannels; ++channel)
+        {
+            auto* channelData = buffer.getWritePointer (channel);
 
-        updateParams();
+            // Copying values from the buffer into the channels
+            buffer.copyFrom(channel, 0, *currentAudioSampleBuffer,
+                            channel % numInputChannels,
+                            currentPos, getBlockSize());
+        }
         
-        // If mono
-        if (totalNumInputChannels == 1)
-            reverbState.processMono (buffer.getWritePointer(0), buffer.getNumSamples());
+        outputSamplesRemain -= samplesInCurrentBuffer;
+        outputOffset += samplesInCurrentBuffer;
+        currentPos += samplesInCurrentBuffer;
         
-        // If Stereo
-        else if (totalNumInputChannels == 2)
-            reverbState.processStereo(buffer.getWritePointer(0), buffer.getWritePointer(1), buffer.getNumSamples());
-        
-        // Apply the gain
-        buffer.applyGain(Decibels::decibelsToGain(*gain));
+        if (currentPos == currentAudioSampleBuffer->getNumSamples())
+            currentPos = 0;
     }
+    
+    processAudioBuffer->pos = currentPos;
 }
 
-void ConvolutionReverbAudioProcessor::updateParams()
-{
-    
-}
 
 //==============================================================================
 bool ConvolutionReverbAudioProcessor::hasEditor() const

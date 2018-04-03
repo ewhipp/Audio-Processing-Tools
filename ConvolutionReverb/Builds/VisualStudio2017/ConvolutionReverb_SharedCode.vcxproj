@@ -14,7 +14,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{43E53AF0-8222-C72E-1415-1FC022DDB111}</ProjectGuid>
+    <ProjectGuid>{D3976CEF-C2D1-A2DF-87BD-633117848CCC}</ProjectGuid>
     <PlatformToolset>v141</PlatformToolset>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -1874,6 +1874,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_video.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\FileReader.h"/>
     <ClInclude Include="..\..\Source\ReverbProcessor.h"/>
     <ClInclude Include="..\..\Source\TextFormattedSlider.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
