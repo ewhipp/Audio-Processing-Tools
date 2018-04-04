@@ -131,8 +131,7 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
         {
             // get the duration of the audio file
             auto duration = fileReader->lengthInSamples / fileReader->sampleRate;
-            
-            
+        
             // Do we want to only accept files of a certain length?
             // 60 second sound file takes 2116,8000 bytes of memory
             if (duration <= 60)
@@ -147,8 +146,8 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
                 buffers.add (newBuffer);
                 
                 // Save the number of channels/samples upon loading a file
-                numOChannels = fileReader->numChannels;
-                numOSamples = fileReader->lengthInSamples;
+              //  numOChannels = fileReader->numChannels;
+               // numOSamples = fileReader->lengthInSamples;
             }
             else
             {
@@ -162,6 +161,30 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
 
 // Threading Completed
 //==============================================================================
+
+void ConvolutionReverbAudioProcessor::computeFFT()
+{
+    // Lines 187-195 in the convolve.c thing
+    // Make complex buffer to hold fft results
+    // fftwOut = (fftwf_complex *)fftwf_alloc_complex(FILESIZE);
+
+    // Float buffer based on number of samples in our newest buffer
+    
+    
+    // FFTW_Plan -->
+    fftwPlan = fftwf_plan_dft_r2c_1d(FILESIZE, fftwIn, fftwOut, FFTW_ESTIMATE);
+
+    // fill your input buffer with samples from your read file
+    
+    // Execute Plan
+    fftw_execute(fftwPlan);
+    
+    // Read fft results
+    
+    // Destroy Plan
+    fftw_destroy(fftwPlan);
+    fftw_free(fftwOut);
+}
 
 bool ConvolutionReverbAudioProcessor::acceptsMidi() const
 {
@@ -261,15 +284,16 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     
     // Prepare reader by creating pointer to threads
-    FileReader::Ptr processAudioBuffer (currentBuffer);
+    // FileReader::Ptr processAudioBuffer (currentBuffer);
     
     // Clear the buffer if we aren't currently reading audio
+    /*
     if (processAudioBuffer == nullptr)
     {
         buffer.clear();
         return;
-    }
-    
+    }*/
+  /*
     auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
     auto currentPos = processAudioBuffer->pos;
     
@@ -308,6 +332,7 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     }
     
     processAudioBuffer->pos = currentPos;
+   */
 }
 
 

@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "FileReader.h"
+#include <fftw3.h>
 
 //==============================================================================
 /**
@@ -36,6 +37,8 @@ public:
     FileReader::Ptr currentBuffer;
     void openFromFileSystem ();
     String chosenPath;
+    void computeFFT();
+
     
     // Remember to delete
     long long numOSamples;
@@ -79,6 +82,8 @@ public:
 private:
     AudioProcessorValueTreeState parameters;
     AudioFormatManager formatManager;
+    fftw_complex x;
+    
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
