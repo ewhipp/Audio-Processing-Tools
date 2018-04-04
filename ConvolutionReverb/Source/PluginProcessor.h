@@ -82,7 +82,10 @@ public:
 private:
     AudioProcessorValueTreeState parameters;
     AudioFormatManager formatManager;
-    fftw_complex x;
+    fftwf_complex *fftwOut;
+    fftwf_plan fftwPlan;
+    float *fftwIn;
+    
     
     
     //==============================================================================

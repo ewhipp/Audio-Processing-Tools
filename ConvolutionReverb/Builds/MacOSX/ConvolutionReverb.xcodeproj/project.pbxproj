@@ -27,6 +27,10 @@
 		01CE38410D09C40D6C9D139C /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D43C7491B091920DEEBAE251 /* AudioUnit.framework */; };
 		0367906D48BFA3A0EEE120EB /* PluginProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 64C335A3FAE3E66304BF7581 /* PluginProcessor.cpp */; };
 		050234BCC3BEE38EB214B157 /* RecentFilesMenuTemplate.nib in Resources */ = {isa = PBXBuildFile; fileRef = 6DCCF42577CF5A0BE5102B75 /* RecentFilesMenuTemplate.nib */; };
+		1941EF342075541E00302448 /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1941EF332075541D00302448 /* libfftw3.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		1941EF362075543C00302448 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1941EF352075543C00302448 /* libfftw3f.a */; };
+		1941EF372075545800302448 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1941EF352075543C00302448 /* libfftw3f.a */; };
+		1941EF382075547500302448 /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1941EF352075543C00302448 /* libfftw3f.a */; };
 		194EDDC620712A6C00FD2A54 /* RecentFilesMenuTemplate.nib in Resources */ = {isa = PBXBuildFile; fileRef = 6DCCF42577CF5A0BE5102B75 /* RecentFilesMenuTemplate.nib */; };
 		194EDDC720712A6C00FD2A54 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B32EFAF5103709C4EFEF7B56 /* Accelerate.framework */; };
 		194EDDC820712A6C00FD2A54 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F6FA73A796042A612B3C0A3 /* AudioToolbox.framework */; };
@@ -133,6 +137,8 @@
 		1056CA852D1FFA7D47189D19 /* include_juce_audio_plugin_client_VST_utils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_plugin_client_VST_utils.mm; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_VST_utils.mm; sourceTree = SOURCE_ROOT; };
 		1275E82FC26700415DB2B399 /* libConvolutionReverb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libConvolutionReverb.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		188B01AAB6F21232ACFA7431 /* juce_audio_plugin_client */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_audio_plugin_client; path = "~/JUCE/modules/juce_audio_plugin_client"; sourceTree = "<absolute>"; };
+		1941EF332075541D00302448 /* libfftw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfftw3.a; path = ../../../../../../usr/local/Cellar/fftw/3.3.7_1/lib/libfftw3.a; sourceTree = "<group>"; };
+		1941EF352075543C00302448 /* libfftw3f.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfftw3f.a; path = ../../../../../../usr/local/Cellar/fftw/3.3.7_1/lib/libfftw3f.a; sourceTree = "<group>"; };
 		2C81AC6760236312B768544E /* FileReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileReader.h; path = ../../Source/FileReader.h; sourceTree = SOURCE_ROOT; };
 		2F4535EF4EBE8644104D0522 /* include_juce_audio_plugin_client_utils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_audio_plugin_client_utils.cpp; path = ../../JuceLibraryCode/include_juce_audio_plugin_client_utils.cpp; sourceTree = SOURCE_ROOT; };
 		345970667F168186B732AE15 /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_core; path = "~/JUCE/modules/juce_core"; sourceTree = "<absolute>"; };
@@ -205,6 +211,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1941EF382075547500302448 /* libfftw3f.a in Frameworks */,
 				194EDDC720712A6C00FD2A54 /* Accelerate.framework in Frameworks */,
 				194EDDC820712A6C00FD2A54 /* AudioToolbox.framework in Frameworks */,
 				01CE38410D09C40D6C9D139C /* AudioUnit.framework in Frameworks */,
@@ -228,6 +235,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1941EF372075545800302448 /* libfftw3f.a in Frameworks */,
 				2754D5A58CFA050AE8D55233 /* Accelerate.framework in Frameworks */,
 				BE983063AEB29C480CAB845A /* AudioToolbox.framework in Frameworks */,
 				9D7D1DF18F4D2700579BB4C8 /* AVFoundation.framework in Frameworks */,
@@ -249,6 +257,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1941EF362075543C00302448 /* libfftw3f.a in Frameworks */,
+				1941EF342075541E00302448 /* libfftw3.a in Frameworks */,
 				194EDDD620712A6C00FD2A54 /* Accelerate.framework in Frameworks */,
 				194EDDD720712A6C00FD2A54 /* AudioToolbox.framework in Frameworks */,
 				194EDDD820712A6C00FD2A54 /* AVFoundation.framework in Frameworks */,
@@ -382,6 +392,8 @@
 		E1267687963862BA7106F3AB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1941EF352075543C00302448 /* libfftw3f.a */,
+				1941EF332075541D00302448 /* libfftw3.a */,
 				B32EFAF5103709C4EFEF7B56 /* Accelerate.framework */,
 				7F6FA73A796042A612B3C0A3 /* AudioToolbox.framework */,
 				D43C7491B091920DEEBAE251 /* AudioUnit.framework */,
@@ -755,6 +767,10 @@
 				INFOPLIST_FILE = "Info-AU.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				LIBRARY_STYLE = Bundle;
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -809,6 +825,10 @@
 				INFOPLIST_FILE = "Info-VST.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/VST/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
@@ -858,6 +878,10 @@
 				);
 				INFOPLIST_FILE = "Info-Standalone_Plugin.plist";
 				INFOPLIST_PREPROCESS = NO;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
@@ -907,6 +931,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				NEW_SETTING = "";
 				OTHER_LDFLAGS = (
 					"-lfftw3f",
 					"-lfftw3",
@@ -951,6 +976,10 @@
 				);
 				INFOPLIST_FILE = "Info-Standalone_Plugin.plist";
 				INFOPLIST_PREPROCESS = NO;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_LDFLAGS = "-lConvolutionReverb";
@@ -1056,6 +1085,10 @@
 				INFOPLIST_FILE = "Info-AU.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
@@ -1110,6 +1143,10 @@
 				INFOPLIST_FILE = "Info-VST.plist";
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/VST/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/fftw/3.3.7_1/lib,
+				);
 				LIBRARY_STYLE = Bundle;
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -1165,6 +1202,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/local/include;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lfftw3f",

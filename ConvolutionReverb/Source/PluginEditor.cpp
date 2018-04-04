@@ -121,16 +121,7 @@ void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
 
     if (currentAudioSampleBuffer != nullptr)
     {
-        // The values we want to inspect (file values from the input file).
-        for (int i = 0; i < currentAudioSampleBuffer->getNumChannels(); i++)
-        {
-            std::cout << "Channel " << i << "\n";
-            for (int j = 0; j < currentAudioSampleBuffer->getNumSamples(); j++)
-            {
-                std::cout << currentAudioSampleBuffer->getSample (i, j) << " ";
-            }
-            std::cout << "\n";
-        }
+        processor.computeFFT();
     }
     // End view samples
     

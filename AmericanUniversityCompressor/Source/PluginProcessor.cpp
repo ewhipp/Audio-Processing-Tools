@@ -229,7 +229,6 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     float* attack = parameters.getRawParameterValue("attack");
     float* release = parameters.getRawParameterValue("release");
     float* ratio = parameters.getRawParameterValue("ratio");
-    visualizeBuffer.makeCopyOf(buffer);
 
     
     // Clear the buffer in order to reduce the chances of returning feedback
@@ -270,6 +269,9 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         // Convert the gain to a dB value first, then apply as a dB value.
         buffer.applyGain(Decibels::decibelsToGain(*makeupGain));
         lastOvershoot = currentOvershoot;
+        
+        // Allow the user to visualize the compressed audio.
+        visualizeBuffer.makeCopyOf(buffer);
     }
 }
 
