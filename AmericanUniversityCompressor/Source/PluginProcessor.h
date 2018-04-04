@@ -31,6 +31,7 @@ public:
     float currentdB;
     float currentRMS;
     float thresholdRMS;
+    AudioSampleBuffer visualizeBuffer;
     float calculateOvershoot(float rmsAmp, float threshold);
     float calculateDesiredGain(float threshold, float ratio, float Overshoot);
     float calculateGainFactor(float desiredGain, float rmsAmp);

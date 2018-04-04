@@ -68,6 +68,8 @@ private:
     ScopedPointer<TextFormatSlider> ratioSlider;
     ScopedPointer<SliderAttachment> ratioAttachment;
    
+    // Visualize the aduio
+    AudioVisualiserComponent audioView;
     // Meters
     AudioMeter rmsValue;
     Label rmsValueLabel;

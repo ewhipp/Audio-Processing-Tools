@@ -229,6 +229,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     float* attack = parameters.getRawParameterValue("attack");
     float* release = parameters.getRawParameterValue("release");
     float* ratio = parameters.getRawParameterValue("ratio");
+    visualizeBuffer.makeCopyOf(buffer);
 
     
     // Clear the buffer in order to reduce the chances of returning feedback

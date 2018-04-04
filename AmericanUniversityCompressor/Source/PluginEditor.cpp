@@ -12,9 +12,8 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent,
-                                                                                                    AudioProcessorValueTreeState &vts)
-:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts)
+AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
+:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts), audioView(processor.visualizeBuffer.getNumChannels())
 {
     // Labels & Slider init
     // rotary sliders
@@ -48,13 +47,16 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(thresholdSlider);
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
+    audioView.setNumChannels(2);
+    audioView.setColours(Colours::black, Colours::yellowgreen);
+    audioView.setRepaintRate(30);
+    addAndMakeVisible(audioView);
+    
     // Meters and debugging
     addAndMakeVisible(rmsValue);
     addAndMakeVisible(rmsValueLabel);
     addAndMakeVisible(rms2DBValue);
     addAndMakeVisible(rms2DBValueLabel);
-    addAndMakeVisible(currentGainEditor);
-    addAndMakeVisible(currentThresholdRMS);
     processor.addChangeListener (this);
     startTimerHz(30);
     setSize(580, 350);
@@ -68,6 +70,7 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
     ratioAttachment = nullptr;
     attackAttachment = nullptr;
     releaseAttachment = nullptr;
+    
     ratioSlider = nullptr;
     attackSlider = nullptr;
     releaseSlider = nullptr;
@@ -82,7 +85,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rmsValue.setLevelRMS(processor.currentRMS);
     rmsValueLabel.setText(juce::String(processor.currentRMS, 3),
                           dontSendNotification);
-
+    
+    audioView.pushBuffer(processor.visualizeBuffer); // Copy of the processBlock buffer
     // Update the dB meter
     rms2DBValue.setLeveldB(processor.currentdB);
     rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
@@ -110,6 +114,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     currentThresholdRMS.setBounds(190, 50, 100, 100);
     auto MeterArea = pluginWindow.removeFromLeft(100);
     auto sliderLabelArea = pluginWindow.removeFromTop(50);
+    
     thresholdLabel.setBounds(sliderLabelArea.removeFromLeft(100));
     thresholdSlider->setBounds(pluginWindow.removeFromLeft(100));
     makeupGainLabel.setBounds(sliderLabelArea.removeFromRight(70));
@@ -133,6 +138,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     rmsValueLabel.setBounds(LabelArea.removeFromLeft(50));
     rms2DBValue.setBounds(MeterArea.removeFromLeft(50));
     rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(50));
+    
+    audioView.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }
 
 void AmericanUniversityCompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
