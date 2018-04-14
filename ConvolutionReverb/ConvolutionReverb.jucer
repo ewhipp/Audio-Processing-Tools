@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="ConvolutionReverb" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.3.0">
+              jucerVersion="5.3.1" pluginFormats="buildAAX,buildAU,buildStandalone,buildVST,buildVST3"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildAAX="1" enableIAA="0">
   <MAINGROUP id="lK4KCh" name="ConvolutionReverb">
     <GROUP id="{F53CCF4A-B274-E0FC-9A20-C6891E4E59D9}" name="Source">
-      <FILE id="CvktIf" name="FileReader.h" compile="0" resource="0" file="Source/FileReader.h"/>
+      <FILE id="CvktIf" name="FileBuffer.h" compile="0" resource="0" file="Source/FileBuffer.h"/>
       <FILE id="sWJE4i" name="ReverbProcessor.h" compile="0" resource="0"
             file="Source/ReverbProcessor.h"/>
       <FILE id="Zn16nd" name="TextFormattedSlider.h" compile="0" resource="0"

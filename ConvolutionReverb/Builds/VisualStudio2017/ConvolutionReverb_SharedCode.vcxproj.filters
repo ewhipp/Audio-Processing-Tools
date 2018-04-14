@@ -526,6 +526,9 @@
     <ClCompile Include="C:\JUCE\modules\juce_audio_devices\native\juce_linux_ALSA.cpp">
       <Filter>JUCE Modules\juce_audio_devices\native</Filter>
     </ClCompile>
+    <ClCompile Include="C:\JUCE\modules\juce_audio_devices\native\juce_linux_Bela.cpp">
+      <Filter>JUCE Modules\juce_audio_devices\native</Filter>
+    </ClCompile>
     <ClCompile Include="C:\JUCE\modules\juce_audio_devices\native\juce_linux_JackAudio.cpp">
       <Filter>JUCE Modules\juce_audio_devices\native</Filter>
     </ClCompile>
@@ -821,6 +824,9 @@
       <Filter>JUCE Modules\juce_audio_processors\format_types</Filter>
     </ClCompile>
     <ClCompile Include="C:\JUCE\modules\juce_audio_processors\format_types\juce_LADSPAPluginFormat.cpp">
+      <Filter>JUCE Modules\juce_audio_processors\format_types</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\JUCE\modules\juce_audio_processors\format_types\juce_LegacyAudioParameter.cpp">
       <Filter>JUCE Modules\juce_audio_processors\format_types</Filter>
     </ClCompile>
     <ClCompile Include="C:\JUCE\modules\juce_audio_processors\format_types\juce_VST3PluginFormat.cpp">
@@ -1999,6 +2005,9 @@
     <ClCompile Include="C:\JUCE\modules\juce_gui_basics\properties\juce_ChoicePropertyComponent.cpp">
       <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
     </ClCompile>
+    <ClCompile Include="C:\JUCE\modules\juce_gui_basics\properties\juce_MultiChoicePropertyComponent.cpp">
+      <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
+    </ClCompile>
     <ClCompile Include="C:\JUCE\modules\juce_gui_basics\properties\juce_PropertyComponent.cpp">
       <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
     </ClCompile>
@@ -2277,7 +2286,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\FileReader.h">
+    <ClInclude Include="..\..\Source\FileBuffer.h">
       <Filter>ConvolutionReverb\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ReverbProcessor.h">
@@ -4021,6 +4030,9 @@
       <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_gui_basics\properties\juce_ChoicePropertyComponent.h">
+      <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\JUCE\modules\juce_gui_basics\properties\juce_MultiChoicePropertyComponent.h">
       <Filter>JUCE Modules\juce_gui_basics\properties</Filter>
     </ClInclude>
     <ClInclude Include="C:\JUCE\modules\juce_gui_basics\properties\juce_PropertyComponent.h">

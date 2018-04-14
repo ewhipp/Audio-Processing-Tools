@@ -14,13 +14,13 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class FileReader : public ReferenceCountedObject
+class FileBuffer : public ReferenceCountedObject
 {
 public: 
-    typedef ReferenceCountedObjectPtr <FileReader> Ptr;
+    typedef ReferenceCountedObjectPtr <FileBuffer> Ptr;
 
     
-    FileReader     (const String& nameToUse,
+    FileBuffer     (const String& nameToUse,
                             int numChannels,
                             int numSamples) :
     name (nameToUse),
@@ -30,7 +30,7 @@ public:
         String (numChannels) + ", numSamples " + String (numSamples));
     }
     
-    ~FileReader()
+    ~FileBuffer()
     {
         DBG (String ("Buffer named '") + name + "' destroyed");
     }
@@ -45,7 +45,7 @@ public:
 private:
     String name;
     AudioSampleBuffer buffer;
-    FileReader::Ptr currentAudioBuffer;
+    FileBuffer::Ptr currentAudioBuffer;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileReader)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileBuffer)
 };

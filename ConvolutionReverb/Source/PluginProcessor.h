@@ -11,12 +11,11 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "FileReader.h"
-#include <fftw3.h>
+#include "FileBuffer.h"
+#include "ReverbProcessor.h"
+
 
 //==============================================================================
-/**
-*/
 class ConvolutionReverbAudioProcessor  : public AudioProcessor,
                                          public ChangeBroadcaster,
                                          public Thread
