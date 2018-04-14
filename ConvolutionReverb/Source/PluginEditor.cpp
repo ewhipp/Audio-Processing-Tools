@@ -116,7 +116,7 @@ void ConvolutionReverbAudioProcessorEditor::loadButtonClicked()
 // view its contents
 void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
 {
-    FileReader::Ptr processAudioBuffer (processor.currentBuffer);
+    FileBuffer::Ptr processAudioBuffer (processor.currentBuffer);
     auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
 
     if (currentAudioSampleBuffer != nullptr)

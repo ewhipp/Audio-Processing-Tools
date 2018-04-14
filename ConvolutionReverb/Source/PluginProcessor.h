@@ -32,8 +32,8 @@ public:
     //==============================================================================
     
     // Thread safe reading of the convolution file
-    ReferenceCountedArray<FileReader> buffers;
-    FileReader::Ptr currentBuffer;
+    ReferenceCountedArray<FileBuffer> buffers;
+    FileBuffer::Ptr currentBuffer;
     void openFromFileSystem ();
     String chosenPath;
     void computeFFT();

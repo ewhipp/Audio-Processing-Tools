@@ -108,7 +108,7 @@ void ConvolutionReverbAudioProcessor::checkForBuffersToFree()
 {
     for (auto i = buffers.size(); --i >= 0;)
     {
-        FileReader::Ptr buffer (buffers.getUnchecked (i));
+        FileBuffer::Ptr buffer (buffers.getUnchecked (i));
         
         // We have used up a 500ms time frame so remove that last buffer.
         if (buffer->getReferenceCount() == 2)
@@ -136,7 +136,7 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
             // 60 second sound file takes 2116,8000 bytes of memory
             if (duration <= 60)
             {
-                FileReader::Ptr newBuffer = new FileReader (file.getFileName(), fileReader->numChannels, (int) fileReader->lengthInSamples);
+                FileBuffer::Ptr newBuffer = new FileBuffer (file.getFileName(), fileReader->numChannels, (int) fileReader->lengthInSamples);
                 
                 // This is where the audio file is placed into our own array buffer
                 fileReader->read(newBuffer->getAudioSampleBuffer(), 0, (int) fileReader->lengthInSamples, 0, true, true);
@@ -164,7 +164,7 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
 
 void ConvolutionReverbAudioProcessor::computeFFT()
 {
-    FileReader::Ptr processAudioBuffer (currentBuffer);
+    FileBuffer::Ptr processAudioBuffer (currentBuffer);
     auto* temp = currentBuffer->getAudioSampleBuffer();
     int FILESIZE = temp->getNumSamples();
 

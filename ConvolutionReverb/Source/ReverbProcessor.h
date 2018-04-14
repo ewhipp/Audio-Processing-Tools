@@ -120,7 +120,7 @@ public:
         for (int i = 0; i < (partitions * (windowSize + 1)); i++)
         {
             arrayToClear[i][0] = 0.0;
-            arrayToClear[i][1] = 0.0
+            arrayToClear[i][1] = 0.0;
         }
     }
     
@@ -147,16 +147,17 @@ private:
     int pluginSampleRate;       // sample rate
     int numPartitions;          // number of partitions
     int sampleOverlapSize;      // Where the samples will overlap with each other
-    float nonSampleOverlap[];   // Where the samples are in use ??
-    float *fftInput;
+    float* nonSampleOverlap;    // Where the samples are in use ??
+    float* fftInput;
     
     // fftwf_complex fftResults[NUMPARTITIONS][Real][Imag]
     fftwf_complex* fftOutput;                // Used for the FFTW plan
     fftwf_complex* fftIRResults;             // IR results complex array
-    fftwf_complex* fftPlaceHolder;          // unknown for now
+    fftwf_complex* fftPlaceHolder;           // unknown for now
     
     fftwf_plan fftwPlan;
     
+    FileBuffer::Ptr currentBuffer;
     // Impulse response will be split based on length of IR audio = Numpartitions
     
     // Partition size = Block size

@@ -13,7 +13,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "TextFormattedSlider.h"
-#include "FileReader.h"
+#include "FileBuffer.h"
 
 //==============================================================================
 /**
