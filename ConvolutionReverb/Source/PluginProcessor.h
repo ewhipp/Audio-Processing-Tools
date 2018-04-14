@@ -36,8 +36,6 @@ public:
     FileBuffer::Ptr currentBuffer;
     void openFromFileSystem ();
     String chosenPath;
-    void computeFFT();
-
     
     // Remember to delete
     long long numOSamples;

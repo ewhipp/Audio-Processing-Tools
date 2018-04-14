@@ -162,40 +162,6 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
 // Threading Completed
 //==============================================================================
 
-void ConvolutionReverbAudioProcessor::computeFFT()
-{
-    FileBuffer::Ptr processAudioBuffer (currentBuffer);
-    auto* temp = currentBuffer->getAudioSampleBuffer();
-    int FILESIZE = temp->getNumSamples();
-
-    // Make complex buffer to hold fft results
-    fftwOut = (fftwf_complex *) fftwf_alloc_complex (FILESIZE);
-    
-    // Float buffer based on number of samples in our newest buffer
-    float fftwIn [FILESIZE];
-    for (int i = 0; i < temp->getNumChannels(); i++)
-    {
-        for (int j = 0; j < temp->getNumSamples(); j++)
-            fftwIn[j] = temp->getSample(i, j);
-    }
-    
-    // FFTW_Plan
-    fftwPlan = fftwf_plan_dft_r2c_1d(FILESIZE, fftwIn, fftwOut, FFTW_ESTIMATE);
-
-    // Execute Plan
-    fftwf_execute(fftwPlan);
-    
-    // Read real parts of fft results
-    for (int i = 0; i < FILESIZE/2; i++)
-    {
-        std::cout << "FFT value" << i << '\n';
-        std::cout << fftwOut[i][0] << '\t';
-    }
-    
-    // Destroy Plan
-    fftwf_destroy_plan(fftwPlan);
-    fftwf_free(fftwOut);
-}
 
 bool ConvolutionReverbAudioProcessor::acceptsMidi() const
 {

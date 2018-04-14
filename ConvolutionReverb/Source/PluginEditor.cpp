@@ -121,7 +121,7 @@ void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
 
     if (currentAudioSampleBuffer != nullptr)
     {
-        processor.computeFFT();
+        //processor.computeFFT();
     }
     // End view samples
     
