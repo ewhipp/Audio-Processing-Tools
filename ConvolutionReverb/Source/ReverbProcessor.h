@@ -65,7 +65,7 @@ public:
             nonSampleOverlap[i] = 0.0;
         
         // [4]
-        fftIRResults = (fftwf_complex*) fftwf_alloc_complex (getNumPartitions () * pluginWindowSize + 1);
+        fftIRResults = (fftwf_complex*) fftwf_malloc (getNumPartitions () * (pluginWindowSize + 1) * (pluginWindowSize + 1) * sizeof(fftwf_complex*));
         fftOutput    = (fftwf_complex*) fftwf_alloc_complex (pluginWindowSize + 1);
         fftInput[doubleWindowSize * getNumPartitions ()];
         fftwPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, fftInput, fftOutput, FFTW_ESTIMATE);
@@ -92,10 +92,11 @@ public:
             fftwf_execute (fftwPlan);
             
             // [9]
+            // i = currentPartition
             for (j = 0; j < pluginWindowSize + 1; j++)
             {
-                fftIRResults[startSpec + j][0] = fftOutput[j][0];
-                fftIRResults[startSpec + j][1] = fftOutput[j][1];
+                fftIRResults[i][j][0] = fftOutput[j][0];
+                fftIRResults[i][0][j] = fftOutput[j][1];
             }
         }
         
