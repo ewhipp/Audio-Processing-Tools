@@ -67,6 +67,7 @@ Thread ("Background Thread"), parameters(*this, nullptr)
     // Register reading formats
     formatManager.registerBasicFormats();
     parameters.state = ValueTree (Identifier ("ConvolutionReverb"));
+    
     startThread();
 }
 
@@ -132,7 +133,6 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
             // get the duration of the audio file
             auto duration = fileReader->lengthInSamples / fileReader->sampleRate;
         
-            // Do we want to only accept files of a certain length?
             // 60 second sound file takes 2116,8000 bytes of memory
             if (duration <= 60)
             {
@@ -144,10 +144,6 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
                 // Add to the thread buffers in the processor
                 currentBuffer = newBuffer;
                 buffers.add (newBuffer);
-                
-                // Save the number of channels/samples upon loading a file
-              //  numOChannels = fileReader->numChannels;
-               // numOSamples = fileReader->lengthInSamples;
             }
             else
             {
@@ -162,6 +158,10 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
 // Threading Completed
 //==============================================================================
 
+void ConvolutionReverbAudioProcessor::computeIRFFT()
+{
+    ReverbProcessor::getImpulseResponseFileFFT(currentBuffer);
+}
 
 bool ConvolutionReverbAudioProcessor::acceptsMidi() const
 {
@@ -222,6 +222,8 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    ReverbProcessor::setSampleRate(sampleRate);
+    ReverbProcessor::setPartitionSize(samplesPerBlock);
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -260,56 +262,17 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     
-    // Prepare reader by creating pointer to threads
-    // FileReader::Ptr processAudioBuffer (currentBuffer);
-    
-    // Clear the buffer if we aren't currently reading audio
-    /*
-    if (processAudioBuffer == nullptr)
-    {
-        buffer.clear();
-        return;
-    }*/
-  /*
-    auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
-    auto currentPos = processAudioBuffer->pos;
-    
-    auto numInputChannels = currentAudioSampleBuffer->getNumSamples();
-    auto numOutputChannels = buffer.getNumChannels();
-    
-    auto outputSamplesRemain = buffer.getNumSamples();
-    auto outputOffset = 0;
     
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // Trying to create my own buffer size but hopelessly failing.
-    while (outputSamplesRemain > 0)
-    {
-        auto bufferRestOfSamples = currentAudioSampleBuffer->getNumSamples() - currentPos;
-        auto samplesInCurrentBuffer = jmin (outputSamplesRemain, bufferRestOfSamples);
-        
-        // Begin process
-        for (int channel = 0; channel < totalNumInputChannels; ++channel)
-        {
-            auto* channelData = buffer.getWritePointer (channel);
-
-            // Copying values from the buffer into the channels
-            buffer.copyFrom(channel, 0, *currentAudioSampleBuffer,
-                            channel % numInputChannels,
-                            currentPos, getBlockSize());
-        }
-        
-        outputSamplesRemain -= samplesInCurrentBuffer;
-        outputOffset += samplesInCurrentBuffer;
-        currentPos += samplesInCurrentBuffer;
-        
-        if (currentPos == currentAudioSampleBuffer->getNumSamples())
-            currentPos = 0;
-    }
     
-    processAudioBuffer->pos = currentPos;
-   */
+    // Process audio block
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        const float* channelData = buffer.getReadPointer(channel);
+        
+    }
+   
 }
 
 

@@ -16,18 +16,17 @@
 
 class ReverbProcessor
 {
-public:  
-
-    ReverbProcessor (int blocksize, int sampleRate)
-    {
-        pluginWindowSize = blocksize;
-        pluginSampleRate = sampleRate;
-        doubleWindowSize = pluginWindowSize * 2;
-    }
+public:
+    ReverbProcessor () {}
     
     ~ReverbProcessor ()
     {
-        fftIRResults = nullptr;
+        fftIRResult = nullptr;
+        fftwf_destroy_plan(fftwPlan);
+        fftwf_free(fftOutput);
+        fftwf_free (fftIRResult);
+        delete []fftIRInput;
+        fftIRInput = nullptr;
     }
     
     // Get the current blocks FFT
@@ -46,13 +45,11 @@ public:
      * 7) Get the samples from the file
      * 8) Zero pad the fftInput input
      * 9) Move the values to the output FFT array
-     * 10) Destroy the plan
      */
-    void getImpulseResponseFileFFT ()
+    void getImpulseResponseFileFFT (FileBuffer::Ptr currentBuffer)
     {
         // [1]
-        FileBuffer::Ptr processAudioBuffer (currentBuffer);
-        auto* temp = currentBuffer->getAudioSampleBuffer ();
+        AudioSampleBuffer* temp = currentBuffer->getAudioSampleBuffer ();
         int FILESIZE = temp->getNumSamples ();
         
         // [2]
@@ -61,49 +58,52 @@ public:
         
         // [3]
         sampleOverlapSize = (getNumPartitions () * doubleWindowSize);
-        for (int i = 0; i < sampleOverlapSize; i++)
-            nonSampleOverlap[i] = 0.0;
+        
+//        std::cout << "SETTING NON SAMPLE OVERLAP\n";
+//        for (int i = 0; i < sampleOverlapSize; i++)
+//            nonSampleOverlap[i] = 0.0;
         
         // [4]
-        fftIRResults = (fftwf_complex*) fftwf_malloc (getNumPartitions () * (pluginWindowSize + 1) * (pluginWindowSize + 1) * sizeof(fftwf_complex*));
-        fftOutput    = (fftwf_complex*) fftwf_alloc_complex (pluginWindowSize + 1);
-        fftInput[doubleWindowSize * getNumPartitions ()];
-        fftwPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, fftInput, fftOutput, FFTW_ESTIMATE);
+        fftIRResult = (fftwf_complex*) fftwf_malloc ((getNumPartitions ()) * (pluginWindowSize + 1) * (pluginWindowSize + 1) * (sizeof (fftwf_complex*)));
+        fftOutput   = (fftwf_complex*) fftwf_malloc ((pluginWindowSize + 1) * sizeof (fftwf_complex*));
+        fftIRInput = new float[doubleWindowSize * getNumPartitions ()];
+        fftwPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, fftIRInput, fftOutput, FFTW_ESTIMATE);
         
         // [5]
         for (int i = 0; i < doubleWindowSize; i++)
-            fftInput[i] = 0.0;
+            fftIRInput[i] = 0.0;
         
         // [6]
-        for (int i = 0; i < getNumPartitions (); i++)
+        for (int currentPartition = 0; currentPartition < getNumPartitions (); currentPartition++)
         {
-            int k, j, startSpec;
-            startSpec = i * pluginWindowSize + 1;
+            int startSpec = currentPartition * pluginWindowSize + 1;
             
             // [7]
-            for (j = 0; j < temp->getNumChannels (); j++)
-                for (k = 0; k < temp->getNumSamples (); k++)
-                    fftInput[k] = temp->getSample (j, k);
-            
-            // [8]
-            for (; k < doubleWindowSize; k++)
-                fftInput[k] = 0.0;
+            fillSampleBasedOnPartition(temp, fftIRInput, startSpec);
             
             fftwf_execute (fftwPlan);
             
             // [9]
-            // i = currentPartition
-            for (j = 0; j < pluginWindowSize + 1; j++)
+            for (int j = 0; j < pluginWindowSize + 1; j++)
             {
-                fftIRResults[i][j][0] = fftOutput[j][0];
-                fftIRResults[i][0][j] = fftOutput[j][1];
+                fftIRResult[access3DArrayPosition(currentPartition)][0] = fftOutput[j][0];
+                fftIRResult[0][access3DArrayPosition(currentPartition)] = fftOutput[j][1];
+                /*
+                std::cout << "\nfftIR current results:: R = " << fftIRResult[access3DArrayPosition(currentPartition)][0] << "\tC = " << fftIRResult[0][access3DArrayPosition(currentPartition)] << "\n";
+                std::cout << "\nReal = " << fftOutput[j][0] << "\t Complex = " << fftOutput[j][1] << "\n"; */
             }
         }
-        
-        // [10]
-        fftwf_destroy_plan(fftwPlan);
-        fftwf_free(fftOutput);
     }
+    
+    // Helper function for accessing a 3D array
+    int access3DArrayPosition(int currentPartition)
+    {
+        
+        int y = pluginWindowSize + 1;
+        int z = pluginWindowSize + 1;
+        return (z * currentPartition * y) + (y * currentPartition) + currentPartition;
+    }
+
     
     // Set the number of partitions for the plugin
     void setNumPartitons (int numSamples)
@@ -113,16 +113,29 @@ public:
             numPartitions++;
     }
     
-    // For when we want to clear a specific buffer
-    void clearSampleArray (float* arrayToClear[])
+    void fillSampleBasedOnPartition (AudioSampleBuffer* buffer, float* arrayToFill,
+                                     int currentPartition)
     {
-        int partitions = getNumPartitions ();
-        int windowSize = getPartitionSize ();
-        for (int i = 0; i < (partitions * (windowSize + 1)); i++)
-        {
-            arrayToClear[i][0] = 0.0;
-            arrayToClear[i][1] = 0.0;
-        }
+        int i = 0;
+        int j = 0;
+        for (i = 0; i < buffer->getNumChannels (); i++)
+            for (j = 0; j < pluginWindowSize; j++)
+                arrayToFill[j] = buffer->getSample(i, currentPartition + j);
+        
+        for (; j < doubleWindowSize; j++)
+            arrayToFill[j] = 0.0;
+    }
+    
+    
+    void setPartitionSize (int N)
+    {
+        pluginWindowSize = N;
+        doubleWindowSize = N * 2;
+    }
+    
+    void setSampleRate (int N)
+    {
+        pluginSampleRate = N;
     }
     
     int getPartitionSize ()
@@ -140,67 +153,18 @@ public:
         return numPartitions;
     }
     
-    /* SAVING FOR LATER IF NEEDED.
-    void ConvolutionReverbAudioProcessor::computeFFT()
-    {
-        FileBuffer::Ptr processAudioBuffer (currentBuffer);
-        auto* temp = currentBuffer->getAudioSampleBuffer();
-        int FILESIZE = temp->getNumSamples();
-        
-        // Make complex buffer to hold fft results
-        fftwOut = (fftwf_complex *) fftwf_alloc_complex (FILESIZE);
-        
-        // Float buffer based on number of samples in our newest buffer
-        float fftwIn [FILESIZE];
-        for (int i = 0; i < temp->getNumChannels(); i++)
-        {
-            for (int j = 0; j < temp->getNumSamples(); j++)
-                fftwIn[j] = temp->getSample(i, j);
-        }
-        
-        // FFTW_Plan
-        fftwPlan = fftwf_plan_dft_r2c_1d(FILESIZE, fftwIn, fftwOut, FFTW_ESTIMATE);
-        
-        // Execute Plan
-        fftwf_execute(fftwPlan);
-        
-        // Read real parts of fft results
-        for (int i = 0; i < FILESIZE/2; i++)
-        {
-            std::cout << "FFT value" << i << '\n';
-            std::cout << fftwOut[i][0] << '\t';
-        }
-        
-        // Destroy Plan
-        fftwf_destroy_plan(fftwPlan);
-        fftwf_free(fftwOut);
-    }
-    */
 private:
-    int windowSize;             // numSamples of IR / block size
+    int windowSize;             // NumSamples of IR / block size
     int doubleWindowSize;       // Double the window size
-    int pluginWindowSize;       // block size
-    int pluginSampleRate;       // sample rate
-    int numPartitions;          // number of partitions
+    int pluginWindowSize;       // Block size
+    int pluginSampleRate;       // Sample rate
+    int numPartitions;          // Number of partitions
     int sampleOverlapSize;      // Where the samples will overlap with each other
     float* nonSampleOverlap;    // Where the samples are in use ??
-    float* fftInput;
+    float* fftIRInput;          // Array of the IR Input's samples.
     
-    // fftwf_complex fftResults[NUMPARTITIONS][Real][Imag]
-    fftwf_complex* fftOutput;                // Used for the FFTW plan
-    fftwf_complex* fftIRResults;             // IR results complex array
-    fftwf_complex* fftPlaceHolder;           // unknown for now
-    
+    fftwf_complex* fftOutput;               // Used for the FFTW plan
+    fftwf_complex* fftIRResult;             // IR results complex array
+    fftwf_complex* currentProcessBlock;     // The current processing block
     fftwf_plan fftwPlan;
-    
-    FileBuffer::Ptr currentBuffer;
-    // Impulse response will be split based on length of IR audio = Numpartitions
-    
-    // Partition size = Block size
-    
-    // fftw results is 2 * partition size with second half zeroed out
-    
-    // FFTresults should be (N / 2 + 1) * NumPartitions --> if its 2D array
-    
-    // do we want fftResults to be 2D --> 2D because it is more efficient
 };

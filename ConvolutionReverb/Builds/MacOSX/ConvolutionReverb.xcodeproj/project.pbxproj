@@ -90,13 +90,14 @@
 		19FDF47F208272B600B7D57C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FFA49CC29AD53B4D6B623AF /* QuartzCore.framework */; };
 		19FDF480208272B600B7D57C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D43CF0B0CBE04CA3880D4D5 /* WebKit.framework */; };
 		19FDF4882082778E00B7D57C /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4872082778E00B7D57C /* libfftw3f.a */; };
-		19FDF48A2082779C00B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; };
-		19FDF48B2082B1AA00B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; };
+		19FDF48A2082779C00B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		19FDF48B2082B1AA00B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		19FDF48C2082B1B800B7D57C /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4872082778E00B7D57C /* libfftw3f.a */; };
 		19FDF48D2082B1C500B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; };
 		19FDF48E2082B1D300B7D57C /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4872082778E00B7D57C /* libfftw3f.a */; };
 		19FDF48F2082B22000B7D57C /* libfftw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4892082779C00B7D57C /* libfftw3.a */; };
 		19FDF4902082B22900B7D57C /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4872082778E00B7D57C /* libfftw3f.a */; };
+		19FDF4912082C8E200B7D57C /* libfftw3f.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19FDF4872082778E00B7D57C /* libfftw3f.a */; };
 		1BD3A393A441751D8657624C /* include_juce_audio_plugin_client_AU_2.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5D4E78839F81AE4B2094C624 /* include_juce_audio_plugin_client_AU_2.mm */; };
 		21D16C6642F2621B4083DBC9 /* include_juce_audio_plugin_client_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2F7865DC5745429D6A9F527 /* include_juce_audio_plugin_client_utils.cpp */; };
 		247BA63427B9E21CF361F819 /* PluginProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E6B1C3D119C2CB08BA29E12 /* PluginProcessor.cpp */; };
@@ -269,6 +270,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19FDF4912082C8E200B7D57C /* libfftw3f.a in Frameworks */,
 				19FDF464208272B600B7D57C /* Accelerate.framework in Frameworks */,
 				19FDF465208272B600B7D57C /* AudioToolbox.framework in Frameworks */,
 				9E1090F1B335911648031AD4 /* AudioUnit.framework in Frameworks */,

@@ -18,7 +18,8 @@
 //==============================================================================
 class ConvolutionReverbAudioProcessor  : public AudioProcessor,
                                          public ChangeBroadcaster,
-                                         public Thread
+                                         public Thread,
+                                         public ReverbProcessor
 {
 public:
     float dry;
@@ -36,6 +37,7 @@ public:
     FileBuffer::Ptr currentBuffer;
     void openFromFileSystem ();
     String chosenPath;
+    void computeIRFFT ();
     
     // Remember to delete
     long long numOSamples;

@@ -65,6 +65,8 @@ private:
     
     ScopedPointer<TextFormatSlider> wetSlider;
     ScopedPointer<SliderAttachment> wetAttachment;
+    
+    ReverbProcessor* reverb;
 
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessorEditor)

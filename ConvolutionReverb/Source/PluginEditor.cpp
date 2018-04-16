@@ -53,6 +53,7 @@ ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
     preDelaySlider = nullptr;
     drySlider = nullptr;
     wetSlider = nullptr;
+    reverb = nullptr;
 }
 
 //==============================================================================
@@ -121,7 +122,7 @@ void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
 
     if (currentAudioSampleBuffer != nullptr)
     {
-        //processor.computeFFT();
+        processor.computeIRFFT();
     }
     // End view samples
     
