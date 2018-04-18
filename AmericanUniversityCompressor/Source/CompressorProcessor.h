@@ -76,7 +76,7 @@ public:
         }
     }
     
-    // This function represents when we are
+    // This function represents when we are continuing our release and have not had to recalculate parameters
     float continueRelease()
     {
         float blockTargetGainFactor;
