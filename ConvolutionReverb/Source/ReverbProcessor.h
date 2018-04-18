@@ -17,16 +17,26 @@
 class ReverbProcessor
 {
 public:
-    
+    /*
+     * 1) Init the sample rate and partition size and thus, the double partition size
+     * 2) Allocate memory for fft routines and buffer for current block
+     * 3) Set up the FFT plan for the current block
+     */
     ReverbProcessor (int partitionSize1, int sampleRate1 )
     {
+        // [1]
         partitionSize = partitionSize1;
         doubleWindowSize = partitionSize * 2;
-        fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio,                                                            fftCurrentBlockOutput, FFTW_ESTIMATE);
+        pluginSampleRate = sampleRate1;
+        
+       // [2]
         fftCurrentBlockOutput  = (fftwf_complex*) fftwf_malloc ((partitionSize + 1) * sizeof (fftwf_complex*));
         currentProcessBlockFFT = (fftwf_complex*) fftwf_malloc ((getNumPartitions()) * (partitionSize + 1) * (partitionSize + 1) * (sizeof (fftwf_complex*)));
         currentAudio = new float[doubleWindowSize];
-        pluginSampleRate = sampleRate1;
+
+        // [3]
+         fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio,                                                            fftCurrentBlockOutput, FFTW_ESTIMATE);
+        
     }
     
     ~ReverbProcessor()
@@ -40,26 +50,33 @@ public:
         fftwf_destroy_plan(fftCurrentProcessBlockPlan);
         delete[] currentAudio;
         currentAudio = nullptr;
-        
     }
 
-    // Get the current blocks FFT
+    /*
+     * 1) Zero pad the second half of the current audio's buffer
+     * 2) Execute the FFT plan created in the constructor
+     * 3) Save the current complex values in the currentBlock's FFT array
+     */
     void computeRealTimeFFT ()
     {
+        fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio,                                                            fftCurrentBlockOutput, FFTW_ESTIMATE);
         if (isNextBlockReady == true)
         {
-            // Zero pad the buffer
+            // [1]
             for (int i = partitionSize; i < doubleWindowSize; i++)
                 currentAudio[i] = 0.0;
             
             std::cout << "Successfully padded the buffer\n";
+            
+            // [2]
             fftwf_execute (fftCurrentProcessBlockPlan);
             std::cout << "Successfully executed the FFT\n";
             
+            // [3]
             for (int j = 0; j < partitionSize + 1; j++)
             {
-                currentProcessBlockFFT[j][0] = fftCurrentBlockOutput[j][0];
-                currentProcessBlockFFT[j][1] = fftCurrentBlockOutput[j][1];
+                currentProcessBlockFFT[access3DArrayPosition(0)][0] = fftCurrentBlockOutput[j][0];
+                currentProcessBlockFFT[0][access3DArrayPosition(0)] = fftCurrentBlockOutput[j][1];
                 std::cout << "Real time FFT REAL: " << currentProcessBlockFFT[access3DArrayPosition (0)][0] << "\tImaginary: " << currentProcessBlockFFT[0][access3DArrayPosition (0)] << "\n";
             }
             isNextBlockReady = false;
