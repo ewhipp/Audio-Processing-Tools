@@ -18,8 +18,7 @@
 //==============================================================================
 class ConvolutionReverbAudioProcessor  : public AudioProcessor,
                                          public ChangeBroadcaster,
-                                         public Thread,
-                                         public ReverbProcessor
+                                         public Thread
 {
 public:
     float dry;
@@ -35,13 +34,9 @@ public:
     // Thread safe reading of the convolution file
     ReferenceCountedArray<FileBuffer> buffers;
     FileBuffer::Ptr currentBuffer;
-    void openFromFileSystem ();
+    void openFromFileSystem();
     String chosenPath;
-    void computeIRFFT ();
-    
-    // Remember to delete
-    long long numOSamples;
-    int numOChannels;
+    void computeIRFFT();
     
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -79,14 +74,12 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
 private:
-    AudioProcessorValueTreeState parameters;
-    AudioFormatManager formatManager;
-    fftwf_complex *fftwOut;
-    fftwf_plan fftwPlan;
-    float *fftwIn;
-    
-    
+    AudioProcessorValueTreeState parameters;            // Values of our current slider parameters
+    AudioFormatManager formatManager;                   // Read in audio formats
+    ReverbProcessor reverbProcessor;                    // The Reverb class that performs the Convolution
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessor)
 };
+
+

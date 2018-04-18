@@ -35,11 +35,7 @@ ConvolutionReverbAudioProcessorEditor::ConvolutionReverbAudioProcessorEditor (Co
     addAndMakeVisible(loadFileButton);
     loadFileButton.setButtonText("Load a convolution file..");
     loadFileButton.onClick = [this] { loadButtonClicked(); };
-    
-    addAndMakeVisible(viewSamplesButton);
-    viewSamplesButton.setButtonText("View the file content...");
-    viewSamplesButton.onClick = [this] { sampleButtonClicked(); };
-    
+
     processor.addChangeListener (this);
     setSize (300, 200);
 }
@@ -53,7 +49,6 @@ ConvolutionReverbAudioProcessorEditor::~ConvolutionReverbAudioProcessorEditor()
     preDelaySlider = nullptr;
     drySlider = nullptr;
     wetSlider = nullptr;
-    reverb = nullptr;
 }
 
 //==============================================================================
@@ -83,7 +78,6 @@ void ConvolutionReverbAudioProcessorEditor::resized()
     wetSlider->setBounds(parameterArea.removeFromLeft(100));
     
     loadFileButton.setBounds (50, 30, getWidth() - 90, 20);
-    viewSamplesButton.setBounds ( 50, 60, getWidth() - 90, 20);
 }
 
 
@@ -111,19 +105,4 @@ void ConvolutionReverbAudioProcessorEditor::loadButtonClicked()
        // Probably should make the threads private
        processor.notify();
    }
-}
-
-// Get the audio buffer that is currently within the processor
-// view its contents
-void ConvolutionReverbAudioProcessorEditor::sampleButtonClicked()
-{
-    FileBuffer::Ptr processAudioBuffer (processor.currentBuffer);
-    auto* currentAudioSampleBuffer = processAudioBuffer->getAudioSampleBuffer();
-
-    if (currentAudioSampleBuffer != nullptr)
-    {
-        processor.computeIRFFT();
-    }
-    // End view samples
-    
 }

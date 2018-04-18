@@ -25,8 +25,8 @@ public:
         Percent
     };
     
-    TextFormatSlider (SliderStyle style, TextEntryBoxPosition pos, int typeOfOutput=0) : Slider (style, pos),
-                                                                                         type (typeOfOutput)
+    TextFormatSlider (SliderStyle style, TextEntryBoxPosition pos, int typeOfOutput = 0) : Slider (style, pos),
+                                                                                           type (typeOfOutput)
     {}
     
     // Method to create some arbitrary meaning out of the value of our slider. (For users)

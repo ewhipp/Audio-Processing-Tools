@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT name="ConvolutionReverb" projectType="audioplug" buildStandalone="1"
-              jucerVersion="5.3.1" pluginFormats="buildAAX,buildAU,buildStandalone,buildVST,buildVST3"
-              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
-              buildAAX="1" enableIAA="0">
+              jucerVersion="5.3.1" pluginFormats="buildAAX,buildAU,buildAUv3,buildStandalone,buildVST,buildVST3"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="1" buildRTAS="0"
+              buildAAX="1" enableIAA="0" headerPath="/usr/local/include">
   <MAINGROUP id="lK4KCh" name="ConvolutionReverb">
     <GROUP id="{F53CCF4A-B274-E0FC-9A20-C6891E4E59D9}" name="Source">
       <FILE id="CvktIf" name="FileBuffer.h" compile="0" resource="0" file="Source/FileBuffer.h"/>

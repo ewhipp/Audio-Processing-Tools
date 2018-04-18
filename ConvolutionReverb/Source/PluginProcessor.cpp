@@ -23,7 +23,7 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
                      #endif
                        ),
 #endif
-Thread ("Background Thread"), parameters(*this, nullptr)
+Thread ("Background Thread"), parameters(*this, nullptr), reverbProcessor(512, 44100)
 {
     // Pre-delay
     parameters.createAndAddParameter ("pre_delay", "Pre-delay", TRANS ("Pre-delay"),
@@ -67,14 +67,14 @@ Thread ("Background Thread"), parameters(*this, nullptr)
     // Register reading formats
     formatManager.registerBasicFormats();
     parameters.state = ValueTree (Identifier ("ConvolutionReverb"));
-    
     startThread();
 }
 
 ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
     currentBuffer = nullptr;
-    stopThread(4000);
+    stopThread (4000);
+    reverbProcessor.~ReverbProcessor();
 }
 
 //==============================================================================
@@ -91,8 +91,8 @@ void ConvolutionReverbAudioProcessor::run()
     {
         // Open file system dialog and then check if we need to free any of the
         // thread buffers
-        openFromFileSystem ();
-        checkForBuffersToFree ();
+        openFromFileSystem();
+        checkForBuffersToFree();
         
         // 500 ms time frame
         wait (500);
@@ -144,6 +144,10 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
                 // Add to the thread buffers in the processor
                 currentBuffer = newBuffer;
                 buffers.add (newBuffer);
+                
+                // Load the FFT of the recently inserted file.
+                if (currentBuffer != nullptr)
+                    computeIRFFT();
             }
             else
             {
@@ -158,10 +162,6 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
 // Threading Completed
 //==============================================================================
 
-void ConvolutionReverbAudioProcessor::computeIRFFT()
-{
-    ReverbProcessor::getImpulseResponseFileFFT(currentBuffer);
-}
 
 bool ConvolutionReverbAudioProcessor::acceptsMidi() const
 {
@@ -197,8 +197,7 @@ double ConvolutionReverbAudioProcessor::getTailLengthSeconds() const
 
 int ConvolutionReverbAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int ConvolutionReverbAudioProcessor::getCurrentProgram()
@@ -222,8 +221,6 @@ void ConvolutionReverbAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void ConvolutionReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    ReverbProcessor::setSampleRate(sampleRate);
-    ReverbProcessor::setPartitionSize(samplesPerBlock);
 }
 
 void ConvolutionReverbAudioProcessor::releaseResources()
@@ -259,22 +256,26 @@ bool ConvolutionReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-    
+    int totalNumInputChannels  = getTotalNumInputChannels();
+    int totalNumOutputChannels = getTotalNumOutputChannels();
     
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // Process audio block
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        const float* channelData = buffer.getReadPointer(channel);
-        
+        // Fill buffer with 
+        for(int j = 0; j < getBlockSize(); j++)
+            reverbProcessor.setCurrentAudio (buffer.getSample(channel, j));        
+        reverbProcessor.computeRealTimeFFT();
     }
-   
 }
 
+// Retrieve the FFT values of the IR wav file that was loaded in.
+void ConvolutionReverbAudioProcessor::computeIRFFT()
+{
+    reverbProcessor.getImpulseResponseFileFFT(currentBuffer);
+}
 
 //==============================================================================
 bool ConvolutionReverbAudioProcessor::hasEditor() const

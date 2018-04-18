@@ -33,8 +33,7 @@ public:
     
     //========================= User created =======================================
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-    void loadButtonClicked ();
-    void sampleButtonClicked ();
+    void loadButtonClicked();
 
 
 private:
@@ -44,9 +43,6 @@ private:
     
     // Load an audio file
     TextButton loadFileButton;
-    
-    // View the samples
-    TextButton viewSamplesButton;
     
     // File format manager
     std::unique_ptr<AudioFormatReaderSource> readerSource;
@@ -65,9 +61,6 @@ private:
     
     ScopedPointer<TextFormatSlider> wetSlider;
     ScopedPointer<SliderAttachment> wetAttachment;
-    
-    ReverbProcessor* reverb;
 
-    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConvolutionReverbAudioProcessorEditor)
 };
