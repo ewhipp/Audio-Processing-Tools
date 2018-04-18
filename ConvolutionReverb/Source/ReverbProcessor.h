@@ -118,6 +118,7 @@ public:
                 fftIRResult[IRoffset + j][1] = fftIROutput[j][1];
             }
         }
+        
         delete []fftIRInput;
         fftIRInput = nullptr;
     }
@@ -162,6 +163,7 @@ public:
     void setCurrentAudio(float currentSample)
     {
         currentAudio[currentIndex++] = currentSample;
+        
         if (currentIndex == partitionSize)
         {
             isNextBlockReady = true;
@@ -171,7 +173,7 @@ public:
     
     void setPartitionSize (int N)
     {
-        
+        partitionSize = N;
     }
     
     void setSampleRate (int N)
