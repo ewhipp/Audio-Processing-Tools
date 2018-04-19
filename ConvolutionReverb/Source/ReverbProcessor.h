@@ -17,12 +17,13 @@
 class ReverbProcessor
 {
 public:
+    
     /*
      * 1) Init the sample rate and partition size and thus, the double partition size
      * 2) Allocate memory for fft routines and buffer for current block
      * 3) Setting up FFT plan
      */
-    ReverbProcessor (int partitionSize1, int sampleRate1 )
+    ReverbProcessor (int partitionSize1, int sampleRate1)
     {
         // [1]
         partitionSize = partitionSize1;
@@ -30,32 +31,38 @@ public:
         pluginSampleRate = sampleRate1;
         
        // [2]
-        fftCurrentBlockOutput  = (fftwf_complex*) fftwf_malloc ((partitionSize + 1) * sizeof (fftwf_complex*));
-        fftLiveValues = (fftwf_complex*) fftwf_malloc ((1) * (partitionSize + 1) * (partitionSize + 1) * (sizeof (fftwf_complex*)));
-        
-        liveFrequencyDomData  = (fftwf_complex*) fftwf_malloc ((partitionSize + 1) * sizeof (fftwf_complex*));
-        outputInverseFFTBuffer = (fftwf_complex*) fftwf_malloc ((partitionSize + 1) * sizeof (fftwf_complex*));
-        
+        fftCurrentBlockOutput  = (fftwf_complex*) fftwf_alloc_complex(partitionSize + 1);
+        fftLiveValues = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
+        inputInverseFFTBuffer = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         
         currentAudio = new float[doubleWindowSize];
+        outputIFFT = new float[doubleWindowSize];
+        nonOverlapOutput = new float[2 * doubleWindowSize];
+        
+        // init overlap to 0
+        for (int i = 0; i < 2 * doubleWindowSize; i++)
+            nonOverlapOutput[i] = 0.0;
         
         // [3]
         fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio,                                                            fftCurrentBlockOutput, FFTW_ESTIMATE);
-        fftFinalFreqToTimePlan = fftwf_plan_dft_c2r_1d (doubleWindowSize, outputInverseFFTBuffer, outputIFFT, FFTW_ESTIMATE);
+        fftFinalFreqToTimePlan = fftwf_plan_dft_c2r_1d (doubleWindowSize, inputInverseFFTBuffer, outputIFFT, FFTW_ESTIMATE);
     }
     
     ~ReverbProcessor()
     {
-        fftwf_free (fftIROutput);
-        fftwf_free (fftIRResult);
         fftwf_free (fftIRResult);
         fftwf_free (fftCurrentBlockOutput);
+        fftwf_free (liveFrequencyDomData);
+        fftwf_free (fftLiveValues);
+        fftwf_free (inputInverseFFTBuffer);
 
-        fftwf_destroy_plan (fftIRFilePlan);
         fftwf_destroy_plan(fftCurrentProcessBlockPlan);
+        fftwf_destroy_plan(fftFinalFreqToTimePlan);
         
         delete[] currentAudio;
         currentAudio = nullptr;
+        delete[] outputIFFT;
+        outputIFFT = nullptr;
     }
     
     
@@ -73,9 +80,9 @@ public:
      */
     void getImpulseResponseFileFFT (FileBuffer::Ptr currentBuffer)
     {
-        currentFileBuffer = currentBuffer->getAudioSampleBuffer ();
+        // [1]
+        AudioSampleBuffer* currentFileBuffer = currentBuffer->getAudioSampleBuffer ();
         int FILESIZE = currentFileBuffer->getNumSamples();
-        
         
         // [2]
         setNumPartitons (FILESIZE);
@@ -85,8 +92,10 @@ public:
         sampleOverlapSize = (getNumPartitions() * doubleWindowSize);
         
         // [4]
-        fftIRResult   = (fftwf_complex*) fftwf_malloc (getNumPartitions() * (partitionSize + 1) * (partitionSize + 1) * sizeof (fftwf_complex*));
-        fftIROutput   = (fftwf_complex*) fftwf_malloc ((partitionSize + 1) * sizeof (fftwf_complex*));
+        fftIRResult           = (fftwf_complex*) fftwf_alloc_complex (getNumPartitions() * (partitionSize + 1));
+        liveFrequencyDomData  = (fftwf_complex*) fftwf_alloc_complex (getNumPartitions() * (partitionSize + 1));
+
+        fftIROutput   = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         fftIRInput    = new float[doubleWindowSize];
         fftIRFilePlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, fftIRInput, fftIROutput, FFTW_ESTIMATE);
         
@@ -97,23 +106,25 @@ public:
         // [6]
         for (int currentPartition = 0; currentPartition < getNumPartitions(); currentPartition++)
         {
-            int IRoffset = currentPartition * partitionSize ;
+            int IRoffset = currentPartition * (partitionSize + 1);
             
             // [7]
-            fillSampleBasedOnPartition(currentFileBuffer, fftIRInput, IRoffset);
+            fillSampleBasedOnPartition (currentFileBuffer, fftIRInput, IRoffset);
             
             fftwf_execute (fftIRFilePlan);
             
             // [9]
-            for (int j = 0; j < partitionSize; j++)
+            for (int j = 0; j < (partitionSize + 1); j++)
             {
-                fftIRResult[access3DArrayPosition(currentPartition)][0] = fftIROutput[j][0];
-                fftIRResult[0][access3DArrayPosition(currentPartition)] = fftIROutput[j][1];
+                fftIRResult[IRoffset + j][0] = fftIROutput[j][0];
+                fftIRResult[IRoffset + j][1] = fftIROutput[j][1];
             }
         }
         
         delete []fftIRInput;
         fftIRInput = nullptr;
+        fftwf_destroy_plan (fftIRFilePlan);
+        fftwf_free (fftIROutput);
     }
     
     /*
@@ -135,70 +146,61 @@ public:
             for (int i = partitionSize; i < doubleWindowSize; i++)
                 currentAudio[i] = 0.0;
             
-            
             // [4]
             fftwf_execute (fftCurrentProcessBlockPlan);
             
             // [5]
             for (int j = 0; j < partitionSize + 1; j++)
             {
-                fftLiveValues[access3DArrayPosition(j)][0] = fftCurrentBlockOutput[j][0];
-                fftLiveValues[0][access3DArrayPosition(j)] = fftCurrentBlockOutput[j][1];
+                
+                fftLiveValues[j][0] = fftCurrentBlockOutput[j][0];
+                fftLiveValues[j][1] = fftCurrentBlockOutput[j][1];
             }
             
             isNextBlockReady = false;
+            accumulateComplexValues();
         }
     }
 
     /*
      * 1) Begin iteration through each partition
-     * 2) Keep track of where are accumulation operation is in terms of the current partition
-     * 3) Accumulate the values of the IR + Current live block in liveFrequencyDomData buffer
-     * 4) Copy to our inverse FFT buffer.
+     * 2) Accumulate the values of the IR + Current live block in liveFrequencyDomData buffer
+     * 3) Copy to our inverse FFT buffer.
      */
     void accumulateComplexValues()
     {
+        
         // [1]
         for (int currentPartition = 0; currentPartition < getNumPartitions(); currentPartition++)
         {
-            // [2]
-            int operationOffset = currentPartition * (windowSize + 1);
+            int operationOffset = currentPartition * (partitionSize + 1);
             
-            // [3]
-            for (int i = 0; i < (windowSize + 1); i++)
+            // [2]
+            for (int i = 0; i < (partitionSize + 1); i++)
             {
                 float realCB, imaginaryCB, realIR, imaginaryIR, realAcc, imaginaryAcc;
                 
-                realCB = fftLiveValues[access3DArrayPosition(i)][0];
-                imaginaryCB = fftLiveValues[0][access3DArrayPosition(i)];
+                realCB      = fftLiveValues[i][0];
+                imaginaryCB = fftLiveValues[i][1];
                 
-                realIR = fftIRResult[access3DArrayPosition(i)][0];
-                imaginaryIR = fftIRResult[0][access3DArrayPosition(i)];
+                realIR      = fftIRResult[operationOffset + i][0];
+                imaginaryIR = fftIRResult[operationOffset + i][1];
                 
                 realAcc      = (realCB * realIR) - (imaginaryCB * imaginaryIR);
                 imaginaryAcc = (imaginaryCB * realIR) + (realCB * imaginaryIR);
-                
-                liveFrequencyDomData[access3DArrayPosition(operationOffset)][0] += realAcc;
-                liveFrequencyDomData[0][access3DArrayPosition(operationOffset)] += imaginaryAcc;
+
+                liveFrequencyDomData[operationOffset + i][0] += realAcc;
+                liveFrequencyDomData[operationOffset + i][1] += imaginaryAcc;
             }
         }
         
-        // [4]
-        for (int i = 0; i < (windowSize + 1); i++)
+        // [3]
+        for (int i = 0; i < (partitionSize + 1); i++)
         {
-            outputInverseFFTBuffer[access3DArrayPosition(i)][0] = liveFrequencyDomData[access3DArrayPosition(i)][0];
-            outputInverseFFTBuffer[0][access3DArrayPosition(i)] = liveFrequencyDomData[0][access3DArrayPosition(i)];
+            inputInverseFFTBuffer[i][0] = liveFrequencyDomData[i][0];
+            inputInverseFFTBuffer[i][1] = liveFrequencyDomData[i][1];
         }
     }
-    
-    // Helper function for accessing a 3D array
-    int access3DArrayPosition (int currentPartition)
-    {
-        int y = partitionSize + 1;
-        int z = partitionSize + 1;
-        return (z * currentPartition * y) + (y * currentPartition) + currentPartition;
-    }
-
     
     // Set the number of partitions for the plugin
     void setNumPartitons (int numSamples)
@@ -274,7 +276,7 @@ private:
     int currentIndex = 0;                       // Current index as we are filling our buffer
     int currentAudioQueueTop = 0;               // Top value of the current Queue
 
-    float* nonSampleOverlap;                    // Where the samples are in use ??
+    float* nonOverlapOutput;                    // Where the samples are in use ??
     float* fftIRInput;                          // Array of the IR Input's samples.
     float* currentAudio;                        // Buffer that holds the most recent block of samples
     float* outputIFFT;                          // Ultimate output data
@@ -284,14 +286,10 @@ private:
     
     fftwf_complex* fftIROutput;                 // Used for the output of the IR files FFTW plan
     fftwf_complex* fftIRResult;                 // IR results complex array
-    
     fftwf_complex* fftCurrentBlockOutput;       // Used for the output of the current blocks FFTW plan
     fftwf_complex* fftLiveValues;               // The current processing block
-    
     fftwf_complex* liveFrequencyDomData;        // Current frequency domain data.
-    fftwf_complex* outputInverseFFTBuffer;      // Inverse FFT Buffer
-    
-    AudioSampleBuffer* currentFileBuffer;       // The file buffer to our IR file
+    fftwf_complex* inputInverseFFTBuffer;      // Inverse FFT Buffer
     
     fftwf_plan fftIRFilePlan;                   // Plan for the impulse response file
     fftwf_plan fftCurrentProcessBlockPlan;      // Plan for the most recent block of audio
