@@ -26,19 +26,19 @@ public:
     ReverbProcessor (int partitionSize1, int sampleRate1)
     {
         // [1]
-        partitionSize = partitionSize1;
+        partitionSize    = partitionSize1;
         doubleWindowSize = partitionSize * 2;
         pluginSampleRate = sampleRate1;
-        scaleOutputGain = 1.0f / doubleWindowSize;
+        scaleOutputGain  = 1.0f / doubleWindowSize;
 
         
        // [2]
-        fftCurrentBlockOutput  = (fftwf_complex*) fftwf_alloc_complex(partitionSize + 1);
-        fftLiveValues = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
+        fftCurrentBlockOutput = (fftwf_complex*) fftwf_alloc_complex(partitionSize + 1);
+        fftLiveValues         = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         inputInverseFFTBuffer = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         
-        currentAudio = new float[doubleWindowSize];
-        outputIFFT = new float[doubleWindowSize];
+        currentAudio     = new float[doubleWindowSize];
+        outputIFFT       = new float[doubleWindowSize];
         nonOverlapOutput = new float[2 * doubleWindowSize];
         convolutedOutput = new float[partitionSize1];
         
@@ -47,8 +47,8 @@ public:
             nonOverlapOutput[i] = 0.0;
         
         // [3]
-        fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio,                                                            fftCurrentBlockOutput, FFTW_ESTIMATE);
-        fftFinalFreqToTimePlan = fftwf_plan_dft_c2r_1d (doubleWindowSize, inputInverseFFTBuffer, outputIFFT, FFTW_ESTIMATE);
+        fftCurrentProcessBlockPlan = fftwf_plan_dft_r2c_1d (doubleWindowSize, currentAudio, fftCurrentBlockOutput, FFTW_ESTIMATE);
+        fftFinalFreqToTimePlan     = fftwf_plan_dft_c2r_1d (doubleWindowSize, inputInverseFFTBuffer, outputIFFT, FFTW_ESTIMATE);
     }
     
     ~ReverbProcessor()
@@ -225,7 +225,6 @@ public:
      */
     float* outputConvolution()
     {
-        std::cout << "In output convolution\n";
         // [1]
         if (beginOutputConvolution == true)
         {
@@ -259,7 +258,11 @@ public:
             
             for (int i = doubleWindowSize; i < (2 * doubleWindowSize); i++)
                 nonOverlapOutput[i] = 0.0;
+            
+            return convolutedOutput;
         }
+        
+        return currentAudio;
     }
     
     
