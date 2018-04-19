@@ -264,6 +264,10 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
             reverbProcessor.setCurrentAudio (buffer.getSample(channel, j));
         
         reverbProcessor.computeRealTimeFFT();
+        reverbProcessor.accumulateComplexValues();
+        
+        // How do I get this as a part of the buffer?
+        reverbProcessor.outputConvolution();
     }
 }
 

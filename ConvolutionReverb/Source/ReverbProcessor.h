@@ -29,6 +29,8 @@ public:
         partitionSize = partitionSize1;
         doubleWindowSize = partitionSize * 2;
         pluginSampleRate = sampleRate1;
+        scaleOutputGain = 1.0f / doubleWindowSize;
+
         
        // [2]
         fftCurrentBlockOutput  = (fftwf_complex*) fftwf_alloc_complex(partitionSize + 1);
@@ -38,6 +40,7 @@ public:
         currentAudio = new float[doubleWindowSize];
         outputIFFT = new float[doubleWindowSize];
         nonOverlapOutput = new float[2 * doubleWindowSize];
+        convolutedOutput = new float[partitionSize1];
         
         // init overlap to 0
         for (int i = 0; i < 2 * doubleWindowSize; i++)
@@ -63,6 +66,10 @@ public:
         currentAudio = nullptr;
         delete[] outputIFFT;
         outputIFFT = nullptr;
+        delete[] convolutedOutput;
+        convolutedOutput = nullptr;
+        delete[] nonOverlapOutput;
+        nonOverlapOutput = nullptr;
     }
     
     
@@ -158,7 +165,7 @@ public:
             }
             
             isNextBlockReady = false;
-            accumulateComplexValues();
+            beginAccumulation = true;
         }
     }
 
@@ -166,41 +173,96 @@ public:
      * 1) Begin iteration through each partition
      * 2) Accumulate the values of the IR + Current live block in liveFrequencyDomData buffer
      * 3) Copy to our inverse FFT buffer.
+     * 4) Execute the IFFT plan
      */
     void accumulateComplexValues()
     {
-        
-        // [1]
-        for (int currentPartition = 0; currentPartition < getNumPartitions(); currentPartition++)
+        if (beginAccumulation == true)
         {
-            int operationOffset = currentPartition * (partitionSize + 1);
+            // [1]
+            for (int currentPartition = 0; currentPartition < getNumPartitions(); currentPartition++)
+            {
+                int operationOffset = currentPartition * (partitionSize + 1);
+                
+                // [2]
+                for (int i = 0; i < (partitionSize + 1); i++)
+                {
+                    float realCB, imaginaryCB, realIR, imaginaryIR, realAcc, imaginaryAcc;
+                    
+                    realCB      = fftLiveValues[i][0];
+                    imaginaryCB = fftLiveValues[i][1];
+                    
+                    realIR      = fftIRResult[operationOffset + i][0];
+                    imaginaryIR = fftIRResult[operationOffset + i][1];
+                    
+                    realAcc      = (realCB * realIR) - (imaginaryCB * imaginaryIR);
+                    imaginaryAcc = (imaginaryCB * realIR) + (realCB * imaginaryIR);
+
+                    liveFrequencyDomData[operationOffset + i][0] += realAcc;
+                    liveFrequencyDomData[operationOffset + i][1] += imaginaryAcc;
+                }
+            }
             
-            // [2]
+            // [3]
             for (int i = 0; i < (partitionSize + 1); i++)
             {
-                float realCB, imaginaryCB, realIR, imaginaryIR, realAcc, imaginaryAcc;
-                
-                realCB      = fftLiveValues[i][0];
-                imaginaryCB = fftLiveValues[i][1];
-                
-                realIR      = fftIRResult[operationOffset + i][0];
-                imaginaryIR = fftIRResult[operationOffset + i][1];
-                
-                realAcc      = (realCB * realIR) - (imaginaryCB * imaginaryIR);
-                imaginaryAcc = (imaginaryCB * realIR) + (realCB * imaginaryIR);
-
-                liveFrequencyDomData[operationOffset + i][0] += realAcc;
-                liveFrequencyDomData[operationOffset + i][1] += imaginaryAcc;
+                inputInverseFFTBuffer[i][0] = liveFrequencyDomData[i][0];
+                inputInverseFFTBuffer[i][1] = liveFrequencyDomData[i][1];
             }
-        }
-        
-        // [3]
-        for (int i = 0; i < (partitionSize + 1); i++)
-        {
-            inputInverseFFTBuffer[i][0] = liveFrequencyDomData[i][0];
-            inputInverseFFTBuffer[i][1] = liveFrequencyDomData[i][1];
+            
+            fftwf_execute (fftFinalFreqToTimePlan);
+            beginOutputConvolution = true;
         }
     }
+    
+    /*
+     * 1) Copy the latest IFFT result into the second block of the nonOverlapped array, first block contains most recent output.
+     * 2) Write to the output array and reduce the gain
+     * 3) Push the live frequency domain buffer contents backwards
+     * 4) Init the new chunk of live frequency domain buffer
+     * 5) Push remaining output buffer backwards
+     * 6) Init the new output buffer at the end
+     */
+    float* outputConvolution()
+    {
+        std::cout << "In output convolution\n";
+        // [1]
+        if (beginOutputConvolution == true)
+        {
+            for (int i = 0; i < doubleWindowSize; i++)
+                nonOverlapOutput[i + doubleWindowSize] = outputIFFT[i];
+            
+            // [2]
+            for (int i = 0; i < partitionSize; i++)
+            {
+                convolutedOutput[i] = nonOverlapOutput[partitionSize + i] + nonOverlapOutput[doubleWindowSize + i];
+                convolutedOutput[i] *= scaleOutputGain;
+            }
+            
+            // [3]
+            for (int i = 0; i < ((getNumPartitions() * (partitionSize + 1)) - (partitionSize + 1)); i++)
+            {
+                liveFrequencyDomData[i][0] = liveFrequencyDomData[(partitionSize + 1) + i][0];
+                liveFrequencyDomData[i][1] = liveFrequencyDomData[(partitionSize + 1) + i][1];
+            }
+            
+            // [4]
+            for (int i = 0; i < (getNumPartitions() * (partitionSize + 1)); i++)
+            {
+                liveFrequencyDomData[i][0] = 0.0;
+                liveFrequencyDomData[i][1] = 0.0;
+            }
+            
+            // [6]
+            for (int i = 0; i < doubleWindowSize; i++)
+                nonOverlapOutput[i] = nonOverlapOutput[doubleWindowSize  + i];
+            
+            for (int i = doubleWindowSize; i < (2 * doubleWindowSize); i++)
+                nonOverlapOutput[i] = 0.0;
+        }
+    }
+    
+    
     
     // Set the number of partitions for the plugin
     void setNumPartitons (int numSamples)
@@ -275,21 +337,25 @@ private:
     int sampleOverlapSize = 0;                  // Where the samples will overlap with each other
     int currentIndex = 0;                       // Current index as we are filling our buffer
     int currentAudioQueueTop = 0;               // Top value of the current Queue
+    
+    float scaleOutputGain;                      // Scale the output gain of the plugin
 
     float* nonOverlapOutput;                    // Where the samples are in use ??
     float* fftIRInput;                          // Array of the IR Input's samples.
     float* currentAudio;                        // Buffer that holds the most recent block of samples
     float* outputIFFT;                          // Ultimate output data
+    float* convolutedOutput;                    // Final output of the plugin
     
     bool isNextBlockReady;                      // boolean to tell us when to perform the FFT on current samples
-    bool beginComputeCurrent = false;           // Flag for computing the current block
+    bool beginAccumulation = false;             // begin accumulation
+    bool beginOutputConvolution = false;        // begin outputting the convolution
     
     fftwf_complex* fftIROutput;                 // Used for the output of the IR files FFTW plan
     fftwf_complex* fftIRResult;                 // IR results complex array
     fftwf_complex* fftCurrentBlockOutput;       // Used for the output of the current blocks FFTW plan
     fftwf_complex* fftLiveValues;               // The current processing block
     fftwf_complex* liveFrequencyDomData;        // Current frequency domain data.
-    fftwf_complex* inputInverseFFTBuffer;      // Inverse FFT Buffer
+    fftwf_complex* inputInverseFFTBuffer;       // Inverse FFT Buffer
     
     fftwf_plan fftIRFilePlan;                   // Plan for the impulse response file
     fftwf_plan fftCurrentProcessBlockPlan;      // Plan for the most recent block of audio
