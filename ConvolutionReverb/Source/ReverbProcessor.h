@@ -72,8 +72,6 @@ public:
         nonOverlapOutput = nullptr;
     }
     
-    
-    
     /*
      * 1) Get pointer to the file from the file buffer
      * 2) Set the number of partitions and the overlap
@@ -265,8 +263,6 @@ public:
         return currentAudio;
     }
     
-    
-    
     // Set the number of partitions for the plugin
     void setNumPartitons (int numSamples)
     {
@@ -275,6 +271,7 @@ public:
         while ((numPartitions * partitionSize) < numSamples)
             numPartitions++;
     }
+    
     /*
      * We calculate our convolution based on the current partition. This takes the current
      * buffer and offsets where we start filling the array based on our current partition.
@@ -306,6 +303,7 @@ public:
         }
     }
     
+    /* GETTERS AND SETTERS */
     void setPartitionSize (int N)
     {
         partitionSize = N;
@@ -341,7 +339,7 @@ private:
     int currentIndex = 0;                       // Current index as we are filling our buffer
     int currentAudioQueueTop = 0;               // Top value of the current Queue
     
-    float scaleOutputGain;                      // Scale the output gain of the plugin
+    float scaleOutputGain = 0.0;                // Scale the output gain of the plugin
 
     float* nonOverlapOutput;                    // Where the samples are in use ??
     float* fftIRInput;                          // Array of the IR Input's samples.
@@ -349,7 +347,7 @@ private:
     float* outputIFFT;                          // Ultimate output data
     float* convolutedOutput;                    // Final output of the plugin
     
-    bool isNextBlockReady;                      // boolean to tell us when to perform the FFT on current samples
+    bool isNextBlockReady = false;              // boolean to tell us when to perform the FFT on current samples
     bool beginAccumulation = false;             // begin accumulation
     bool beginOutputConvolution = false;        // begin outputting the convolution
     
