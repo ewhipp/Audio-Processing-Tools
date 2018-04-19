@@ -94,8 +94,8 @@ void ConvolutionReverbAudioProcessor::run()
         openFromFileSystem();
         checkForBuffersToFree();
         
-        // 500 ms time frame
-        wait (500);
+        // 100 ms time frame
+        wait (1);
     }
 }
 
@@ -144,10 +144,6 @@ void ConvolutionReverbAudioProcessor::openFromFileSystem()
                 // Add to the thread buffers in the processor
                 currentBuffer = newBuffer;
                 buffers.add (newBuffer);
-                
-                // Load the FFT of the recently inserted file.
-                if (currentBuffer != nullptr)
-                    computeIRFFT();
             }
             else
             {
@@ -264,9 +260,9 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        // Fill buffer with 
         for(int j = 0; j < getBlockSize(); j++)
-            reverbProcessor.setCurrentAudio (buffer.getSample(channel, j));        
+            reverbProcessor.setCurrentAudio (buffer.getSample(channel, j));
+        
         reverbProcessor.computeRealTimeFFT();
     }
 }
@@ -274,7 +270,7 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
 // Retrieve the FFT values of the IR wav file that was loaded in.
 void ConvolutionReverbAudioProcessor::computeIRFFT()
 {
-    reverbProcessor.getImpulseResponseFileFFT(currentBuffer);
+    reverbProcessor.getImpulseResponseFileFFT (currentBuffer);
 }
 
 //==============================================================================

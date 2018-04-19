@@ -104,5 +104,15 @@ void ConvolutionReverbAudioProcessorEditor::loadButtonClicked()
        
        // Probably should make the threads private
        processor.notify();
+       
+       FileBuffer::Ptr processAudioBuffer (processor.currentBuffer);
+       
+       while (true)
+           if (processor.currentBuffer != nullptr)
+               if (processor.currentBuffer->getAudioSampleBuffer() != nullptr)
+               {
+                   processor.computeIRFFT();
+                   break;
+               }
    }
 }
