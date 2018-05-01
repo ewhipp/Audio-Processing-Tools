@@ -5,6 +5,8 @@
     Created: 26 Mar 2018 5:03:49pm
     Author:  Erik Whipp
 
+    This file allows us to modify the string representations of the sliders in
+    the plugin.
   ==============================================================================
 */
 

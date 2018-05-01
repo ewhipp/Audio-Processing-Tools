@@ -20,10 +20,10 @@ public:
     typedef ReferenceCountedObjectPtr <FileBuffer> Ptr;
 
     
-    FileBuffer     (const String& nameToUse,
+    FileBuffer     (const String& nameOfFile,
                             int numChannels,
                             int numSamples) :
-    name (nameToUse),
+    name (nameOfFile),
     buffer (numChannels, numSamples)
     {
         DBG (String ("Buffer named '") + name + "' created. numChannels = " + 

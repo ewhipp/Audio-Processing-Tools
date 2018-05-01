@@ -5,6 +5,8 @@
     Created: 26 Mar 2018 5:04:01pm
     Author:  Erik Whipp
 
+    This file contains all of the code that processes the audio buffer. It consists
+    of all parts of the convolution reverb.
   ==============================================================================
 */
 
@@ -23,24 +25,23 @@ public:
      * 2) Allocate memory for fft routines and buffer for current block
      * 3) Setting up FFT plan
      */
-    ReverbProcessor (int partitionSize1, int sampleRate1)
+    ReverbProcessor (int parentWindowSize, int parentSampleRate)
     {
         // [1]
-        partitionSize    = partitionSize1;
+        partitionSize    = parentWindowSize;
         doubleWindowSize = partitionSize * 2;
-        pluginSampleRate = sampleRate1;
+        pluginSampleRate = parentSampleRate;
         scaleOutputGain  = 1.0f / doubleWindowSize;
 
         
        // [2]
         fftCurrentBlockOutput = (fftwf_complex*) fftwf_alloc_complex(partitionSize + 1);
-        fftLiveValues         = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         inputInverseFFTBuffer = (fftwf_complex*) fftwf_alloc_complex (partitionSize + 1);
         
         currentAudio     = new float[doubleWindowSize];
         outputIFFT       = new float[doubleWindowSize];
         nonOverlapOutput = new float[2 * doubleWindowSize];
-        convolutedOutput = new float[partitionSize1];
+        convolutedOutput = new float[partitionSize];
         
         // init overlap to 0
         for (int i = 0; i < 2 * doubleWindowSize; i++)
@@ -54,13 +55,11 @@ public:
     ~ReverbProcessor()
     {
         fftwf_free (fftIRResult);
-        fftwf_free (fftCurrentBlockOutput);
         fftwf_free (liveFrequencyDomData);
-        fftwf_free (fftLiveValues);
         fftwf_free (inputInverseFFTBuffer);
 
-        fftwf_destroy_plan(fftCurrentProcessBlockPlan);
-        fftwf_destroy_plan(fftFinalFreqToTimePlan);
+        fftwf_destroy_plan (fftCurrentProcessBlockPlan);
+        fftwf_destroy_plan (fftFinalFreqToTimePlan);
         
         delete[] currentAudio;
         currentAudio = nullptr;
@@ -91,10 +90,6 @@ public:
         
         // [2]
         setNumPartitons (FILESIZE);
-        sampleOverlapSize = 0;
-        
-        // [3]
-        sampleOverlapSize = (getNumPartitions() * doubleWindowSize);
         
         // [4]
         fftIRResult           = (fftwf_complex*) fftwf_alloc_complex (getNumPartitions() * (partitionSize + 1));
@@ -137,7 +132,6 @@ public:
      * 2) Initialize the FFT plan
      * 3) Zero pad the second half of the current audio's buffer
      * 4) Execute the FFT plan created in the constructor
-     * 5) Save the current complex values in the currentBlock's FFT array
      */
     void computeRealTimeFFT ()
     {
@@ -154,14 +148,6 @@ public:
             // [4]
             fftwf_execute (fftCurrentProcessBlockPlan);
             
-            // [5]
-            for (int j = 0; j < partitionSize + 1; j++)
-            {
-                
-                fftLiveValues[j][0] = fftCurrentBlockOutput[j][0];
-                fftLiveValues[j][1] = fftCurrentBlockOutput[j][1];
-            }
-            
             isNextBlockReady = false;
             beginAccumulation = true;
         }
@@ -175,6 +161,9 @@ public:
      */
     void accumulateComplexValues()
     {
+        for (int i = 0; i < doubleWindowSize; i++)
+             outputIFFT[i] = 0.0;
+             
         if (beginAccumulation == true)
         {
             // [1]
@@ -187,8 +176,8 @@ public:
                 {
                     float realCB, imaginaryCB, realIR, imaginaryIR, realAcc, imaginaryAcc;
                     
-                    realCB      = fftLiveValues[i][0];
-                    imaginaryCB = fftLiveValues[i][1];
+                    realCB      = fftCurrentBlockOutput[i][0];
+                    imaginaryCB = fftCurrentBlockOutput[i][1];
                     
                     realIR      = fftIRResult[operationOffset + i][0];
                     imaginaryIR = fftIRResult[operationOffset + i][1];
@@ -209,6 +198,7 @@ public:
             }
             
             fftwf_execute (fftFinalFreqToTimePlan);
+            beginAccumulation = false;
             beginOutputConvolution = true;
         }
     }
@@ -250,18 +240,19 @@ public:
                 liveFrequencyDomData[i][1] = 0.0;
             }
             
-            // [6]
+            // [5]
             for (int i = 0; i < doubleWindowSize; i++)
                 nonOverlapOutput[i] = nonOverlapOutput[doubleWindowSize  + i];
             
+            // [6]
             for (int i = doubleWindowSize; i < (2 * doubleWindowSize); i++)
                 nonOverlapOutput[i] = 0.0;
             
+            beginOutputConvolution = false;
             return convolutedOutput;
         }
-        
         return currentAudio;
-    }
+}
     
     // Set the number of partitions for the plugin
     void setNumPartitons (int numSamples)
@@ -292,7 +283,7 @@ public:
     }
     
     // Fill an array with the current buffer of audio
-    void setCurrentAudio(float currentSample)
+    void setCurrentAudio (float currentSample)
     {
         currentAudio[currentIndex++] = currentSample;
         
@@ -335,7 +326,6 @@ private:
     int partitionSize = 0;                      // Block size
     int pluginSampleRate = 0;                   // Sample rate
     int numPartitions = 0;                      // Number of partitions
-    int sampleOverlapSize = 0;                  // Where the samples will overlap with each other
     int currentIndex = 0;                       // Current index as we are filling our buffer
     int currentAudioQueueTop = 0;               // Top value of the current Queue
     
@@ -354,7 +344,6 @@ private:
     fftwf_complex* fftIROutput;                 // Used for the output of the IR files FFTW plan
     fftwf_complex* fftIRResult;                 // IR results complex array
     fftwf_complex* fftCurrentBlockOutput;       // Used for the output of the current blocks FFTW plan
-    fftwf_complex* fftLiveValues;               // The current processing block
     fftwf_complex* liveFrequencyDomData;        // Current frequency domain data.
     fftwf_complex* inputInverseFFTBuffer;       // Inverse FFT Buffer
     

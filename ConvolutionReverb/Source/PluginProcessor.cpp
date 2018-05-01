@@ -17,9 +17,9 @@ ConvolutionReverbAudioProcessor::ConvolutionReverbAudioProcessor()
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  AudioChannelSet::stereo(), true)
+                       .withInput  ("Input",  AudioChannelSet::mono(), true)
                       #endif
-                       .withOutput ("Output", AudioChannelSet::stereo(), true)
+                       .withOutput ("Output", AudioChannelSet::mono(), true)
                      #endif
                        ),
 #endif
@@ -74,7 +74,6 @@ ConvolutionReverbAudioProcessor::~ConvolutionReverbAudioProcessor()
 {
     currentBuffer = nullptr;
     stopThread (4000);
-    reverbProcessor.~ReverbProcessor();
 }
 
 //==============================================================================
@@ -254,20 +253,21 @@ void ConvolutionReverbAudioProcessor::processBlock (AudioBuffer<float>& buffer, 
     ScopedNoDenormals noDenormals;
     int totalNumInputChannels  = getTotalNumInputChannels();
     int totalNumOutputChannels = getTotalNumOutputChannels();
+    float* convOutput;
     
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    for (int channel = 0; channel < 1; ++channel)
     {
         for(int j = 0; j < getBlockSize(); j++)
             reverbProcessor.setCurrentAudio (buffer.getSample(channel, j));
         
         reverbProcessor.computeRealTimeFFT();
         reverbProcessor.accumulateComplexValues();
+        convOutput = reverbProcessor.outputConvolution();
         
-        // How do I get this as a part of the buffer?
-        reverbProcessor.outputConvolution();
+        buffer.copyFrom (channel, 0, convOutput, buffer.getNumSamples());
     }
 }
 
