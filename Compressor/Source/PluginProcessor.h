@@ -19,30 +19,16 @@
 /**
 */
 class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor,
-                                                    public ChangeBroadcaster,
-                                                    public CompressorProcessor
+                                                    public ChangeBroadcaster
 {
 public:
     //==============================================================================
     AmericanUniversityCompressorAudioProcessor();
     ~AmericanUniversityCompressorAudioProcessor();
 
-    float currentGainFactor;
-    float currentdB;
-    float currentRMS;
-    float thresholdRMS;
-    AudioSampleBuffer visualizeBuffer;
-    float calculateOvershoot(float rmsAmp, float threshold);
-    float calculateDesiredGain(float threshold, float ratio, float Overshoot);
-    float calculateGainFactor(float desiredGain, float rmsAmp);
-    float rmsAmp(int n, const float *buffer);
-    float rms2dB(float rmsAmplitude);
-    float calculateNumSamples(float*, int, int);
-    
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
-   // void parameterChanged(const String& parameter, float newValue) override;
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -72,13 +58,48 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-private:
     
+    //==============================================================================
+    float getCurrentdB();
+    float getCurrentGainFactor();
+    float getCurrentThresholdRMS();
+
+    //==============================================================================
+    AudioSampleBuffer visualizeBuffer;
+
+private:
     AudioProcessorValueTreeState parameters;
+    
     float lastOvershoot;
     float currentOvershoot;
     float blockTargetGainFactor;
+    float currentGainFactor;
+    float currentdB;
+    float currentRMS;
+    float thresholdRMS;
+    
+    ScopedPointer<CompressorProcessor> compressor;
+    
     bool attackFlag;
+    
+    /**
+     * Moving RMS function.
+     *
+     * @param n: number to finish window
+     * @param buffer: current buffer amplitude amount.
+     */
+    float ampToRMS (int n, const float *buffer)
+    {
+        float total;
+        total = 0.0;
+        
+        for (int i = 0; i < n; i++)
+            total += powf(buffer[i], 2.0);
+        
+        total /= n;
+        total = sqrt(total);
+        return total;
+    }
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)

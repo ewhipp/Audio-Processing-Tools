@@ -9,6 +9,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+
 //==============================================================================
 AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -24,10 +25,10 @@ parameters(*this, nullptr)
 #endif
 {
     attackFlag = false;
-    CompressorProcessor::setTimeSinceRelease (0);
-    CompressorProcessor::setTimeSinceRelease (0);
     lastOvershoot = -1;
-
+    
+    compressor = new CompressorProcessor(AmericanUniversityCompressorAudioProcessor::getSampleRate(), AmericanUniversityCompressorAudioProcessor::getBlockSize());
+    
     parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
                                  NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
                                  [] (float value)
@@ -88,6 +89,7 @@ parameters(*this, nullptr)
 
 AmericanUniversityCompressorAudioProcessor::~AmericanUniversityCompressorAudioProcessor()
 {
+    compressor->~CompressorProcessor();
 }
 
 //==============================================================================
@@ -155,8 +157,6 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentGainFactor = 1.0f;
-    CompressorProcessor::setParentSampleRate(sampleRate);
-    CompressorProcessor::setBlockSize(samplesPerBlock);
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
@@ -188,34 +188,6 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
 }
 #endif
 
-float AmericanUniversityCompressorAudioProcessor::rmsAmp(int n, const float *buffer)
-{
-    float total;
-    total = 0.0;
-    for(int i = 0; i < n; i++)
-        total += powf(buffer[i],2.0);
-    
-    total /= n;
-    total = sqrt(total);
-    return total;
-}
-
-/*
- * Attack and release start in milliseconds convert to seconds and then samples and round
- * divide the slider value by 1000 * by sample rate
- */
-// Calculate time to wait for attack/release sliders for more info: see CompressorProcessor.h
-float AmericanUniversityCompressorAudioProcessor::calculateNumSamples(float* slider,
-                                                                      int n, int blockSize)
-{
-    float timeToWaste;
-    float sliderValue = *slider;
-    sliderValue = *slider / 1000;
-    timeToWaste = sliderValue * n;
-    if (blockSize > timeToWaste) { timeToWaste = 0;}
-    return timeToWaste;
-}
-
 // Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
@@ -223,15 +195,12 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
     
-    // Get our parameter values.
     float* makeupGain = parameters.getRawParameterValue("makeUpGain");
     float* threshold = parameters.getRawParameterValue("threshold");
     float* attack = parameters.getRawParameterValue("attack");
     float* release = parameters.getRawParameterValue("release");
     float* ratio = parameters.getRawParameterValue("ratio");
 
-    
-    // Clear the buffer in order to reduce the chances of returning feedback
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
@@ -239,28 +208,28 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         const float* channelData = buffer.getReadPointer(channel);
-        currentRMS =   rmsAmp(buffer.getNumSamples(), channelData);
-        currentdB =    Decibels::gainToDecibels(currentRMS);
-        thresholdRMS = Decibels::decibelsToGain(*threshold);
+        currentRMS =   ampToRMS (buffer.getNumSamples(), channelData);
+        currentdB =    Decibels::gainToDecibels (currentRMS);
+        thresholdRMS = Decibels::decibelsToGain (*threshold);
         currentOvershoot = (currentRMS - thresholdRMS);
 
         if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
         {
             attackFlag = true;
-            blockTargetGainFactor = CompressorProcessor::beginAttack (currentGainFactor, ratio, attack,
+            blockTargetGainFactor = compressor->beginAttack (currentGainFactor, ratio, attack,
                                              currentOvershoot, thresholdRMS, currentRMS);
         }
         
         else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
-            blockTargetGainFactor = CompressorProcessor::continueAttack();
+            blockTargetGainFactor = compressor->continueAttack();
         
         else if (currentRMS <= thresholdRMS && attackFlag)
         {
             attackFlag = false;
-            blockTargetGainFactor = CompressorProcessor::beginRelease(currentGainFactor, release);
+            blockTargetGainFactor = compressor->beginRelease(currentGainFactor, release);
         }
         else if (currentRMS <= thresholdRMS && !attackFlag)
-            blockTargetGainFactor = CompressorProcessor::continueRelease();
+            blockTargetGainFactor = compressor->continueRelease();
 
         
         buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
@@ -312,3 +281,7 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AmericanUniversityCompressorAudioProcessor();
 }
+
+float AmericanUniversityCompressorAudioProcessor::getCurrentdB() { return currentdB; }
+float AmericanUniversityCompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
+float AmericanUniversityCompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }

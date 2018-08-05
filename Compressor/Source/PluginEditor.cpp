@@ -82,18 +82,19 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
     // Update rms meter
-    rmsValue.setLevelRMS(processor.currentRMS);
-    rmsValueLabel.setText(juce::String(processor.currentRMS, 3),
+    rmsValue.setLevel(processor.getCurrentThresholdRMS(), 0.0f, 1.0f);
+    rmsValueLabel.setText(juce::String(processor.getCurrentThresholdRMS(), 3),
                           dontSendNotification);
     
     audioView.pushBuffer(processor.visualizeBuffer); // Copy of the processBlock buffer
+    
     // Update the dB meter
-    rms2DBValue.setLeveldB(processor.currentdB);
-    rms2DBValueLabel.setText(Decibels::toString(processor.currentdB),
+    rms2DBValue.setLevel(processor.getCurrentdB(), 0.0f, 100.0f);
+    rms2DBValueLabel.setText(Decibels::toString(processor.getCurrentdB()),
                              dontSendNotification);
     
-    currentThresholdRMS.setText(std::to_string(processor.thresholdRMS), dontSendNotification);
-    currentGainEditor.setText(std::to_string(processor.currentGainFactor) + " current gain", dontSendNotification);
+    currentThresholdRMS.setText(std::to_string(processor.getCurrentThresholdRMS()), dontSendNotification);
+    currentGainEditor.setText(std::to_string(processor.getCurrentGainFactor()) + " current gain", dontSendNotification);
 }
 
 //==============================================================================

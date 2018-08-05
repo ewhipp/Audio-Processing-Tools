@@ -14,12 +14,9 @@
 #include "PluginProcessor.h"
 #include "AudioMeter.h"
 #include "TextFormatSlider.h"
-
-
+#include "util.h"
 
 //==============================================================================
-/**
-*/
 class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
                                                           public ChangeListener,
                                                           private Timer

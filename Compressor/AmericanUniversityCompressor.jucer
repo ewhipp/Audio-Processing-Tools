@@ -4,21 +4,33 @@
               reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.AmericanUniversityCompressor"
               includeBinaryInAppConfig="1" cppLanguageStandard="11" companyCopyright=""
-              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="1" buildRTAS="0"
-              buildAAX="1" buildStandalone="1" enableIAA="0" pluginName="AmericanUniversityCompressor"
-              pluginDesc="AmericanUniversityCompressor" pluginManufacturer="yourcompany"
+              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="AmericanUniversityCompressor"
+              pluginDesc="AmericanUniversityCompressor" pluginManufacturer="ewhipp"
               pluginManufacturerCode="Manu" pluginCode="Feop" pluginChannelConfigs=""
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="AmericanUniversityCompressorAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0">
+              pluginAAXCategory="2" jucerVersion="5.3.2" pluginFormats="buildAU,buildStandalone,buildVST,buildVST3">
   <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
-      <FILE id="rX3puK" name="TextFormatSlider.h" compile="0" resource="0"
-            file="Source/TextFormatSlider.h"/>
-      <FILE id="SzfGh9" name="CompressorProcessor.h" compile="0" resource="0"
-            file="Source/CompressorProcessor.h"/>
-      <FILE id="QRfJxX" name="AudioMeter.h" compile="0" resource="0" file="Source/AudioMeter.h"/>
+      <GROUP id="{E980A44E-E1DA-EC0E-442B-FAAC7EE873B4}" name="modules">
+        <FILE id="ijfaQW" name="util.h" compile="0" resource="0" file="Source/util.h"/>
+        <GROUP id="{E5BE507E-AD86-450A-1109-0329DC4C52FE}" name="Processing">
+          <FILE id="rAZzMJ" name="CompressorProcessor.cpp" compile="1" resource="0"
+                file="Source/CompressorProcessor.cpp"/>
+          <FILE id="SzfGh9" name="CompressorProcessor.h" compile="0" resource="0"
+                file="Source/CompressorProcessor.h"/>
+        </GROUP>
+        <GROUP id="{E75EE1A3-6ADD-361D-2204-76F5C844B08B}" name="GUI">
+          <FILE id="lqE6sX" name="AudioMeter.cpp" compile="1" resource="0" file="Source/AudioMeter.cpp"/>
+          <FILE id="QRfJxX" name="AudioMeter.h" compile="0" resource="0" file="Source/AudioMeter.h"/>
+          <FILE id="cCxmqz" name="TextFormatSlider.cpp" compile="1" resource="0"
+                file="Source/TextFormatSlider.cpp"/>
+          <FILE id="rX3puK" name="TextFormatSlider.h" compile="0" resource="0"
+                file="Source/TextFormatSlider.h"/>
+        </GROUP>
+      </GROUP>
       <FILE id="RW0kKj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="t36e9O" name="PluginProcessor.h" compile="0" resource="0"
@@ -127,6 +139,6 @@
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
   <LIVE_SETTINGS>
-    <OSX/>
+    <OSX buildEnabled="1"/>
   </LIVE_SETTINGS>
 </JUCERPROJECT>

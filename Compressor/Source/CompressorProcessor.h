@@ -15,79 +15,27 @@
 class CompressorProcessor
 {
 public:
-    CompressorProcessor(){}
+    CompressorProcessor(float, int);
     
-    ~CompressorProcessor() {}
+    ~CompressorProcessor();
    
     // This function represents when our current samples are going over the threshold.
     float beginAttack(float startingGainFactor, float* ratioSlider, float* attackSlider,
-                     float currentOvershoot, float thresholdRMS, float currentRMS)
-    {
-        float blockTargetGain;
-        setStartingGainFactor (startingGainFactor);
-        numberOfSamplesToApplyGain = calculateNumSamples (attackSlider, sampleRate, blockSize);
-        setTimeSinceAttack (0);
-        desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, *ratioSlider);
-        gainFactor = calculateGainFactor (desiredGainFactor, currentRMS);
-        timeSinceAttack += blockSize;
-        
-        if (numberOfSamplesToApplyGain == 0)
-            return blockTargetGain = gainFactor;
-        else
-        {
-            float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-            gainFactorRange = startingGainFactor - gainFactor;
-            return blockTargetGain = startingGainFactor - (rampProgress * gainFactorRange);
-        }
-        
-    }
+                      float currentOvershoot, float thresholdRMS, float currentRMS);
     
     // This function represents when our overshoot has not been recalculated and we are still attacking.
-    float continueAttack ()
-    {
-        float blockTargetGain;
-        timeSinceAttack += blockSize;
-        float rampProgress = timeSinceAttack / numberOfSamplesToApplyGain;
-        if (rampProgress >= 1)
-            return blockTargetGain = gainFactor;
-        else
-            return blockTargetGain = startingGainFactor - (rampProgress * gainFactor);
-    }
+    float continueAttack ();
     /*
      * This function represents when our compressor has gotten us below the threshold and we are getting back
      * to normal.
      */
-    float beginRelease(float startingGainFactor, float* releaseSlider)
-    {
-        float blockTargetGain;
-        setStartingGainFactor (startingGainFactor);
-        setTimeSinceRelease (0);
-        gainFactor = 1.0f;
-        numberOfSamplesToApplyGain = calculateNumSamples (releaseSlider, sampleRate, blockSize);
-        
-        timeSinceRelease += blockSize;
-        if (numberOfSamplesToApplyGain == 0)
-            return blockTargetGain = gainFactor;
-        else
-        {
-            float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
-            gainFactorRange = gainFactor - startingGainFactor;
-            return blockTargetGain = startingGainFactor + (rampProgress * gainFactorRange);
-        }
-    }
+    float beginRelease(float startingGainFactor, float* releaseSlider);
     
     // This function represents when we are continuing our release and have not had to recalculate parameters
-    float continueRelease()
-    {
-        float blockTargetGainFactor;
-        timeSinceRelease += blockSize;
-        float rampProgress = timeSinceRelease / numberOfSamplesToApplyGain;
-        if (rampProgress >= 1)
-            return blockTargetGainFactor = gainFactor;
-        else
-            return blockTargetGainFactor = startingGainFactor + (rampProgress * gainFactorRange);
-    }
-
+    float continueRelease();
+    
+private:
+    
     /* Residual calculations */
     float calculateOvershoot(float currentRMS, float currentThreshold)
     {
@@ -96,7 +44,7 @@ public:
     }
     
     float calculateDesiredGain(float currentOvershoot, float currentThreshold,
-                              float currentRatio)
+                               float currentRatio)
     {
         desiredGainFactor = (currentOvershoot / currentRatio) + currentThreshold;
         return desiredGainFactor;
@@ -147,32 +95,31 @@ public:
     }
     
     /* GETTERS */
-    int getBlockSize()
+    int getBlockSize() const
     {
         return blockSize;
     }
     
-    int getParentSampleRate()
+    int getParentSampleRate() const
     {
         return sampleRate;
     }
     
-    int getTimeSinceRelease()
+    int getTimeSinceRelease() const
     {
         return timeSinceRelease;
     }
     
-    int getTimeSinceAttack()
+    int getTimeSinceAttack() const
     {
         return timeSinceAttack;
     }
     
-    float getStartingGainFactor()
+    float getStartingGainFactor() const
     {
         return startingGainFactor;
     }
     
-private:
     float desiredGainFactor;
     float gainFactor;
     float numberOfSamplesToApplyGain;

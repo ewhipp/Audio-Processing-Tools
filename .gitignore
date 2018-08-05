@@ -1,3 +1,5 @@
-Compressor/Builds/
 .DS_STORE
 .DS_STORE?
+Compressor/.DS_STORE
+Compressor/Builds/**
+
