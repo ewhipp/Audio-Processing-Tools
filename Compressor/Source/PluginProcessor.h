@@ -63,9 +63,12 @@ public:
     float getCurrentdB();
     float getCurrentGainFactor();
     float getCurrentThresholdRMS();
+    
+    AudioSampleBuffer getVisualBuffer();
+    
+    int getVisualBufferChannels();
 
     //==============================================================================
-    AudioSampleBuffer visualizeBuffer;
 
 private:
     AudioProcessorValueTreeState parameters;
@@ -82,6 +85,9 @@ private:
     
     bool attackFlag;
     
+    AudioSampleBuffer visualizeBuffer;
+
+    
     /**
      * Moving RMS function.
      *
@@ -90,8 +96,7 @@ private:
      */
     float ampToRMS (int n, const float *buffer)
     {
-        float total;
-        total = 0.0;
+        float total = 0.0;
         
         for (int i = 0; i < n; i++)
             total += powf(buffer[i], 2.0);

@@ -8,20 +8,14 @@
    This is a simple helper because the JUCE library does not
    provide a client facing level meter.
  
-   Areas of use:
-   RMS and dBvalue meters.
+   The audio meter is a simple vertical rectangle that fills
+   with red color based on the value given to it.
   ==============================================================================
 */
 
 #pragma once
-#ifndef AudioMeter_h
-#define AudioMeter_h
-#endif /* AudioMeter_h */
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include <iostream>
-#include <iomanip>
-#include <string>
 
 class AudioMeter : public Component
 {
@@ -29,20 +23,44 @@ public:
     AudioMeter();
     ~AudioMeter();
     
+    /**
+     * Fill the meter based on the signal level given to the meter.
+     */
     void paint(Graphics &g) override;
+    
+    /**
+     * Normalize all incoming signals based on the type of slider.
+     *
+     * See enum in private: field for more information.
+     */
+    float normalize (float);
+    
+    // SETTERS
     void setLevel(float, float, float);
+    
+    void setType(int);
 
 private:
     
+    int type = None;
+
     float level;
     
+    const float minimumSignalValue = 0.0f;
+    const float maximumSignalValue = 1.0f;
+    
     /**
-     * Fills the meter based on the signal coming into the meter.
+     * Audio meter types that are currently supported.
+     * 
+     * Audio meters default to no behavior.
      *
-     * @param signalLevel : Current incoming signal.
+     * RMS meter signal values range between 0.0f and 1.0f.
+     * Level meter signal values range between -100.0f and 0.0f.
      */
-    void fillMeter (float signalLevel)
+    enum
     {
-        
-    }
+        None = 0,
+        RMS,
+        Level
+    };
 };

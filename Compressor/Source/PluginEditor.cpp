@@ -13,7 +13,7 @@
 
 //==============================================================================
 AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
-:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts), audioView(processor.visualizeBuffer.getNumChannels())
+:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts), audioView(processor.getVisualBufferChannels())
 {
     // Labels & Slider init
     // rotary sliders
@@ -86,7 +86,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rmsValueLabel.setText(juce::String(processor.getCurrentThresholdRMS(), 3),
                           dontSendNotification);
     
-    audioView.pushBuffer(processor.visualizeBuffer); // Copy of the processBlock buffer
+    audioView.pushBuffer(processor.getVisualBuffer()); // Copy of the processBlock buffer
     
     // Update the dB meter
     rms2DBValue.setLevel(processor.getCurrentdB(), 0.0f, 100.0f);

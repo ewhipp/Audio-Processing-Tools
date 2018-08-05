@@ -19,53 +19,93 @@ public:
     
     ~CompressorProcessor();
    
-    // This function represents when our current samples are going over the threshold.
+    /*
+     * Represents when our current samples are going over the threshold.
+     * This function will automatically engage the calculations when a
+     * signal stream value has surpassed the current threshold.
+     *
+     * @return: The decreased signal level that should be reached after one block size.
+     */
     float beginAttack(float startingGainFactor, float* ratioSlider, float* attackSlider,
                       float currentOvershoot, float thresholdRMS, float currentRMS);
     
-    // This function represents when our overshoot has not been recalculated and we are still attacking.
+    /* 
+     * Represents when our overshoot has not been recalculated and we are still
+     * attacking with the same parameters set by the beginAttack() function.
+     *
+     * @return: The decreased signal level that should be reached after one block size.
+     */ 
     float continueAttack ();
+    
     /*
-     * This function represents when our compressor has gotten us below the threshold and we are getting back
-     * to normal.
-     */
+     * Represents when the signal stream value has reached the level the user
+     * has set based on the knob parameters. This signifies that the compressor
+     * must begin to de-compress, allowing the signal to go back to it's natural
+     * level.
+     * 
+     * @return: The increased signal level that should be reached after one block size.
+     */ 
     float beginRelease(float startingGainFactor, float* releaseSlider);
     
-    // This function represents when we are continuing our release and have not had to recalculate parameters
+    /*
+     * Represents when the signal stream value continues to be below it's natural
+     * level. The compressor is still de-compressor to the natural state.
+     *
+     * @return: The increased signal level that should be reached after one block size.
+     */ 
     float continueRelease();
     
 private:
     
     /* Residual calculations */
-    float calculateOvershoot(float currentRMS, float currentThreshold)
+    
+    /*
+     * Calculate the difference between the current signal stream value and the current
+     * value of the threshold meter.
+     *
+     * @return: The current overshoot.
+     */ 
+    float calculateOvershoot (float currentRMS, float currentThreshold)
     {
-        currentOvershoot = currentRMS - currentThreshold;
-        return currentOvershoot;
+        return currentRMS - currentThreshold;
     }
     
-    float calculateDesiredGain(float currentOvershoot, float currentThreshold,
-                               float currentRatio)
+    /*
+     * Calculate how much the signal stream should be reduced in relation to the
+     * current parameters.
+     *
+     * @return: The desired gain the signal stream should be.
+     */ 
+    float calculateDesiredGain (float currentOvershoot, float currentThreshold,
+                                float currentRatio)
     {
-        desiredGainFactor = (currentOvershoot / currentRatio) + currentThreshold;
-        return desiredGainFactor;
-    }
-    
-    float calculateGainFactor(float desiredGain, float currentRMS)
-    {
-        gainFactor = desiredGain / currentRMS;
-        return gainFactor;
-    }
-    
-    // Calculate the number of samples the compressor must take to reach the desired gain factor.
-    float calculateNumSamples (float* ratioSlider, int parentSampleRate, int blockSize)
-    {
-        float timeToWaste;
-        float sliderValue = *ratioSlider / 1000;
-        timeToWaste = sliderValue * parentSampleRate;
+        return (currentOvershoot / currentRatio) + currentThreshold;
         
-        if (blockSize > timeToWaste)
-            timeToWaste = 0;
-        return timeToWaste;
+    }
+    
+    /*
+     * Calculate the fraction that should be multipled with the current signal to
+     * attenuate the signal.
+     *
+     * @return: The fraction at which the compressed signal must be output.
+     */ 
+    float calculateGainFactor (float desiredGain, float currentRMS)
+    {
+        return desiredGain / currentRMS;
+    }
+    
+    /* 
+     * Calculate the amount of samples it should take to reach the compressed
+     * or decompressed signal value dictated by the compressor's parameters.
+     *
+     * @return: The number of blocks to wait.
+     */
+    int calculateNumSamples (float* ratioSlider, int parentSampleRate, int blockSize)
+    {
+        float sliderValue = *ratioSlider / 1000;
+        float timeToWaste = sliderValue * parentSampleRate;
+
+        return (blockSize > timeToWaste) ? 0.0f : timeToWaste;
     }
     
     /* SETTERS */
@@ -120,6 +160,7 @@ private:
         return startingGainFactor;
     }
     
+    // VAR
     float desiredGainFactor;
     float gainFactor;
     float numberOfSamplesToApplyGain;
