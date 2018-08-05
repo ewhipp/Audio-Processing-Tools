@@ -42,7 +42,7 @@ float AudioMeter::normalize (float incomingSignal)
 
 void AudioMeter::setVisualMeterLevel (float newLevel)
 {
-    (newLevel >= minimumValue && newLevel < maximumValue) ? setCurrentLevel (newLevel) : setCurrentLevel (-100.0f);
+    (newLevel >= minimumValue && newLevel < maximumValue) ? setCurrentLevel (newLevel) : setCurrentLevel (minimumValue);
     repaint();
 }
 

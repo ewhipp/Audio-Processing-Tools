@@ -55,4 +55,7 @@ private:
         Milliseconds,
         Ratio
     };
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TextFormatSlider)
+
 };

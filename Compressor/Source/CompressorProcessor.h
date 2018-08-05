@@ -195,5 +195,6 @@ private:
     int timeSinceAttack;
     int blockSize;
     int sampleRate;
+    
 };
 

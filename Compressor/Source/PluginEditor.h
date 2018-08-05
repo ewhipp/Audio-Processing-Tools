@@ -14,7 +14,7 @@
 #include "PluginProcessor.h"
 #include "AudioMeter.h"
 #include "TextFormatSlider.h"
-#include "util.h"
+#include "EngagementMeter.h"
 
 //==============================================================================
 class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
@@ -73,6 +73,8 @@ private:
     
     ScopedPointer<AudioMeter> rms2DBValue;
     Label rms2DBValueLabel;
+    
+    ScopedPointer<EngagementMeter> compressorEngagementVisualizer;
     
     // Debugging
     Label currentGainEditor;

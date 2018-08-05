@@ -49,11 +49,13 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     
     rms2DBValue = new AudioMeter (2);
     
+    compressorEngagementVisualizer = new EngagementMeter(100, 100);
     
-    audioView.setNumChannels(2);
-    audioView.setColours(Colours::black, Colours::yellowgreen);
-    audioView.setRepaintRate(30);
-    addAndMakeVisible(audioView);
+    
+    audioView.setNumChannels (2);
+    audioView.setColours (Colours::black, Colours::yellowgreen);
+    audioView.setRepaintRate (30);
+    addAndMakeVisible (audioView);
     
     // Meters and debugging
     addAndMakeVisible(rmsValue);
@@ -67,25 +69,24 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
 
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
 {
-    thresholdAttachment = nullptr;
-    makeupAttachment    = nullptr;
-    ratioAttachment     = nullptr;
-    attackAttachment    = nullptr;
-    releaseAttachment   = nullptr;
-    
-    ratioSlider         = nullptr;
-    attackSlider        = nullptr;
-    releaseSlider       = nullptr;
-    thresholdSlider     = nullptr;
-    makeupGainSlider    = nullptr;
-    
-    rms2DBValue         = nullptr;
+    thresholdAttachment             = nullptr;
+    makeupAttachment                = nullptr;
+    ratioAttachment                 = nullptr;
+    attackAttachment                = nullptr;
+    releaseAttachment               = nullptr;
+    ratioSlider                     = nullptr;
+    attackSlider                    = nullptr;
+    releaseSlider                   = nullptr;
+    thresholdSlider                 = nullptr;
+    makeupGainSlider                = nullptr;
+    rms2DBValue                     = nullptr;
+    compressorEngagementVisualizer  = nullptr;
 }
 
 /*
  * Repaint visual fields.
  *
- * @see: AudioMeter
+ * @see: AudioMeter, EngagementMeter
  */
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
@@ -98,6 +99,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
                              dontSendNotification);
     
     // Update EngagementMeter
+    compressorEngagementVisualizer->moveMeter(processor.getTargetGainFactor());
 }
 
 //==============================================================================
@@ -140,6 +142,9 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
 
     MeterArea.removeFromLeft(17);
     rms2DBValue->setBounds(MeterArea.removeFromLeft(20));
+    
+    MeterArea.removeFromLeft(17);
+    compressorEngagementVisualizer->setBounds(MeterArea.removeFromLeft(50));
     // rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(70)); If we ultimately want to see the level value
     
     audioView.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;

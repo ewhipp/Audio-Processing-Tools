@@ -263,7 +263,7 @@ void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBloc
 
 void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // estore your parameters from this memory block,
+    // Restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState != nullptr)
@@ -282,6 +282,8 @@ float AmericanUniversityCompressorAudioProcessor::getCurrentdB() { return curren
 float AmericanUniversityCompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
+float AmericanUniversityCompressorAudioProcessor::getTargetGainFactor() { return blockTargetGainFactor; }
+
 AudioSampleBuffer AmericanUniversityCompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
 int AmericanUniversityCompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
 
