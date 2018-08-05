@@ -19,15 +19,22 @@ public:
     
     ~CompressorProcessor();
    
-    /*
+    /* TODO: Refactor to smaller functions
+     *
      * Represents when our current samples are going over the threshold.
      * This function will automatically engage the calculations when a
      * signal stream value has surpassed the current threshold.
      *
+     * @param: The starting gain factor or target gain the compressor currently resides at.
+     * @param: The ratio slider's current value.
+     * @param: The attack slider's current value.
+     * @param: The current amount that the incoming signal exceeds the threshold slider by.
+     * @param: The RMS value of the threshold slider.
+     * @param: The RMS value of the incoming signal.
+     *
      * @return: The decreased signal level that should be reached after one block size.
      */
-    float beginAttack(float startingGainFactor, float* ratioSlider, float* attackSlider,
-                      float currentOvershoot, float thresholdRMS, float currentRMS);
+    float beginAttack(float, float*, float*, float, float, float);
     
     /* 
      * Represents when our overshoot has not been recalculated and we are still
@@ -42,10 +49,13 @@ public:
      * has set based on the knob parameters. This signifies that the compressor
      * must begin to de-compress, allowing the signal to go back to it's natural
      * level.
-     * 
+     *
+     * @param: The starting gain factor or target gain the compressor currently resides at.
+     * @param: The release slider's current value.
+     *
      * @return: The increased signal level that should be reached after one block size.
      */ 
-    float beginRelease(float startingGainFactor, float* releaseSlider);
+    float beginRelease(float, float*);
     
     /*
      * Represents when the signal stream value continues to be below it's natural
@@ -63,6 +73,9 @@ private:
      * Calculate the difference between the current signal stream value and the current
      * value of the threshold meter.
      *
+     * @param: The incoming signal value as an RMS value
+     * @param: The value of the threshold slider.
+     *
      * @return: The current overshoot.
      */ 
     float calculateOvershoot (float currentRMS, float currentThreshold)
@@ -73,6 +86,10 @@ private:
     /*
      * Calculate how much the signal stream should be reduced in relation to the
      * current parameters.
+     *
+     * @param: The current amount that the incoming signal exceeds the threshold slider by.
+     * @param: The value of the threshold slider.
+     * @param: The value of the ratio slider.
      *
      * @return: The desired gain the signal stream should be.
      */ 
@@ -86,6 +103,9 @@ private:
      * Calculate the fraction that should be multipled with the current signal to
      * attenuate the signal.
      *
+     * @param: The calculated desired gain. @see calculateDesiredGain
+     * @param: The incoming signal value as an RMS value.
+     *
      * @return: The fraction at which the compressed signal must be output.
      */ 
     float calculateGainFactor (float desiredGain, float currentRMS)
@@ -96,6 +116,10 @@ private:
     /* 
      * Calculate the amount of samples it should take to reach the compressed
      * or decompressed signal value dictated by the compressor's parameters.
+     *
+     * @param: The value of the ratio slider.
+     * @param: The parent session's sample rate or as defined by the user.
+     * @param: The parent session's block size or as defined by the user.
      *
      * @return: The number of blocks to wait.
      */
