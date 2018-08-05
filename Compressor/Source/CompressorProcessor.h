@@ -80,7 +80,6 @@ private:
                                 float currentRatio)
     {
         return (currentOvershoot / currentRatio) + currentThreshold;
-        
     }
     
     /*
