@@ -20,7 +20,7 @@
 class AudioMeter : public Component
 {
 public:
-    AudioMeter();
+    AudioMeter(int);
     ~AudioMeter();
     
     /**
@@ -29,22 +29,26 @@ public:
     void paint(Graphics &g) override;
     
     /**
-     * Normalize all incoming signals based on the type of slider.
+     * Normalize numbers as seen by the following formula:
      *
-     * See enum in private: field for more information.
+     *                          y - minimumPossibleValue
+     *           x = ------------------------------------------------
+     *                  maximumPossibleValue - minimumPossibleValue
+     *
+     * @return: normalized data basedon the given parameters.
      */
-    float normalize (float);
+    float normalize(float /* incomingSignal */);
     
     // SETTERS
-    void setLevel(float, float, float);
+    void setLevel (float, float, float);
     
-    void setType(int);
+    void setType (int);
 
 private:
     
     int type = None;
-
-    float level;
+    
+    float level, minimumValue, maximumValue;
     
     /**
      * Audio meter types that are currently supported.

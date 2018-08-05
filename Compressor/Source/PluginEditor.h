@@ -68,10 +68,10 @@ private:
     // Visualize the aduio
     AudioVisualiserComponent audioView;
     // Meters
-    AudioMeter rmsValue;
+    ScopedPointer<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
-    AudioMeter rms2DBValue;
+    ScopedPointer<AudioMeter> rms2DBValue;
     Label rms2DBValueLabel;
     
     // Debugging

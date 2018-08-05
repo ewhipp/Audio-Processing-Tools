@@ -47,6 +47,9 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(thresholdSlider);
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
+    rms2DBValue = new AudioMeter (2);
+    
+    
     audioView.setNumChannels(2);
     audioView.setColours(Colours::black, Colours::yellowgreen);
     audioView.setRepaintRate(30);
@@ -62,39 +65,37 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     setSize(580, 350);
 }
 
-// Destructor
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
 {
     thresholdAttachment = nullptr;
-    makeupAttachment = nullptr;
-    ratioAttachment = nullptr;
-    attackAttachment = nullptr;
-    releaseAttachment = nullptr;
+    makeupAttachment    = nullptr;
+    ratioAttachment     = nullptr;
+    attackAttachment    = nullptr;
+    releaseAttachment   = nullptr;
     
-    ratioSlider = nullptr;
-    attackSlider = nullptr;
-    releaseSlider = nullptr;
-    thresholdSlider = nullptr;
-    makeupGainSlider = nullptr;
+    ratioSlider         = nullptr;
+    attackSlider        = nullptr;
+    releaseSlider       = nullptr;
+    thresholdSlider     = nullptr;
+    makeupGainSlider    = nullptr;
+    
+    rms2DBValue         = nullptr;
 }
 
-// Repaint the meters. For more info on meter creation see AudioMeter.h
+/*
+ * Repaint visual fields.
+ *
+ * @see AudioMeter.cpp
+ */
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
-    // Update rms meter
-    rmsValue.setLevel(processor.getCurrentThresholdRMS(), 0.0f, 1.0f);
-    rmsValueLabel.setText(juce::String(processor.getCurrentThresholdRMS(), 3),
-                          dontSendNotification);
-    
+    // Update the visualization buffer.
     audioView.pushBuffer(processor.getVisualBuffer()); // Copy of the processBlock buffer
     
     // Update the dB meter
-    rms2DBValue.setLevel(processor.getCurrentdB(), 0.0f, 100.0f);
+    rms2DBValue->setLevel(processor.getCurrentdB(), 0.0f, 100.0f);
     rms2DBValueLabel.setText(Decibels::toString(processor.getCurrentdB()),
                              dontSendNotification);
-    
-    currentThresholdRMS.setText(std::to_string(processor.getCurrentThresholdRMS()), dontSendNotification);
-    currentGainEditor.setText(std::to_string(processor.getCurrentGainFactor()) + " current gain", dontSendNotification);
 }
 
 //==============================================================================
@@ -134,11 +135,10 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     attackSlider->setBounds(parameterArea.removeFromRight(100));
     releaseLabel.setBounds(parameterLabelArea.removeFromRight(110));
     releaseSlider->setBounds(parameterArea.removeFromRight(100));
-    
-    rmsValue.setBounds(MeterArea.removeFromLeft(50));
-    rmsValueLabel.setBounds(LabelArea.removeFromLeft(50));
-    rms2DBValue.setBounds(MeterArea.removeFromLeft(50));
-    rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(50));
+
+    MeterArea.removeFromLeft(17);
+    rms2DBValue->setBounds(MeterArea.removeFromLeft(20));
+    // rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(70)); If we ultimately want to see the level value
     
     audioView.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }

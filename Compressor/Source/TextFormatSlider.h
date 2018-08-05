@@ -17,15 +17,36 @@ public:
     TextFormatSlider (SliderStyle, TextEntryBoxPosition, int);
     ~TextFormatSlider();
     
-    // Method to create some arbitrary meaning out of the value of our slider. (For users)
+    /* 
+     * Method to create some arbitrary unit out of the value of our slider.
+     * 
+     * Examples include: * vs. milli-* vs. micro-*.
+     * 
+     * @return: The correct unit to append to a label.
+     */
     String getTextFromValue (double) override;
     
-    // What our slider values will ultimately be.
+    /*
+     * Method to retrieve the value of a slider without the arbitrary parts.
+     *
+     * @return: The `important` value to the context of the program.
+     */
     double getValueFromText (const String&) override;
+    
+    /**
+     * Designate the type of slider that will be displayed giving context
+     * to the type of information that must be displayed under the slider.
+     */
     void setSliderType (const int);
     
 private:
+    
+    // DEFAULT TYPE OF SLIDER DOES NOT APPEND ANY INFORMATION.
     int type = None;
+    
+    /**
+     * Sliders can be monitoring level, gain, time, ratios.
+     */
     enum
     {
         None = 0,

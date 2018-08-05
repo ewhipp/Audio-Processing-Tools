@@ -63,6 +63,7 @@ public:
     float getCurrentdB();
     float getCurrentGainFactor();
     float getCurrentThresholdRMS();
+    float getCurrentRMS();
     
     AudioSampleBuffer getVisualBuffer();
     
@@ -81,7 +82,7 @@ private:
     float currentRMS;
     float thresholdRMS;
     
-    ScopedPointer<CompressorProcessor> compressor;
+    CompressorProcessor* compressor;
     
     bool attackFlag;
     

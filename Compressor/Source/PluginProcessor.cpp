@@ -26,8 +26,6 @@ parameters(*this, nullptr)
 {
     attackFlag = false;
     lastOvershoot = -1;
-    
-    
     parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
                                  NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
                                  [] (float value)
@@ -156,12 +154,11 @@ void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRat
 {
     currentGainFactor = 1.0f;
     compressor = new CompressorProcessor(sampleRate, samplesPerBlock);
-
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
 {
-    
+    delete compressor;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -218,24 +215,18 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             attackFlag = true;
             blockTargetGainFactor = compressor->beginAttack (currentGainFactor, ratio, attack,
                                              currentOvershoot, thresholdRMS, currentRMS);
-            std::cout << "Currently beginning attack.\n";
         }
         
-        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot) {
-            blockTargetGainFactor = compressor->continueAttack();             std::cout << "Currently in attack.\n";
-}
+        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
+            blockTargetGainFactor = compressor->continueAttack();
         
         else if (currentRMS <= thresholdRMS && attackFlag)
         {
-            std::cout << "Currently beginning release\n";
             attackFlag = false;
             blockTargetGainFactor = compressor->beginRelease(currentGainFactor, release);
         }
-        else if (currentRMS <= thresholdRMS && !attackFlag) {
+        else if (currentRMS <= thresholdRMS && !attackFlag)
             blockTargetGainFactor = compressor->continueRelease();
-            std::cout << "Currently in release\n";
-        }
-
         
         buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
         currentGainFactor = blockTargetGainFactor;
@@ -290,6 +281,7 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 float AmericanUniversityCompressorAudioProcessor::getCurrentdB() { return currentdB; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
+float AmericanUniversityCompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
 AudioSampleBuffer AmericanUniversityCompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
 int AmericanUniversityCompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
 
