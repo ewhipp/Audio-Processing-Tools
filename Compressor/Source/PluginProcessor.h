@@ -78,9 +78,9 @@ private:
     float currentOvershoot;
     float blockTargetGainFactor;
     float currentGainFactor;
-    float currentdB;
     float currentRMS;
     float thresholdRMS;
+    float currentdB;
     
     CompressorProcessor* compressor;
     

@@ -93,7 +93,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     audioView.pushBuffer(processor.getVisualBuffer()); // Copy of the processBlock buffer
     
     // Update the dB meter
-    rms2DBValue->setLevel(processor.getCurrentdB(), 0.0f, 100.0f);
+    rms2DBValue->setVisualMeterLevel(processor.getCurrentdB());
     rms2DBValueLabel.setText(Decibels::toString(processor.getCurrentdB()),
                              dontSendNotification);
 }

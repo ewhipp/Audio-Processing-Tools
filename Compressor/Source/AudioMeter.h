@@ -40,9 +40,19 @@ public:
     float normalize(float /* incomingSignal */);
     
     // SETTERS
-    void setLevel (float, float, float);
+    /**
+     * Constraint the meter to between the desired levels based on the
+     * type of meter associated with the object.
+     *
+     * @see maximumLevel, minimumLevel
+     */
+    void setVisualMeterLevel (float);
     
     void setType (int);
+    void setMinimumValue (int);
+    void setMaximumValue (int);
+    void setCurrentLevel (float);
+    void setMeterLimits();
 
 private:
     

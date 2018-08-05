@@ -209,7 +209,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         currentdB =    Decibels::gainToDecibels (currentRMS);
         thresholdRMS = Decibels::decibelsToGain (*threshold);
         currentOvershoot = (currentRMS - thresholdRMS);
-
+        
         if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
         {
             attackFlag = true;
