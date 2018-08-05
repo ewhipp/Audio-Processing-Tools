@@ -26,9 +26,7 @@ void AudioMeter::paint(Graphics& g)
 {
     g.fillAll(Colours::black);
     g.setColour(Colours::red);
-    g.addTransform(AffineTransform::verticalFlip ((float) getHeight()));
-    
-    std::cout << "Normalized level: \t" << normalize(level) << "\n";
+    g.addTransform(AffineTransform::verticalFlip ((float) getHeight()));    
     g.fillRect(0.0f, 0.0, (float) getWidth(), (float) getHeight() * normalize (level));
 }
 

@@ -228,7 +228,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         else if (currentRMS <= thresholdRMS && !attackFlag)
             blockTargetGainFactor = compressor->continueRelease();
         
-        buffer.applyGainRamp(0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
+        buffer.applyGainRamp (0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
         currentGainFactor = blockTargetGainFactor;
         
         // Convert the gain to a dB value first, then apply as a dB value.

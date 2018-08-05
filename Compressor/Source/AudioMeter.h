@@ -22,10 +22,6 @@ class AudioMeter : public Component
 public:
     AudioMeter(int);
     ~AudioMeter();
-    
-    /**
-     * Fill the meter based on the signal level given to the meter.
-     */
     void paint(Graphics &g) override;
     
     /**

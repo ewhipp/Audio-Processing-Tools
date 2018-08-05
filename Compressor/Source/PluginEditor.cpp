@@ -85,7 +85,7 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
 /*
  * Repaint visual fields.
  *
- * @see AudioMeter.cpp
+ * @see: AudioMeter
  */
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
@@ -96,6 +96,8 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     rms2DBValue->setVisualMeterLevel(processor.getCurrentdB());
     rms2DBValueLabel.setText(Decibels::toString(processor.getCurrentdB()),
                              dontSendNotification);
+    
+    // Update EngagementMeter
 }
 
 //==============================================================================
