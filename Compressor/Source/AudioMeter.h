@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <string>
 
+s
 class AudioMeter : public Component
 {
 public:
