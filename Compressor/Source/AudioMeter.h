@@ -46,9 +46,6 @@ private:
 
     float level;
     
-    const float minimumSignalValue = 0.0f;
-    const float maximumSignalValue = 1.0f;
-    
     /**
      * Audio meter types that are currently supported.
      * 
