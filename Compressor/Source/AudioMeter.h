@@ -35,15 +35,7 @@ public:
      */
     float normalize(float /* incomingSignal */);
     
-    // SETTERS
-    /**
-     * Constraint the meter to between the desired levels based on the
-     * type of meter associated with the object.
-     *
-     * @see maximumLevel, minimumLevel
-     */
     void setVisualMeterLevel (float);
-    
     void setType (int);
     void setMinimumValue (int);
     void setMaximumValue (int);
@@ -52,13 +44,7 @@ public:
 
 private:
     
-    int type = None;
-    
-    float level, minimumValue, maximumValue;
-    
     /**
-     * Audio meter types that are currently supported.
-     * 
      * Audio meters default to no behavior.
      *
      * RMS meter signal values range between 0.0f and 1.0f.
@@ -70,6 +56,9 @@ private:
         RMS,
         Level
     };
+    
+    int type = None;
+    float level, minimumValue, maximumValue;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioMeter)
 

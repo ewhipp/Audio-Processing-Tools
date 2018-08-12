@@ -22,18 +22,13 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
                                                           private Timer
 {
 public:
-    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-    enum
-    {
-        parameterControlHeight = 40,
-        paramaterControlLabelWidth = 80,
-        parameterControlWidth = 300
-    };
     
     AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&, AudioProcessorValueTreeState&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
 
     //==============================================================================
+    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+    
     void paint (Graphics&) override;
     void resized() override;
     void timerCallback() override;
@@ -66,19 +61,21 @@ private:
     ScopedPointer<SliderAttachment> ratioAttachment;
    
     // Visualize the aduio
-    AudioVisualiserComponent audioView;
+    AudioVisualiserComponent signalStreamViewer;
     // Meters
     ScopedPointer<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
-    ScopedPointer<AudioMeter> rms2DBValue;
-    Label rms2DBValueLabel;
+    ScopedPointer<AudioMeter> dBMeter;
+    Label dBMeterLabel;
     
-    ScopedPointer<EngagementMeter> compressorEngagementVisualizer;
+    ScopedPointer<EngagementMeter> engagementMeter;
     
     // Debugging
     Label currentGainEditor;
     Label currentThresholdRMS;
+    
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
 };

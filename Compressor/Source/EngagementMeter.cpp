@@ -10,14 +10,9 @@
 
 #include "EngagementMeter.h"
 
-EngagementMeter::EngagementMeter(int height, int width)
+EngagementMeter::EngagementMeter (int size)
 {
-    outline.setSize(width, height);
-    meterLine.setStart (5, 5);
-    meterLine.setEnd (10, 10);
     
-    setMinimumValue (outline.getBottom());
-    setMaximumValue (outline.getWidth());
 }
 
 EngagementMeter::~EngagementMeter()
@@ -26,22 +21,23 @@ EngagementMeter::~EngagementMeter()
 
 void EngagementMeter::paint(Graphics& g)
 {
-    g.fillAll(Colours::indigo);
-    g.setColour(Colours::red);
-    
-    g.drawRect(outline);
-    g.drawLine(meterLine);
+    g.fillAll (Colours::indigo);
+    g.setColour (Colours::red);
+
+    setVisualMeterLevel (level);
 }
 
-void EngagementMeter::moveMeter (float compressorEngagement)
+void EngagementMeter::setVisualMeterLevel (float incomingSignal)
 {
-    meterLine.applyTransform (AffineTransform::scale (normalizeSignal (compressorEngagement)));
+    setCurrentLevel (incomingSignal);
+    v_Meter.setTransform (AffineTransform::rotation(level));
 }
 
-float EngagementMeter::normalizeSignal(float incomingSignal)
+float EngagementMeter::normalize(float incomingSignal)
 {
     return (incomingSignal - minimumValue) / (maximumValue - minimumValue);
 }
 
-void EngagementMeter::setMaximumValue(int n) { maximumValue = n; }
-void EngagementMeter::setMinimumValue(int n) { minimumValue = n; }
+void EngagementMeter::setMaximumValue(float n) { maximumValue = n; }
+void EngagementMeter::setMinimumValue(float n) { minimumValue = n; }
+void EngagementMeter::setCurrentLevel(float n) { level = n; }

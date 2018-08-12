@@ -17,6 +17,7 @@
 
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "AudioMeter.h"
 
 /**
  * Preplanning:
@@ -30,7 +31,8 @@
 class EngagementMeter : public Component
 {
 public:
-    EngagementMeter(int, int);
+    
+    EngagementMeter (int);
     ~EngagementMeter();
     void paint(Graphics&) override;
     
@@ -40,7 +42,8 @@ public:
      *
      * @param: Incoming signal to be measured.
      */
-    void moveMeter(float);
+    void setVisualMeterLevel (float);
+
     
     /**
      * For more utility, we want to have the ability to normalize the signal based
@@ -48,19 +51,48 @@ public:
      *
      * @param: Incoming signal to be normalized.
      */
-    float normalizeSignal (float);
+    float normalize (float);
     
-    /* SETTERS */
-    void setMaximumValue (int);
-    void setMinimumValue (int);
+    void setType (int);
+    void setMinimumValue (float);
+    void setMaximumValue (float);
+    void setCurrentLevel (float);
+    void setMeterLimits();
     
 private:
-    float engagement;
     
-    int minimumValue, maximumValue;
+    /**
+     * This is the structure for our engagement meter. It is a basic black rectange
+     * with an arrow that will move based on the incoming signal.
+     */
+    struct VisualMeter : public Component
+    {
+        VisualMeter() { setPaintingIsUnclipped (true); }
+        
+        void paint (Graphics& g) override
+        {
+            g.setColour (Colours::black);
+            g.fillRect (getLocalBounds());
+            
+            g.setColour (Colours::red);
+            Line<float> arrowLine (Point<float> (10, 10), Point<float> (50, 50));
+            g.drawArrow (arrowLine, 0.4, 0.9, 0.7);
+        }
+    };
     
-    Rectangle<float> outline;
-    Line<float> meterLine;
+    /**
+     * TODO: Create different sizes based on the current dimensions of the screen
+     */
+    enum
+    {
+        small = 0,
+        medium,
+        large,
+        extraLarge
+    };
+    
+    float level, minimumValue, maximumValue;
+    VisualMeter v_Meter;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EngagementMeter)
 };

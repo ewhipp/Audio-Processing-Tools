@@ -10,7 +10,7 @@
 
 #include "CompressorProcessor.h"
 
-CompressorProcessor::CompressorProcessor(float parentSampleRate, int userDeterminedBlockSize)
+CompressorProcessor::CompressorProcessor (float parentSampleRate, int userDeterminedBlockSize)
 {
     sampleRate = parentSampleRate;
     blockSize = userDeterminedBlockSize;

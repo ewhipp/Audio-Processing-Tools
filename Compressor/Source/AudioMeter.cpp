@@ -34,8 +34,8 @@ float AudioMeter::normalize (float incomingSignal)
 {
     switch (type)
     {
-        case RMS: return (incomingSignal - minimumValue) / (maximumValue - minimumValue); break;
-        case Level: return abs((incomingSignal - minimumValue) / (minimumValue - maximumValue)); break;
+        case RMS:   return     (incomingSignal - minimumValue) / (maximumValue - minimumValue);  break;
+        case Level: return abs((incomingSignal - minimumValue) / (maximumValue - minimumValue)); break;
         default: return 0; break;
     }
 }

@@ -13,7 +13,7 @@
 
 //==============================================================================
 AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
-:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts), audioView(processor.getVisualBufferChannels())
+:   AudioProcessorEditor (&parent), processor (parent), valueTreeState(vts), signalStreamViewer(processor.getVisualBufferChannels())
 {
     // Labels & Slider init
     // rotary sliders
@@ -47,21 +47,19 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(thresholdSlider);
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
-    rms2DBValue = new AudioMeter (2);
+    dBMeter = new AudioMeter (2);
+    engagementMeter = new EngagementMeter(100);
     
-    compressorEngagementVisualizer = new EngagementMeter(100, 100);
-    
-    
-    audioView.setNumChannels (2);
-    audioView.setColours (Colours::black, Colours::yellowgreen);
-    audioView.setRepaintRate (30);
-    addAndMakeVisible (audioView);
+    signalStreamViewer.setNumChannels (2);
+    signalStreamViewer.setColours (Colours::black, Colours::yellowgreen);
+    signalStreamViewer.setRepaintRate (30);
+    addAndMakeVisible (signalStreamViewer);
     
     // Meters and debugging
     addAndMakeVisible(rmsValue);
     addAndMakeVisible(rmsValueLabel);
-    addAndMakeVisible(rms2DBValue);
-    addAndMakeVisible(rms2DBValueLabel);
+    addAndMakeVisible(dBMeter);
+    addAndMakeVisible(dBMeterLabel);
     processor.addChangeListener (this);
     startTimerHz(30);
     setSize(580, 350);
@@ -69,48 +67,42 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
 
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
 {
-    thresholdAttachment             = nullptr;
-    makeupAttachment                = nullptr;
-    ratioAttachment                 = nullptr;
-    attackAttachment                = nullptr;
-    releaseAttachment               = nullptr;
-    ratioSlider                     = nullptr;
-    attackSlider                    = nullptr;
-    releaseSlider                   = nullptr;
-    thresholdSlider                 = nullptr;
-    makeupGainSlider                = nullptr;
-    rms2DBValue                     = nullptr;
-    compressorEngagementVisualizer  = nullptr;
+    thresholdAttachment = nullptr;
+    makeupAttachment    = nullptr;
+    ratioAttachment     = nullptr;
+    attackAttachment    = nullptr;
+    releaseAttachment   = nullptr;
+    ratioSlider         = nullptr;
+    attackSlider        = nullptr;
+    releaseSlider       = nullptr;
+    thresholdSlider     = nullptr;
+    makeupGainSlider    = nullptr;
+    dBMeter             = nullptr;
+    engagementMeter     = nullptr;
 }
 
 /*
- * Repaint visual fields.
+ * Updates:
+ *  - The signal stream viewer.
+ *  - The dB meter.
+ *  - The engagement meter.
  *
- * @see: AudioMeter, EngagementMeter
+ * @see: AudioMeter, EngagementMeter, AudioVisualiserComponent
  */
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
-    // Update the visualization buffer.
-    audioView.pushBuffer(processor.getVisualBuffer()); // Copy of the processBlock buffer
-    
-    // Update the dB meter
-    rms2DBValue->setVisualMeterLevel(processor.getCurrentdB());
-    rms2DBValueLabel.setText(Decibels::toString(processor.getCurrentdB()),
-                             dontSendNotification);
-    
-    // Update EngagementMeter
-    compressorEngagementVisualizer->moveMeter(processor.getTargetGainFactor());
+    signalStreamViewer.pushBuffer (processor.getVisualBuffer());
+    dBMeter->setVisualMeterLevel (processor.getCurrentdB());
+    dBMeterLabel.setText(Decibels::toString (processor.getCurrentdB()), dontSendNotification);
+    engagementMeter->setVisualMeterLevel (processor.getTargetGainFactor());
 }
 
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
     g.setColour (Colours::white);
     g.setFont (12.0f);
-    g.drawFittedText ("Audio Compressor Example", getLocalBounds(), Justification::centredTop, 1);
 }
 
 void AmericanUniversityCompressorAudioProcessorEditor::resized()
@@ -132,7 +124,6 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     auto parameterLabelArea = pluginWindow.removeFromBottom(25);
     auto currentGainArea = pluginWindow.removeFromBottom(50);
     
-    
     ratioLabel.setBounds(parameterLabelArea.removeFromRight(70));
     ratioSlider->setBounds(parameterArea.removeFromRight(100));
     attackLabel.setBounds(parameterLabelArea.removeFromRight(100));
@@ -141,13 +132,12 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     releaseSlider->setBounds(parameterArea.removeFromRight(100));
 
     MeterArea.removeFromLeft(17);
-    rms2DBValue->setBounds(MeterArea.removeFromLeft(20));
+    dBMeter->setBounds(MeterArea.removeFromLeft(20));
     
     MeterArea.removeFromLeft(17);
-    compressorEngagementVisualizer->setBounds(MeterArea.removeFromLeft(50));
-    // rms2DBValueLabel.setBounds(LabelArea.removeFromLeft(70)); If we ultimately want to see the level value
+    engagementMeter->setBounds(MeterArea.removeFromLeft(50));
     
-    audioView.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
+    signalStreamViewer.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }
 
 void AmericanUniversityCompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
