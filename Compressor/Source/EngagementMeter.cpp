@@ -10,7 +10,7 @@
 
 #include "EngagementMeter.h"
 
-EngagementMeter::EngagementMeter (int size)
+EngagementMeter::EngagementMeter (int typeOfMeter)
 {
     
 }
@@ -21,10 +21,7 @@ EngagementMeter::~EngagementMeter()
 
 void EngagementMeter::paint(Graphics& g)
 {
-    g.fillAll (Colours::indigo);
-    g.setColour (Colours::red);
-
-    setVisualMeterLevel (level);
+    setVisualMeterLevel (0.7);
 }
 
 void EngagementMeter::setVisualMeterLevel (float incomingSignal)

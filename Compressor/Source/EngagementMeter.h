@@ -69,15 +69,28 @@ private:
     {
         VisualMeter() { setPaintingIsUnclipped (true); }
         
+        const int meterMidpoint         = 150;
+        const int meterBottomMidpoint   = 200;
+        const int bottomMeasurePoint    = 0;
+        const int leftMostPoint         = 200;
+        
+        const float arrowThickness = 2.314;
+        const float arrowLength    = 16.361;
+        const float arrowTriangle  = 13.064;
+         
         void paint (Graphics& g) override
         {
+            Line<float> arrowLine (Point<float> (meterMidpoint, meterBottomMidpoint),
+                                   Point<float> (bottomMeasurePoint, leftMostPoint));
+            
             g.setColour (Colours::black);
             g.fillRect (getLocalBounds());
             
             g.setColour (Colours::red);
-            Line<float> arrowLine (Point<float> (10, 10), Point<float> (50, 50));
-            g.drawArrow (arrowLine, 0.4, 0.9, 0.7);
+            g.drawArrow (arrowLine, arrowThickness, arrowLength, arrowTriangle);
         }
+        
+        
     };
     
     /**

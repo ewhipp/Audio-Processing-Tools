@@ -39,7 +39,7 @@ private:
     AmericanUniversityCompressorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
     
-    // Sliders/Labels
+    // Sliders / Labels
     Label makeupGainLabel;
     ScopedPointer<TextFormatSlider> makeupGainSlider;
     ScopedPointer<SliderAttachment> makeupAttachment;
@@ -59,7 +59,8 @@ private:
     Label ratioLabel;
     ScopedPointer<TextFormatSlider> ratioSlider;
     ScopedPointer<SliderAttachment> ratioAttachment;
-   
+    
+    
     // Visualize the aduio
     AudioVisualiserComponent signalStreamViewer;
     // Meters
@@ -69,13 +70,5 @@ private:
     ScopedPointer<AudioMeter> dBMeter;
     Label dBMeterLabel;
     
-    ScopedPointer<EngagementMeter> engagementMeter;
-    
-    // Debugging
-    Label currentGainEditor;
-    Label currentThresholdRMS;
-    
-
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
 };

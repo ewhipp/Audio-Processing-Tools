@@ -19,6 +19,7 @@ AudioMeter::AudioMeter (int typeOfMeter)
 {
     setType (typeOfMeter);
     setMeterLimits();
+    setPaintingIsUnclipped (true);
 }
 AudioMeter::~AudioMeter() { }
 

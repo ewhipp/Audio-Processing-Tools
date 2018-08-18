@@ -18,7 +18,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     // Labels & Slider init
     // rotary sliders
     attackLabel.setText("Attack", dontSendNotification);
-    addAndMakeVisible(attackLabel);
+    addAndMakeVisible (attackLabel);
     attackSlider = new TextFormatSlider (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow, 3);
     addAndMakeVisible (attackSlider);
     attackAttachment = new SliderAttachment (valueTreeState, "attack", *attackSlider);
@@ -48,7 +48,6 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     thresholdAttachment = new SliderAttachment (valueTreeState, "threshold", *thresholdSlider);
     
     dBMeter = new AudioMeter (2);
-    engagementMeter = new EngagementMeter(100);
     
     signalStreamViewer.setNumChannels (2);
     signalStreamViewer.setColours (Colours::black, Colours::yellowgreen);
@@ -56,10 +55,10 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible (signalStreamViewer);
     
     // Meters and debugging
-    addAndMakeVisible(rmsValue);
-    addAndMakeVisible(rmsValueLabel);
-    addAndMakeVisible(dBMeter);
-    addAndMakeVisible(dBMeterLabel);
+    addAndMakeVisible (rmsValue);
+    addAndMakeVisible (rmsValueLabel);
+    addAndMakeVisible (dBMeter);
+    addAndMakeVisible (dBMeterLabel);
     processor.addChangeListener (this);
     startTimerHz(30);
     setSize(580, 350);
@@ -78,7 +77,7 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
     thresholdSlider     = nullptr;
     makeupGainSlider    = nullptr;
     dBMeter             = nullptr;
-    engagementMeter     = nullptr;
+   // engagementMeter     = nullptr;
 }
 
 /*
@@ -94,7 +93,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
     signalStreamViewer.pushBuffer (processor.getVisualBuffer());
     dBMeter->setVisualMeterLevel (processor.getCurrentdB());
     dBMeterLabel.setText(Decibels::toString (processor.getCurrentdB()), dontSendNotification);
-    engagementMeter->setVisualMeterLevel (processor.getTargetGainFactor());
+   // engagementMeter->setVisualMeterLevel (processor.getTargetGainFactor());
 }
 
 //==============================================================================
@@ -107,16 +106,16 @@ void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
 
 void AmericanUniversityCompressorAudioProcessorEditor::resized()
 {
+    
     Rectangle<int> pluginWindow = getLocalBounds();
-    currentGainEditor.setBounds(240, 50, 25, 300);
-    currentThresholdRMS.setBounds(190, 50, 100, 100);
+
     auto MeterArea = pluginWindow.removeFromLeft(100);
     auto sliderLabelArea = pluginWindow.removeFromTop(50);
     
     thresholdLabel.setBounds(sliderLabelArea.removeFromLeft(100));
     thresholdSlider->setBounds(pluginWindow.removeFromLeft(100));
+    
     makeupGainLabel.setBounds(sliderLabelArea.removeFromRight(70));
-    currentGainEditor.setBounds(sliderLabelArea.removeFromRight(100));
     makeupGainSlider->setBounds(pluginWindow.removeFromRight(80));
     
     auto LabelArea = MeterArea.removeFromTop(25);
@@ -131,17 +130,16 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     releaseLabel.setBounds(parameterLabelArea.removeFromRight(110));
     releaseSlider->setBounds(parameterArea.removeFromRight(100));
 
-    MeterArea.removeFromLeft(17);
+   // MeterArea.removeFromLeft(17);
     dBMeter->setBounds(MeterArea.removeFromLeft(20));
     
     MeterArea.removeFromLeft(17);
-    engagementMeter->setBounds(MeterArea.removeFromLeft(50));
     
-    signalStreamViewer.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
+   //  signalStreamViewer.setBounds(172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }
 
 void AmericanUniversityCompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
 {
-    ignoreUnused(sender);
+    ignoreUnused (sender);
     repaint();
 }
