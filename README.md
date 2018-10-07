@@ -9,6 +9,4 @@ Although in its infancy, the end goal for this project is to create a suite of a
 * UI designers
 * Machine learning engineers
 
-The integration of these skillsets would allow for a more involved approach to these processors and give more educational value to the project as a whole. If you are interested in joining the project, please contact Erik Whipp via email.
-
 Finally, these tools are free to use and will always be free to use.
