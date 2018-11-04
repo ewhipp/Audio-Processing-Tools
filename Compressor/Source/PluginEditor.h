@@ -41,30 +41,27 @@ private:
     
     // Sliders / Labels
     Label makeupGainLabel;
-    ScopedPointer<TextFormatSlider> makeupGainSlider;
-    ScopedPointer<SliderAttachment> makeupAttachment;
+    Slider makeupGainSlider;
     
     Label thresholdLabel;
-    ScopedPointer<TextFormatSlider> thresholdSlider;
-    ScopedPointer<SliderAttachment> thresholdAttachment;
+    Slider thresholdSlider;
     
     Label attackLabel;
-    ScopedPointer<TextFormatSlider> attackSlider;
-    ScopedPointer<SliderAttachment> attackAttachment;
+    Slider attackSlider;
     
     Label releaseLabel;
-    ScopedPointer<TextFormatSlider> releaseSlider;
-    ScopedPointer<SliderAttachment> releaseAttachment;
+    Slider releaseSlider;
     
     Label ratioLabel;
-    ScopedPointer<TextFormatSlider> ratioSlider;
-    ScopedPointer<SliderAttachment> ratioAttachment;
+    Slider ratioSlider;
+    
+    OwnedArray<SliderAttachment> sliderAttachments;
     
     
     // Visualize the aduio
     AudioVisualiserComponent signalStreamViewer;
     // Meters
-    ScopedPointer<AudioMeter> rmsValue;
+    std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
     ScopedPointer<AudioMeter> dBMeter;
