@@ -64,6 +64,7 @@ public:
     float getCurrentGainFactor();
     float getCurrentThresholdRMS();
     float getCurrentRMS();
+    float getTargetGainFactor();
     
     AudioSampleBuffer getVisualBuffer();
     
