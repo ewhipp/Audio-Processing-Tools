@@ -12,8 +12,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "OpenGLAudioVisualiser.h"
 #include "AudioMeter.h"
-#include "TextFormatSlider.h"
 #include "EngagementMeter.h"
 
 //==============================================================================
@@ -57,15 +57,17 @@ private:
     
     OwnedArray<SliderAttachment> sliderAttachments;
     
-    
     // Visualize the aduio
-    AudioVisualiserComponent signalStreamViewer;
-    // Meters
+    OpenGLAudioVisualiserComponent signalStreamViewer;
+    
     std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
-    ScopedPointer<AudioMeter> dBMeter;
+    std::unique_ptr<AudioMeter> dBMeter;
     Label dBMeterLabel;
+    
+    std::unique_ptr<EngagementMeter> engagementMeter;
+    Label engagementLabel;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
 };

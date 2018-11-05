@@ -83,12 +83,11 @@ private:
     float thresholdRMS;
     float currentdB;
     
-    CompressorProcessor* compressor;
+    std::unique_ptr<CompressorProcessor> compressor;
     
     bool attackFlag;
     
     AudioSampleBuffer visualizeBuffer;
-
     
     /**
      * Moving RMS function.

@@ -94,10 +94,10 @@ OBJECTS_STANDALONE_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o \
 
 OBJECTS_SHARED_CODE := \
+  $(JUCE_OBJDIR)/OpenGLAudioVisualiser_c0c236bf.o \
   $(JUCE_OBJDIR)/CompressorProcessor_bcfb912e.o \
   $(JUCE_OBJDIR)/AudioMeter_8c0ac95c.o \
   $(JUCE_OBJDIR)/EngagementMeter_cfdc41eb.o \
-  $(JUCE_OBJDIR)/TextFormatSlider_7f1d618e.o \
   $(JUCE_OBJDIR)/PluginProcessor_a059e380.o \
   $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
@@ -155,6 +155,11 @@ $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o: ../../Juc
 	@echo "Compiling include_juce_audio_plugin_client_Standalone.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_STANDALONE_PLUGIN) $(JUCE_CFLAGS_STANDALONE_PLUGIN) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/OpenGLAudioVisualiser_c0c236bf.o: ../../Source/OpenGLAudioVisualiser.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling OpenGLAudioVisualiser.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/CompressorProcessor_bcfb912e.o: ../../Source/CompressorProcessor.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling CompressorProcessor.cpp"
@@ -168,11 +173,6 @@ $(JUCE_OBJDIR)/AudioMeter_8c0ac95c.o: ../../Source/AudioMeter.cpp
 $(JUCE_OBJDIR)/EngagementMeter_cfdc41eb.o: ../../Source/EngagementMeter.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling EngagementMeter.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
-
-$(JUCE_OBJDIR)/TextFormatSlider_7f1d618e.o: ../../Source/TextFormatSlider.cpp
-	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
-	@echo "Compiling TextFormatSlider.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/PluginProcessor_a059e380.o: ../../Source/PluginProcessor.cpp
