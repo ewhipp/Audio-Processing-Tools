@@ -14,14 +14,14 @@
 //==============================================================================
 AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
 :   AudioProcessorEditor (&parent),
-    processor (parent), valueTreeState(vts),
-    makeupGainSlider(Slider::LinearVertical, Slider::TextBoxBelow),
-    thresholdSlider(Slider::LinearVertical, Slider::TextBoxBelow),
-    attackSlider(Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    releaseSlider(Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    ratioSlider(Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    signalStreamViewer(processor.getVisualBufferChannels())
-
+    processor (parent),
+    valueTreeState(vts),
+    makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
+    thresholdSlider  (Slider::LinearVertical, Slider::TextBoxBelow),
+    attackSlider     (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    releaseSlider    (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    ratioSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    signalStreamViewer (processor.getVisualBufferChannels())
 {
     attackLabel.setText("Attack", dontSendNotification);
     addAndMakeVisible (attackLabel);
@@ -45,14 +45,13 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
 
     sliderAttachments.add (new SliderAttachment (valueTreeState, "attack", attackSlider));
     sliderAttachments.add (new SliderAttachment (valueTreeState, "release", releaseSlider));
-    sliderAttachments.add(new SliderAttachment (valueTreeState, "ratio", ratioSlider));
-    sliderAttachments.add(new SliderAttachment (valueTreeState, "makeUpGain", makeupGainSlider));
+    sliderAttachments.add (new SliderAttachment (valueTreeState, "ratio", ratioSlider));
+    sliderAttachments.add (new SliderAttachment (valueTreeState, "makeUpGain", makeupGainSlider));
     sliderAttachments.add (new SliderAttachment (valueTreeState, "threshold", thresholdSlider));
     
-    dBMeter = new AudioMeter (2);
+    dBMeter.reset (new AudioMeter (2));
     
     signalStreamViewer.setNumChannels (2);
-    signalStreamViewer.setColours (Colours::black, Colours::yellowgreen);
     signalStreamViewer.setRepaintRate (30);
     addAndMakeVisible (signalStreamViewer);
     
@@ -64,7 +63,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
 AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
 {
     dBMeter             = nullptr;
-   // engagementMeter     = nullptr;
+    engagementMeter     = nullptr;
 }
 
 /*
@@ -78,9 +77,8 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
 void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 {
     signalStreamViewer.pushBuffer (processor.getVisualBuffer());
-    dBMeter->setVisualMeterLevel (processor.getCurrentdB());
+    dBMeter->setVisualMeterLevel  (processor.getCurrentdB());
     dBMeterLabel.setText(Decibels::toString (processor.getCurrentdB()), dontSendNotification);
-   // engagementMeter->setVisualMeterLevel (processor.getTargetGainFactor());
 }
 
 //==============================================================================
