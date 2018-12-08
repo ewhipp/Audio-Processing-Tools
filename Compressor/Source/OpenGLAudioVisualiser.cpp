@@ -9,7 +9,6 @@
 */
 
 #include "OpenGLAudioVisualiser.h"
-#include <OpenGL/gl.h>
 
 struct OpenGLAudioVisualiserComponent::ChannelInfo
 {
@@ -60,7 +59,7 @@ struct OpenGLAudioVisualiserComponent::ChannelInfo
     }
     
     OpenGLAudioVisualiserComponent& owner;
-    Array<Range<float> > levels;
+    Array<Range<float>> levels;
     Range<float> value;
     int nextSample, subSample;
     
@@ -80,15 +79,14 @@ waveformColour (Colours::white)
     
     openGLContext.setComponentPaintingEnabled(true);
     openGLContext.setRenderer(this);
-    //    openGLContext.setContinuousRepainting(true);
     openGLContext.attachTo(*this);
 }
 
 OpenGLAudioVisualiserComponent::~OpenGLAudioVisualiserComponent()
 {
+    DBG ("SHUTTING DOWN!");
     openGLContext.detach();
     openGLContext.deactivateCurrentContext();
-    
 }
 
 void OpenGLAudioVisualiserComponent::setNumChannels (const int numChannels)
@@ -220,5 +218,4 @@ void OpenGLAudioVisualiserComponent::renderOpenGL()
     }
     
     glEnd();
-    
 }
