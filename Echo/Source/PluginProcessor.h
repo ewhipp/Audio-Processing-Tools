@@ -58,6 +58,8 @@ public:
 private:
     AudioProcessorValueTreeState parameters;
     
+    std::unique_ptr<XmlElement> stateOfPlugin
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EchoAudioProcessor)
 };
