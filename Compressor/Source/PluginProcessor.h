@@ -64,6 +64,7 @@ public:
     float getCurrentGainFactor();
     float getCurrentThresholdRMS();
     float getCurrentRMS();
+    float getTargetGainFactor();
     
     AudioSampleBuffer getVisualBuffer();
     
@@ -82,12 +83,11 @@ private:
     float thresholdRMS;
     float currentdB;
     
-    CompressorProcessor* compressor;
+    std::unique_ptr<CompressorProcessor> compressor;
     
     bool attackFlag;
     
     AudioSampleBuffer visualizeBuffer;
-
     
     /**
      * Moving RMS function.

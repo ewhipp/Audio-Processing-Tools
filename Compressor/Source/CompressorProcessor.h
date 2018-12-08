@@ -65,9 +65,10 @@ public:
      */ 
     float continueRelease();
     
-private:
+    // Setters
+    void setKneeType (bool);
     
-    /* Residual calculations */
+private:
     
     /*
      * Calculate the difference between the current signal stream value and the current
@@ -129,6 +130,44 @@ private:
         float timeToWaste = sliderValue * parentSampleRate;
 
         return (blockSize > timeToWaste) ? 0.0f : timeToWaste;
+    }
+    
+    /**
+     * A knee in compressor terms determines how effectively the compressor
+     * works when the threshold is breached. A hard knee will act as though
+     * the compressor is working normally. The softer the knee, the less
+     * intensive the compressor will react to crossing the threshold.
+     *
+     * EXAMPLE:
+     * signals far below the Threshold are uncompressed (ratio of 1:1) < Knee width
+     * signals a bit below the Threshold are a bit compressed (ratio of 2:1) threshold signal - Knee width / 2
+     * signals at or right around the Threshold are more compressed (ratio of 3:1) threshold signal + Knee width / 2
+     * signals far above the Threshold are fully compressed (ratio of 4:1) > Knee width
+     *
+     * TWO STATES: Soft vs. Hard
+     * Soft: The compressor acts normally as if there is no knee.
+     * Hard: @see example above.
+     *
+     * @param thresholdSlider: The threshold slider's value.
+     * @param rationSlider: The ratio slider's value.
+     * @param incomingSignal: The current stream of audio.
+     * @param kneeWidth: The window of affected audio.
+     */
+    float engageHardKnee (float* thresholdSlider, float* ratioSlider, float incomingSignal, int kneeWidth)
+    {
+        if (applyHardKnee)
+        {
+            if (incomingSignal > *thresholdSlider + kneeWidth)
+                return *ratioSlider / 1000;
+            else if (*thresholdSlider + (kneeWidth / 2) >= incomingSignal && incomingSignal > *thresholdSlider - (kneeWidth / 2))
+                return (*ratioSlider - 1) / 1000;
+            else if (*thresholdSlider - 3 >= incomingSignal && incomingSignal > *thresholdSlider - 7)
+                return (*ratioSlider  - 2) / 1000;
+            else
+                return 1.0f;
+        }
+        
+        return 1.0f;
     }
     
     /* SETTERS */
@@ -195,5 +234,7 @@ private:
     int timeSinceAttack;
     int blockSize;
     int sampleRate;
+    
+    bool applyHardKnee;
 };
 

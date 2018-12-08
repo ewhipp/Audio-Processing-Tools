@@ -29,7 +29,7 @@
     <array>
       <dict>
         <key>name</key>
-        <string>yourcompany: AmericanUniversityCompressor</string>
+        <string>ewhipp: AmericanUniversityCompressor</string>
         <key>description</key>
         <string>AmericanUniversityCompressor</string>
         <key>factoryFunction</key>

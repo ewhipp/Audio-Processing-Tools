@@ -16,11 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompresso
 		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - AAX", "AmericanUniversityCompressor_AAX.vcxproj", "{6263A55C-524D-3B7B-9EB3-7C350E0870DD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E6BF3077-D14B-AF25-D15F-3F9502B4BF11} = {E6BF3077-D14B-AF25-D15F-3F9502B4BF11}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmericanUniversityCompressor - Shared Code", "AmericanUniversityCompressor_SharedCode.vcxproj", "{E6BF3077-D14B-AF25-D15F-3F9502B4BF11}"
 EndProject
 Global
@@ -37,10 +32,6 @@ Global
 		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Debug|x64.Build.0 = Debug|x64
 		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Release|x64.ActiveCfg = Release|x64
 		{BE1E5EF2-846F-084C-6440-E9050E40C12E}.Release|x64.Build.0 = Release|x64
-		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Debug|x64.ActiveCfg = Debug|x64
-		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Debug|x64.Build.0 = Debug|x64
-		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Release|x64.ActiveCfg = Release|x64
-		{6263A55C-524D-3B7B-9EB3-7C350E0870DD}.Release|x64.Build.0 = Release|x64
 		{50A418E0-EB56-987E-525A-E87D17B56D93}.Debug|x64.ActiveCfg = Debug|x64
 		{50A418E0-EB56-987E-525A-E87D17B56D93}.Debug|x64.Build.0 = Debug|x64
 		{50A418E0-EB56-987E-525A-E87D17B56D93}.Release|x64.ActiveCfg = Release|x64

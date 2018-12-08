@@ -26,50 +26,58 @@ parameters(*this, nullptr)
 {
     attackFlag = false;
     lastOvershoot = -1;
-    parameters.createAndAddParameter("attack", "Attack", TRANS("Attack"),
+    parameters.createAndAddParameter("attack", "Attack", translate("Attack"),
                                  NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
                                  [] (float value)
                                  {
-                                     if (value < 0.001f)  return String (value) + "µs";
-                                     if (value >= 1000.0f)  return String (value) + "s";
-                                     else  return String (value) + "ms";
-                                 },
-                                 [] (const String& text) // probably a crap way of doing this
-                                 {
-                                     int lengthNeeded = text.length() - 2;
-                                     if (text.containsAnyOf("µs")) return text.substring(0, lengthNeeded).getFloatValue() * 1000;
-                                     if (text.containsAnyOf("s")) return text.substring(0, lengthNeeded + 1).getFloatValue() / 1000;
+                                     if (value < 0.001f)
+                                         return String (value) + "µs";
+                                     else if (value >= 1000.0f)
+                                         return String (value) + "s";
                                      else
-                                         return text.substring(0, lengthNeeded).getFloatValue(); // ms
+                                         return String (value) + "ms";
+                                 },
+                                 [] (const String& text)
+                                 {
+                                     if (text.containsAnyOf("µs"))
+                                         return text.substring(0, text.length() - 2).getFloatValue() * 1000;
+                                     else if (text.containsAnyOf("s"))
+                                         return text.substring(0, text.length() - 1).getFloatValue() / 1000;
+                                     else
+                                         return text.substring(0, text.length() - 2).getFloatValue(); // ms
                                  }
                                  );
     
-    parameters.createAndAddParameter("release", "Release", TRANS("Release"),
+    parameters.createAndAddParameter("release", "Release", translate("Release"),
                                  NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 300.0f,
                                  [] (float value)
                                  {
-                                     if (value < 0.001f)  return String (value) + "µs";
-                                     if (value >= 1000.0f)  return String (value) + "s";
-                                     else  return String (value) + "ms";
-                                 },
-                                 [] (const String& text) // probably a crap way of doing this
-                                 {
-                                     int lengthNeeded = text.length() - 2;
-                                     if (text.containsAnyOf("µs")) return text.substring(0, lengthNeeded).getFloatValue() * 1000;
-                                     if (text.containsAnyOf("s")) return text.substring(0, lengthNeeded + 1).getFloatValue() / 1000;
+                                     if (value < 0.001f)
+                                         return String (value) + "µs";
+                                     if (value >= 1000.0f)
+                                         return String (value) + "s";
                                      else
-                                         return text.substring(0, lengthNeeded).getFloatValue(); // ms
+                                         return String (value) + "ms";
+                                 },
+                                 [] (const String& text)
+                                 {
+                                     if (text.containsAnyOf("µs"))
+                                         return text.substring(0, text.length() - 2).getFloatValue() * 1000;
+                                     else if (text.containsAnyOf("s"))
+                                         return text.substring(0, text.length() - 1).getFloatValue() / 1000;
+                                     else
+                                         return text.substring(0, text.length() - 2).getFloatValue(); // ms
                                  }
                                  );
     
-    parameters.createAndAddParameter("threshold", "Threshold", TRANS("Threshold"),
+    parameters.createAndAddParameter("threshold", "Threshold", translate("Threshold"),
                                  NormalisableRange<float>(-100.0f, 0.0f, 1.0f), -16.0f,
                                  [] (float value)
                                      { return String (value, 1) + "dB"; },
                                  [] (const String& text)
                                      { return text.substring(0, text.length() - 2).getFloatValue(); });
     
-    parameters.createAndAddParameter("makeUpGain", "Make-up Gain", TRANS("Make-up Gain"),
+    parameters.createAndAddParameter("makeUpGain", "Make-up Gain", translate("Make-up Gain"),
                                  NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
                                      [] (float value) { return String (Decibels::gainToDecibels(value)) + " dB"; },
                                      [] (const String& text) { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); },
@@ -153,12 +161,12 @@ void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, c
 void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentGainFactor = 1.0f;
-    compressor = new CompressorProcessor(sampleRate, samplesPerBlock);
+    compressor.reset (new CompressorProcessor(sampleRate, samplesPerBlock));
 }
 
 void AmericanUniversityCompressorAudioProcessor::releaseResources()
 {
-    delete compressor;
+    
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -214,7 +222,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         {
             attackFlag = true;
             blockTargetGainFactor = compressor->beginAttack (currentGainFactor, ratio, attack,
-                                             currentOvershoot, thresholdRMS, currentRMS);
+                                                             currentOvershoot, thresholdRMS, currentRMS);
         }
         
         else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
@@ -225,6 +233,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
             attackFlag = false;
             blockTargetGainFactor = compressor->beginRelease(currentGainFactor, release);
         }
+        
         else if (currentRMS <= thresholdRMS && !attackFlag)
             blockTargetGainFactor = compressor->continueRelease();
         
@@ -254,25 +263,20 @@ AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor()
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-    ScopedPointer<XmlElement> xml (parameters.state.createXml());
+    std::unique_ptr<XmlElement> xml (parameters.state.createXml());
     copyXmlToBinary (*xml, destData);
 }
 
 void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // estore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    
     if (xmlState != nullptr)
         if (xmlState->hasTagName (parameters.state.getType()))
             parameters.state = ValueTree::fromXml (*xmlState);
 }
 
 //==============================================================================
-// This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new AmericanUniversityCompressorAudioProcessor();
@@ -282,6 +286,8 @@ float AmericanUniversityCompressorAudioProcessor::getCurrentdB() { return curren
 float AmericanUniversityCompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
 float AmericanUniversityCompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
+float AmericanUniversityCompressorAudioProcessor::getTargetGainFactor() { return blockTargetGainFactor; }
+
 AudioSampleBuffer AmericanUniversityCompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
 int AmericanUniversityCompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
 

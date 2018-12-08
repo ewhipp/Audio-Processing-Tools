@@ -12,9 +12,9 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "OpenGLAudioVisualiser.h"
 #include "AudioMeter.h"
-#include "TextFormatSlider.h"
-#include "util.h"
+#include "EngagementMeter.h"
 
 //==============================================================================
 class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
@@ -22,18 +22,13 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
                                                           private Timer
 {
 public:
-    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
-    enum
-    {
-        parameterControlHeight = 40,
-        paramaterControlLabelWidth = 80,
-        parameterControlWidth = 300
-    };
     
     AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&, AudioProcessorValueTreeState&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
 
     //==============================================================================
+    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+    
     void paint (Graphics&) override;
     void resized() override;
     void timerCallback() override;
@@ -44,39 +39,35 @@ private:
     AmericanUniversityCompressorAudioProcessor& processor;
     AudioProcessorValueTreeState& valueTreeState;
     
-    // Sliders/Labels
+    // Sliders / Labels
     Label makeupGainLabel;
-    ScopedPointer<TextFormatSlider> makeupGainSlider;
-    ScopedPointer<SliderAttachment> makeupAttachment;
+    Slider makeupGainSlider;
     
     Label thresholdLabel;
-    ScopedPointer<TextFormatSlider> thresholdSlider;
-    ScopedPointer<SliderAttachment> thresholdAttachment;
+    Slider thresholdSlider;
     
     Label attackLabel;
-    ScopedPointer<TextFormatSlider> attackSlider;
-    ScopedPointer<SliderAttachment> attackAttachment;
+    Slider attackSlider;
     
     Label releaseLabel;
-    ScopedPointer<TextFormatSlider> releaseSlider;
-    ScopedPointer<SliderAttachment> releaseAttachment;
+    Slider releaseSlider;
     
     Label ratioLabel;
-    ScopedPointer<TextFormatSlider> ratioSlider;
-    ScopedPointer<SliderAttachment> ratioAttachment;
-   
+    Slider ratioSlider;
+    
+    OwnedArray<SliderAttachment> sliderAttachments;
+    
     // Visualize the aduio
-    AudioVisualiserComponent audioView;
-    // Meters
-    ScopedPointer<AudioMeter> rmsValue;
+    OpenGLAudioVisualiserComponent signalStreamViewer;
+    
+    std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
-    ScopedPointer<AudioMeter> rms2DBValue;
-    Label rms2DBValueLabel;
+    std::unique_ptr<AudioMeter> dBMeter;
+    Label dBMeterLabel;
     
-    // Debugging
-    Label currentGainEditor;
-    Label currentThresholdRMS;
-
+    std::unique_ptr<EngagementMeter> engagementMeter;
+    Label engagementLabel;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
 };
