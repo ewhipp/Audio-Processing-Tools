@@ -1,3 +1,2 @@
-Builds/MacOSX/build/Debug/**
-Builds/VisualStudio2017/*.vcxproj
-
+Builds/**
+JuceLibraryCode/**
