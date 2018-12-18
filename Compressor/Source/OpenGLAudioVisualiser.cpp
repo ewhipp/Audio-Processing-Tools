@@ -9,6 +9,7 @@
 */
 
 #include "OpenGLAudioVisualiser.h"
+#include "OpenGL/gl.h"
 
 struct OpenGLAudioVisualiserComponent::ChannelInfo
 {

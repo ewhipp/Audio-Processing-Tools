@@ -12,10 +12,9 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent, AudioProcessorValueTreeState &vts)
+AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent)
 :   AudioProcessorEditor (&parent),
     processor        (parent),
-    valueTreeState   (vts),
     makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
     thresholdSlider  (Slider::LinearVertical, Slider::TextBoxBelow),
     attackSlider     (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
@@ -43,12 +42,6 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     addAndMakeVisible(thresholdLabel);
     addAndMakeVisible(thresholdSlider);
 
-    sliderAttachments.add (new SliderAttachment (valueTreeState, "attack", attackSlider));
-    sliderAttachments.add (new SliderAttachment (valueTreeState, "release", releaseSlider));
-    sliderAttachments.add (new SliderAttachment (valueTreeState, "ratio", ratioSlider));
-    sliderAttachments.add (new SliderAttachment (valueTreeState, "makeUpGain", makeupGainSlider));
-    sliderAttachments.add (new SliderAttachment (valueTreeState, "threshold", thresholdSlider));
-    
     dBMeter.reset (new AudioMeter (2));
     
     signalStreamViewer.setNumChannels (2);

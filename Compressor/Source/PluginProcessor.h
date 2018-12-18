@@ -73,7 +73,11 @@ public:
     //==============================================================================
 
 private:
-    AudioProcessorValueTreeState parameters;
+    AudioParameterFloat* attack;
+    AudioParameterFloat* release;
+    AudioParameterFloat* threshold;
+    AudioParameterFloat* makeupGain;
+    AudioParameterFloat* ratio;
     
     float lastOvershoot;
     float currentOvershoot;

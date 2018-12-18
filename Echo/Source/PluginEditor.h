@@ -16,20 +16,43 @@
 //==============================================================================
 /**
 */
-class EchoAudioProcessorEditor  : public AudioProcessorEditor
+class EchoAudioProcessorEditor  : public AudioProcessorEditor,
+                                  public ChangeListener,
+                                  private Timer
 {
 public:
-    EchoAudioProcessorEditor (EchoAudioProcessor&);
+    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+    typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
+    
+    EchoAudioProcessorEditor (EchoAudioProcessor&, AudioProcessorValueTreeState&);
     ~EchoAudioProcessorEditor();
 
+    //==============================================================================
+    void timerCallback() override;
+    
+    //==============================================================================
+    void changeListenerCallback(ChangeBroadcaster* sender) override;
+    
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     EchoAudioProcessor& processor;
-
+    AudioProcessorValueTreeState& valueTreeState;
+    
+    OwnedArray<SliderAttachment> sliderAttachments;
+    OwnedArray<ButtonAttachment> buttonAttachments;
+    
+    Label  delay_ramp_lbl;
+    Slider delay_ramp_slider;
+    Label  delay_feedback_lbl;
+    Slider delay_feedback_slider;
+    Label  delay_time_lbl;
+    Slider delay_time_slider;
+    
+    Label  delay_toggle_lbl;
+    ToggleButton delay_toggle_btn;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EchoAudioProcessorEditor)
 };

@@ -4,14 +4,14 @@
               reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.AmericanUniversityCompressor"
               includeBinaryInAppConfig="1" cppLanguageStandard="11" companyCopyright=""
-              buildVST="1" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildVST="0" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="AmericanUniversityCompressor"
               pluginDesc="AmericanUniversityCompressor" pluginManufacturer="ewhipp"
               pluginManufacturerCode="Manu" pluginCode="Feop" pluginChannelConfigs=""
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="AmericanUniversityCompressorAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
-              pluginAAXCategory="2" jucerVersion="5.3.2" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
+              pluginAAXCategory="2" jucerVersion="5.4.1" pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
       <GROUP id="{E980A44E-E1DA-EC0E-442B-FAAC7EE873B4}" name="modules">
@@ -44,7 +44,7 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" vst3Folder="" aaxFolder="">
+    <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="AmericanUniversityCompressor"/>

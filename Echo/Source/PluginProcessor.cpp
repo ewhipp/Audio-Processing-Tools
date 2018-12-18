@@ -25,41 +25,9 @@ EchoAudioProcessor::EchoAudioProcessor()
 #endif
 parameters (*this, nullptr)
 {
-    parameters.createAndAddParameter("delay_time", "Delay", translate("Delay"),
-                                     NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
-                                     [] (float value)
-                                     {
-                                         if (value < 000.1f)  return String (value) + "µs";
-                                         if (value >= 1000.f) return String (value) + "s";
-                                         else return String (value) + "ms";
-                                     },
-                                     [] (const String& text)
-                                     {
-                                         if (text.containsAnyOf("µs"))
-                                             return text.substring(0, text.length() - 2).getFloatValue() * 1000;
-                                         else if (text.containsAnyOf("s"))
-                                             return text.substring(0, text.length() - 1).getFloatValue() / 1000;
-                                         else
-                                             return text.substring(0, text.length() - 2).getFloatValue();
-                                     }, false, true, false);
-    
-    parameters.createAndAddParameter("delay_feedback", "Feedback", translate("Feedback"),
-                                     NormalisableRange<float>(0.0f, 1.0f, 0.1f), 0.7,
-                                     [] (float value)
-                                        { return String (value * 100.f) + "%"; },
-                                     [] (const String& text)
-                                        { return text.trimCharactersAtEnd("%").getFloatValue(); },
-                                     false, true, false);
-    
-    parameters.createAndAddParameter("delay_toggle", "Toggle", translate("Toggle"),
-                                     NormalisableRange<float>(0.0f, 1.0f, 1.0f), 0.0f,
-                                     [] (float value) { return value < 0.5 ? "Off" : "On"; },
-                                     [] (const String& text)
-                                     {
-                                         if (text == "Off")     return 0.0f;
-                                         else if (text == "On") return 1.0f;
-                                         else                   return 0.0f;
-                                     }, false, true, false);
+    addParameter (delay_time = new AudioParameterFloat ("delay_time", "Delay", 0.0f, 5000.0f, 250.0f));
+    addParameter (delay_ramp = new AudioParameterFloat ("delay_feedback", "Feedback", 0.0f, 1.0f, 0.1f));
+    addParameter (delay_toggle = new AudioParameterBool ("delay_toggle", "Toggle", false));
     
     parameters.state = ValueTree (Identifier ("Echo"));
 }
@@ -204,7 +172,7 @@ bool EchoAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* EchoAudioProcessor::createEditor()
 {
-    return new EchoAudioProcessorEditor (*this);
+    return new EchoAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================

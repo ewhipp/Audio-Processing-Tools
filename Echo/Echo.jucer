@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="fUxZdO" name="Echo" projectType="audioplug" jucerVersion="5.3.2">
+<JUCERPROJECT id="fUxZdO" name="Echo" projectType="audioplug" jucerVersion="5.4.1"
+              pluginFormats="buildAU,buildAUv3">
   <MAINGROUP id="JhoYJr" name="Echo">
     <GROUP id="{B576A060-433A-69A0-8F7F-DF28B003BE22}" name="Source">
       <FILE id="HP6f8d" name="PluginOptions.cpp" compile="1" resource="0"
@@ -105,7 +106,7 @@
     <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
   <LIVE_SETTINGS>
-    <OSX/>
+    <OSX buildEnabled="0"/>
   </LIVE_SETTINGS>
   <JUCEOPTIONS/>
 </JUCERPROJECT>

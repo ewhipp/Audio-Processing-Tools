@@ -23,7 +23,7 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
 {
 public:
     
-    AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&, AudioProcessorValueTreeState&);
+    AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
 
     //==============================================================================
@@ -37,7 +37,6 @@ public:
 private:
     // Essentials
     AmericanUniversityCompressorAudioProcessor& processor;
-    AudioProcessorValueTreeState& valueTreeState;
     
     // Sliders / Labels
     Label makeupGainLabel;
@@ -54,9 +53,7 @@ private:
     
     Label ratioLabel;
     Slider ratioSlider;
-    
-    OwnedArray<SliderAttachment> sliderAttachments;
-    
+        
     // Visualize the aduio
     OpenGLAudioVisualiserComponent signalStreamViewer;
     

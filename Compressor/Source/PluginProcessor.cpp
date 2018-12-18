@@ -20,76 +20,80 @@ AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioPro
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       ),
-parameters(*this, nullptr)
+                       )
 #endif
 {
     attackFlag = false;
     lastOvershoot = -1;
-    parameters.createAndAddParameter("attack", "Attack", translate("Attack"),
-                                 NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f,
-                                 [] (float value)
-                                 {
-                                     if (value < 0.001f)
-                                         return String (value) + "µs";
-                                     else if (value >= 1000.0f)
-                                         return String (value) + "s";
-                                     else
-                                         return String (value) + "ms";
-                                 },
-                                 [] (const String& text)
-                                 {
-                                     if (text.containsAnyOf("µs"))
-                                         return text.substring(0, text.length() - 2).getFloatValue() * 1000;
-                                     else if (text.containsAnyOf("s"))
-                                         return text.substring(0, text.length() - 1).getFloatValue() / 1000;
-                                     else
-                                         return text.substring(0, text.length() - 2).getFloatValue(); // ms
-                                 }
-                                 );
     
-    parameters.createAndAddParameter("release", "Release", translate("Release"),
-                                 NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 300.0f,
-                                 [] (float value)
-                                 {
-                                     if (value < 0.001f)
-                                         return String (value) + "µs";
-                                     if (value >= 1000.0f)
-                                         return String (value) + "s";
-                                     else
-                                         return String (value) + "ms";
-                                 },
-                                 [] (const String& text)
-                                 {
-                                     if (text.containsAnyOf("µs"))
-                                         return text.substring(0, text.length() - 2).getFloatValue() * 1000;
-                                     else if (text.containsAnyOf("s"))
-                                         return text.substring(0, text.length() - 1).getFloatValue() / 1000;
-                                     else
-                                         return text.substring(0, text.length() - 2).getFloatValue(); // ms
-                                 }
-                                 );
+    addParameter (attack = new AudioParameterFloat ("attack", "Attack",
+                                                   NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f, translate("Attack"),
+                                                   AudioProcessorParameter::inputMeter,
+                                                   [] (float value, int maximumStringLength)
+                                                   {
+                                                       if (value < 0.001f)
+                                                           return String (value) + "µs";
+                                                       else if (value >= 1000.0f)
+                                                           return String (value) + "s";
+                                                       else
+                                                           return String (value) + "ms";
+                                                   },
+                                                   [] (const String& text)
+                                                   {
+                                                       if (text.containsAnyOf("µs"))
+                                                           return text.substring(0, text.length() - 2).getFloatValue() * 1000;
+                                                       else if (text.containsAnyOf("s"))
+                                                           return text.substring(0, text.length() - 1).getFloatValue() / 1000;
+                                                       else
+                                                           return text.substring(0, text.length() - 2).getFloatValue(); // ms
+                                                   }));
     
-    parameters.createAndAddParameter("threshold", "Threshold", translate("Threshold"),
-                                 NormalisableRange<float>(-100.0f, 0.0f, 1.0f), -16.0f,
-                                 [] (float value)
-                                     { return String (value, 1) + "dB"; },
-                                 [] (const String& text)
-                                     { return text.substring(0, text.length() - 2).getFloatValue(); });
+    addParameter (release = new AudioParameterFloat ("release", "Release",
+                                                     NormalisableRange<float>(0.0f, 5000.f, 0.001f), 300.f, translate("Release"),
+                                                     AudioProcessorParameter::inputMeter,
+                                                     [] (float value, int maximumStringLength)
+                                                     {
+                                                         if (value < 0.001f)
+                                                             return String (value) + "µs";
+                                                         if (value >= 1000.0f)
+                                                             return String (value) + "s";
+                                                         else
+                                                             return String (value) + "ms";
+                                                     },
+                                                     [] (const String& text)
+                                                     {
+                                                         if (text.containsAnyOf("µs"))
+                                                             return text.substring(0, text.length() - 2).getFloatValue() * 1000;
+                                                         else if (text.containsAnyOf("s"))
+                                                             return text.substring(0, text.length() - 1).getFloatValue() / 1000;
+                                                         else
+                                                             return text.substring(0, text.length() - 2).getFloatValue();
+                                                     }));
     
-    parameters.createAndAddParameter("makeUpGain", "Make-up Gain", translate("Make-up Gain"),
-                                 NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
-                                     [] (float value) { return String (Decibels::gainToDecibels(value)) + " dB"; },
-                                     [] (const String& text) { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); },
-                                     false, true, false);
+    addParameter (threshold = new AudioParameterFloat ("threshold", "Threshold",
+                                                      NormalisableRange<float>(-100.f, 0.0f, 1.0f), -16.0f, translate("Threshold"),
+                                                      AudioProcessorParameter::inputMeter,
+                                                      [] (float value, int maximumStringLength)
+                                                      { return String (value, 1) + "dB"; },
+                                                      [] (const String& text)
+                                                      { return text.substring(0, text.length() - 2).getFloatValue(); }));
+    
+    addParameter (makeupGain = new AudioParameterFloat ("makeUpGain", "Make-up Gain",
+                                                        NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
+                                                        translate("Make-up Gain"),
+                                                        AudioProcessorParameter::inputMeter,
+                                                        [] (float value, int maximumStringLength)
+                                                            { return String (Decibels::gainToDecibels(value)) + " dB"; },
+                                                        [] (const String& text)
+                                                        { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); }));
 
-    parameters.createAndAddParameter("ratio", "Ratio", String(),
-                                NormalisableRange<float>(1.0f, 10.0, 1.0f),
-                                2.0f,
-                                [](float value) { return "1:" + String (value, 1); }, // return 1:n
-                                [](const String& text) { return text.substring(3).getFloatValue(); }); // retrieve n
-    
-    parameters.state = ValueTree (Identifier ("AmericanUniversityCompressor"));
+    addParameter (ratio = new AudioParameterFloat ("ratio", "Ratio",
+                                                   NormalisableRange<float>(1.0f, 10.f, 1.0f), 2.0f,
+                                                   translate("Ratio"),
+                                                   AudioProcessorParameter::inputMeter,
+                                                   [](float value, int maximumStringLength) { return "1:" + String (value, 1); },
+                                                   [](const String& text) { return text.substring(3).getFloatValue();
+                                                   }));
 }
 
 AmericanUniversityCompressorAudioProcessor::~AmericanUniversityCompressorAudioProcessor()
@@ -193,35 +197,29 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
 }
 #endif
 
-// Main function for audio processing
 void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
     
-    float* makeupGain = parameters.getRawParameterValue("makeUpGain");
-    float* threshold = parameters.getRawParameterValue("threshold");
-    float* attack = parameters.getRawParameterValue("attack");
-    float* release = parameters.getRawParameterValue("release");
-    float* ratio = parameters.getRawParameterValue("ratio");
-
+    
+    
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    // This is where we actually process the audio
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         const float* channelData = buffer.getReadPointer(channel);
         currentRMS =   ampToRMS (buffer.getNumSamples(), channelData);
         currentdB =    Decibels::gainToDecibels (currentRMS);
-        thresholdRMS = Decibels::decibelsToGain (*threshold);
+        thresholdRMS = Decibels::decibelsToGain (threshold->get());
         currentOvershoot = (currentRMS - thresholdRMS);
         
         if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
         {
             attackFlag = true;
-            blockTargetGainFactor = compressor->beginAttack (currentGainFactor, ratio, attack,
+            blockTargetGainFactor = compressor->beginAttack (currentGainFactor, ratio->get(), attack->get(),
                                                              currentOvershoot, thresholdRMS, currentRMS);
         }
         
@@ -231,7 +229,7 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         else if (currentRMS <= thresholdRMS && attackFlag)
         {
             attackFlag = false;
-            blockTargetGainFactor = compressor->beginRelease(currentGainFactor, release);
+            blockTargetGainFactor = compressor->beginRelease(currentGainFactor, release->get());
         }
         
         else if (currentRMS <= thresholdRMS && !attackFlag)
@@ -241,10 +239,9 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
         currentGainFactor = blockTargetGainFactor;
         
         // Convert the gain to a dB value first, then apply as a dB value.
-        buffer.applyGain(Decibels::decibelsToGain(*makeupGain));
+        buffer.applyGain(Decibels::decibelsToGain(makeupGain->get()));
         lastOvershoot = currentOvershoot;
         
-        // Allow the user to visualize the compressed audio.
         visualizeBuffer.makeCopyOf(buffer);
     }
 }
@@ -252,18 +249,23 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
 //==============================================================================
 bool AmericanUniversityCompressorAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true; 
 }
 
 AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor() 
 {
-    return new AmericanUniversityCompressorAudioProcessorEditor (*this, parameters);
+    return new AmericanUniversityCompressorAudioProcessorEditor (*this);
 }
 
 //==============================================================================
 void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    std::unique_ptr<XmlElement> xml (parameters.state.createXml());
+    std::unique_ptr<XmlElement> xml (new XmlElement ("Compressor"));
+    xml->setAttribute ("attack", (double) *attack);
+    xml->setAttribute ("release", (double) *release);
+    xml->setAttribute ("threshold", (double) *threshold);
+    xml->setAttribute ("makeupGain", (double) *makeupGain);
+    xml->setAttribute ("ratio", (double) *ratio);
     copyXmlToBinary (*xml, destData);
 }
 
@@ -271,9 +273,15 @@ void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void
 {
     std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     
-    if (xmlState != nullptr)
-        if (xmlState->hasTagName (parameters.state.getType()))
-            parameters.state = ValueTree::fromXml (*xmlState);
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName ("Compressor"))
+        {
+            *attack =     xmlState->getDoubleAttribute("attack", 0.0f);
+            *release =    xmlState->getDoubleAttribute("release", 300.f);
+            *threshold =  xmlState->getDoubleAttribute("threshold", -6.0f);
+            *makeupGain = xmlState->getDoubleAttribute("makeUpGain", 0.0f);
+            *ratio =      xmlState->getDoubleAttribute("ratio", 2.0f);
+        }
 }
 
 //==============================================================================

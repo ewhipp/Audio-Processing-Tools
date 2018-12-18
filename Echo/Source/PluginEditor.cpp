@@ -12,11 +12,15 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-EchoAudioProcessorEditor::EchoAudioProcessorEditor (EchoAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+EchoAudioProcessorEditor::EchoAudioProcessorEditor (EchoAudioProcessor& p, AudioProcessorValueTreeState& vts)
+    : AudioProcessorEditor (&p),
+      processor (p),
+      valueTreeState(vts),
+      delay_ramp_slider     (Slider::LinearVertical, Slider::TextBoxBelow),
+      delay_feedback_slider (Slider::LinearVertical, Slider::TextBoxBelow),
+      delay_time_slider     (Slider::LinearVertical, Slider::TextBoxBelow),
+      delay_toggle_btn      ("Toggle Echo")
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
     setSize (400, 300);
 }
 

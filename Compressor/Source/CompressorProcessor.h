@@ -19,8 +19,7 @@ public:
     
     ~CompressorProcessor();
    
-    /* TODO: Refactor to smaller functions
-     *
+    /*
      * Represents when our current samples are going over the threshold.
      * This function will automatically engage the calculations when a
      * signal stream value has surpassed the current threshold.
@@ -33,15 +32,15 @@ public:
      * @param: The RMS value of the incoming signal.
      *
      * @return: The decreased signal level that should be reached after one block size.
-     */
-    float beginAttack(float, float*, float*, float, float, float);
+    */
+    float beginAttack(float, float, float, float, float, float);
     
     /* 
      * Represents when our overshoot has not been recalculated and we are still
      * attacking with the same parameters set by the beginAttack() function.
      *
      * @return: The decreased signal level that should be reached after one block size.
-     */ 
+    */
     float continueAttack ();
     
     /*
@@ -54,15 +53,15 @@ public:
      * @param: The release slider's current value.
      *
      * @return: The increased signal level that should be reached after one block size.
-     */ 
-    float beginRelease(float, float*);
+    */
+    float beginRelease(float, float);
     
     /*
      * Represents when the signal stream value continues to be below it's natural
      * level. The compressor is still de-compressor to the natural state.
      *
      * @return: The increased signal level that should be reached after one block size.
-     */ 
+    */
     float continueRelease();
     
     // Setters
@@ -124,9 +123,9 @@ private:
      *
      * @return: The number of blocks to wait.
      */
-    int calculateNumSamples (float* ratioSlider, int parentSampleRate, int blockSize)
+    int calculateNumSamples (float ratioSlider, int parentSampleRate, int blockSize)
     {
-        float sliderValue = *ratioSlider / 1000;
+        float sliderValue = ratioSlider / 1000;
         float timeToWaste = sliderValue * parentSampleRate;
 
         return (blockSize > timeToWaste) ? 0.0f : timeToWaste;
@@ -153,16 +152,16 @@ private:
      * @param incomingSignal: The current stream of audio.
      * @param kneeWidth: The window of affected audio.
      */
-    float engageHardKnee (float* thresholdSlider, float* ratioSlider, float incomingSignal, int kneeWidth)
+    float engageHardKnee (float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
     {
         if (applyHardKnee)
         {
-            if (incomingSignal > *thresholdSlider + kneeWidth)
-                return *ratioSlider / 1000;
-            else if (*thresholdSlider + (kneeWidth / 2) >= incomingSignal && incomingSignal > *thresholdSlider - (kneeWidth / 2))
-                return (*ratioSlider - 1) / 1000;
-            else if (*thresholdSlider - 3 >= incomingSignal && incomingSignal > *thresholdSlider - 7)
-                return (*ratioSlider  - 2) / 1000;
+            if (incomingSignal > thresholdSlider + kneeWidth)
+                return ratioSlider / 1000;
+            else if (thresholdSlider + (kneeWidth / 2) >= incomingSignal && incomingSignal > thresholdSlider - (kneeWidth / 2))
+                return (ratioSlider - 1) / 1000;
+            else if (thresholdSlider - 3 >= incomingSignal && incomingSignal > thresholdSlider - 7)
+                return (ratioSlider  - 2) / 1000;
             else
                 return 1.0f;
         }

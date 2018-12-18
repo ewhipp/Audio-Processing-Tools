@@ -18,14 +18,14 @@ CompressorProcessor::CompressorProcessor (float parentSampleRate, int userDeterm
 
 CompressorProcessor::~CompressorProcessor() { }
 
-float CompressorProcessor::beginAttack (float startingGainFactor, float* ratioSlider, float* attackSlider,
+float CompressorProcessor::beginAttack (float startingGainFactor, float ratioSlider, float attackSlider,
                                  float currentOvershoot, float thresholdRMS, float currentRMS)
 {
     setStartingGainFactor (startingGainFactor);
     setTimeSinceAttack (0);
 
     numberOfSamplesToApplyGain = calculateNumSamples (attackSlider, sampleRate, blockSize);
-    desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, *ratioSlider);
+    desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, ratioSlider);
     gainFactor = calculateGainFactor (desiredGainFactor, currentRMS);
     
     timeSinceAttack += blockSize;
@@ -46,7 +46,7 @@ float CompressorProcessor::continueAttack()
         return startingGainFactor - ((timeSinceAttack / numberOfSamplesToApplyGain) * gainFactor);
 }
 
-float CompressorProcessor::beginRelease(float startingGainFactor, float* releaseSlider)
+float CompressorProcessor::beginRelease(float startingGainFactor, float releaseSlider)
 {
     setStartingGainFactor (startingGainFactor);
     setTimeSinceRelease (0);
