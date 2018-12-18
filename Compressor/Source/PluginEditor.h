@@ -54,8 +54,7 @@ private:
     Label ratioLabel;
     Slider ratioSlider;
         
-    // Visualize the aduio
-    OpenGLAudioVisualiserComponent signalStreamViewer;
+    AudioVisualiserComponent signalStreamViewer;
     
     std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;

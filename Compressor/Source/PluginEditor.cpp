@@ -46,6 +46,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     
     signalStreamViewer.setNumChannels (2);
     signalStreamViewer.setColours (Colours::black, Colours::green);
+    signalStreamViewer.setRepaintRate (30);
     addAndMakeVisible (signalStreamViewer);
     
     processor.addChangeListener (this);
