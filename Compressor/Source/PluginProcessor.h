@@ -42,7 +42,6 @@ public:
 
     //==============================================================================
     const String getName() const override;
-
     bool acceptsMidi() const override;
     bool producesMidi() const override;
     bool isMidiEffect () const override;
@@ -65,12 +64,11 @@ public:
     float getCurrentThresholdRMS();
     float getCurrentRMS();
     float getTargetGainFactor();
-    
-    AudioSampleBuffer getVisualBuffer();
-    
-    int getVisualBufferChannels();
 
     //==============================================================================
+    AudioSampleBuffer getVisualBuffer();
+    int getVisualBufferChannels();
+
 
 private:
     AudioParameterFloat* attack;
