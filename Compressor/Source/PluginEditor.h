@@ -12,9 +12,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "OpenGLAudioVisualiser.h"
-#include "AudioMeter.h"
-#include "EngagementMeter.h"
 
 //==============================================================================
 class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
@@ -22,12 +19,12 @@ class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorE
                                                           private Timer
 {
 public:
+    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     
     AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&);
     ~AmericanUniversityCompressorAudioProcessorEditor();
 
     //==============================================================================
-    typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     
     void paint (Graphics&) override;
     void resized() override;
@@ -53,16 +50,18 @@ private:
     
     Label ratioLabel;
     Slider ratioSlider;
+    
+    OwnedArray <SliderAttachment> attachments;
+    SharedResourcePointer <TooltipWindow> tooltipWindow;
         
     AudioVisualiserComponent signalStreamViewer;
     
-    std::unique_ptr<AudioMeter> rmsValue;
+   /* std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;
     
     std::unique_ptr<AudioMeter> dBMeter;
-    Label dBMeterLabel;
+    Label dBMeterLabel; */
     
-    std::unique_ptr<EngagementMeter> engagementMeter;
     Label engagementLabel;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)

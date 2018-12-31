@@ -26,12 +26,13 @@
                 file="Source/CompressorProcessor.h"/>
         </GROUP>
         <GROUP id="{E75EE1A3-6ADD-361D-2204-76F5C844B08B}" name="GUI">
-          <FILE id="lqE6sX" name="AudioMeter.cpp" compile="1" resource="0" file="Source/AudioMeter.cpp"/>
-          <FILE id="QRfJxX" name="AudioMeter.h" compile="0" resource="0" file="Source/AudioMeter.h"/>
-          <FILE id="uYls3T" name="EngagementMeter.cpp" compile="1" resource="0"
-                file="Source/EngagementMeter.cpp"/>
-          <FILE id="gjdyiV" name="EngagementMeter.h" compile="0" resource="0"
-                file="Source/EngagementMeter.h"/>
+          <GROUP id="{05AA2C5A-73D6-805C-A45E-62446323919D}" name="Meter">
+            <FILE id="altVuL" name="IMeter.h" compile="0" resource="0" file="Source/IMeter.h"/>
+            <FILE id="TWfVie" name="Meter.cpp" compile="1" resource="0" file="Source/Meter.cpp"/>
+            <FILE id="LWuAsE" name="Meter.h" compile="0" resource="0" file="Source/Meter.h"/>
+            <FILE id="yTlMcD" name="RMSMeter.cpp" compile="1" resource="0" file="Source/RMSMeter.cpp"/>
+            <FILE id="FEMwdv" name="RMSMeter.h" compile="0" resource="0" file="Source/RMSMeter.h"/>
+          </GROUP>
         </GROUP>
       </GROUP>
       <FILE id="RW0kKj" name="PluginProcessor.cpp" compile="1" resource="0"

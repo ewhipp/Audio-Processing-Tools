@@ -13,15 +13,26 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "CompressorProcessor.h"
 
-
-
 //==============================================================================
 /**
 */
 class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor,
+                                                    public AudioProcessorValueTreeState::Listener,
                                                     public ChangeBroadcaster
 {
 public:
+    //==============================================================================
+    enum CompressorParameters
+    {
+        ATTACK = 0,
+        RELEASE,
+        THRESHOLD,
+        MAKEUPGAIN,
+        RATIO,
+        KNEE,
+        MAX_COMP_PARAMS
+    };
+    
     //==============================================================================
     AmericanUniversityCompressorAudioProcessor();
     ~AmericanUniversityCompressorAudioProcessor();
@@ -53,10 +64,14 @@ public:
     void setCurrentProgram (int index) override;
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
+    
+    //==============================================================================
+    void parameterChanged (const String& parameter, float newValue) override;
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    AudioProcessorValueTreeState& getPluginState();
     
     //==============================================================================
     float getCurrentdB();
@@ -69,13 +84,13 @@ public:
     AudioSampleBuffer getVisualBuffer();
     int getVisualBufferChannels();
 
-
+    //==============================================================================
+    static String getParameterId (size_t);
+    float* getParameterValue (String);
+    
 private:
-    AudioParameterFloat* attack;
-    AudioParameterFloat* release;
-    AudioParameterFloat* threshold;
-    AudioParameterFloat* makeupGain;
-    AudioParameterFloat* ratio;
+    AudioProcessorValueTreeState state;
+    UndoManager                  undo;
     
     float lastOvershoot;
     float currentOvershoot;
