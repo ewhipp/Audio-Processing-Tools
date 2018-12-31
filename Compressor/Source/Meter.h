@@ -8,6 +8,8 @@
   ==============================================================================
 */
 
+#include "IMeter.h"
+
 #ifndef METER_H
 #define METER_H
 
@@ -29,7 +31,7 @@ public:
         
         setPaintingIsUnclipped (true);
     }
-    ~LevelMeter() { }
+    ~Meter() { }
     
     void paint (Graphics& /* g */) override;
     
@@ -41,13 +43,10 @@ public:
     
     virtual const void setType (int /* type */) noexcept final;
     
-    void const chooseDrawing (int /* type */);
-    
 private:
     METER_TYPE m_type;
     
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LevelMeter)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Meter)
 };
 
 #endif

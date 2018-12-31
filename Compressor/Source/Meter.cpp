@@ -10,20 +10,29 @@
 
 #include "Meter.h"
 
-void LevelMeter::paint (Graphics& g)
+void Meter::paint (Graphics& g)
 {
-    chooseDrawing (m_type);
-    
-    
+    switch (m_type)
+    {
+        case (METER_TYPE::LEVEL): /* drawLevel */ break;
+        case (METER_TYPE::VISUAL): /* drawVisual */ break;
+        case (METER_TYPE::ENGAGEMENT): /* drawEngagement */ break;
+        case (METER_TYPE::RMS): /* drawRMS */ break;
+        case (METER_TYPE::MAX_METER_TYPES): throw MeterInitializationException ("Error creating meter. Please choose the correct meter you desire.");
+        default: break;
+    }
 }
 
 float Meter::normalize(float incomingSignal)
 {
-    switch (m_type)
+    if (m_type == METER_TYPE::LEVEL)
     {
-        case METER_TYPE
+        return abs ((incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue));
     }
-    return abs ((incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue));
+    else
+    {
+        return (incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue);
+    }
 }
 
 void Meter::setValue (float value)
@@ -53,10 +62,4 @@ const void Meter::setType (int type) noexcept
         throw MeterInitializationException ("Meter type must be accepted value");
     
     m_type = static_cast<METER_TYPE>(type);
-}
-
-// One long switch statement to decide how we will draw the meter.
-const void Meter::chooseDrawing (int type)
-{
-    switch (type)
 }

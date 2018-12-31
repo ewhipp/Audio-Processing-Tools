@@ -14,12 +14,13 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class CompressorAudioProcessorEditor  : public AudioProcessorEditor,
+class CompressorAudioProcessorEditor  :                   public AudioProcessorEditor,
                                                           public ChangeListener,
                                                           private Timer
 {
 public:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+    typedef AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
     
     CompressorAudioProcessorEditor (CompressorAudioProcessor&);
     ~CompressorAudioProcessorEditor();
@@ -34,24 +35,25 @@ public:
 private:
     CompressorAudioProcessor& m_processor;
     
-    Label       m_makeupGainLabel;
-    Slider      m_makeupGainSlider;
+    Label           m_makeupGainLabel;
+    Slider      	m_makeupGainSlider;
     
-    Label       m_thresholdLabel;
-    Slider      m_thresholdSlider;
+    Label           m_thresholdLabel;
+    Slider          m_thresholdSlider;
     
-    Label       m_attackLabel;
-    Slider      m_attackSlider;
+    Label       	m_attackLabel;
+    Slider      	m_attackSlider;
     
-    Label       m_releaseLabel;
-    Slider      m_releaseSlider;
+    Label       	m_releaseLabel;
+    Slider          m_releaseSlider;
     
-    Label       m_ratioLabel;
-    Slider      m_ratioSlider;
+    Label           m_ratioLabel;
+    Slider          m_ratioSlider;
     
-    TextButton  m_kneeButton;
+    ToggleButton    m_kneeButton;
     
-    OwnedArray <SliderAttachment> m_attachments;
+    OwnedArray <SliderAttachment> m_sliderAttachments;
+    OwnedArray <ButtonAttachment> m_buttonAttachments;
     SharedResourcePointer <TooltipWindow> m_tooltipWindow;
         
     AudioVisualiserComponent m_signalStreamViewer;

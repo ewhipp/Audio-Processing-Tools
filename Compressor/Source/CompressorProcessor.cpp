@@ -72,6 +72,7 @@ void CompressorProcessor::setKneeType (bool isActive, float thresholdSlider, flo
 {
     if (m_isActive)
     {
-        engageHardKnee (<#float thresholdSlider#>, <#float ratioSlider#>, <#float incomingSignal#>, <#int kneeWidth#>)
+        engageHardKnee (thresholdSlider, ratioSlider, incomingSignal, kneeWidth);
     }
+    else { return; }
 }
