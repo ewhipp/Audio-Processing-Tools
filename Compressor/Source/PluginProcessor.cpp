@@ -69,8 +69,8 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                     {
                                                         if (value < 0.001f)
                                                             return String (value) + "µs";
-                                                        else if (value >= 1000.0f)
-                                                            return String (value) + "s";
+                                                        if (value >= 1000.0f)
+                                                            return String (value / 1000.0f) + "s";
                                                         else
                                                             return String (value) + "ms";
                                                     },
@@ -94,7 +94,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                          if (value < 0.001f)
                                                              return String (value) + "µs";
                                                          if (value >= 1000.0f)
-                                                             return String (value) + "s";
+                                                             return String (value / 1000.0f) + "s";
                                                          else
                                                              return String (value) + "ms";
                                                      },
@@ -418,6 +418,7 @@ float CompressorAudioProcessor::getCurrentGainFactor()      { return m_currentGa
 float CompressorAudioProcessor::getCurrentThresholdRMS()    { return m_thresholdRMS; }
 float CompressorAudioProcessor::getCurrentRMS()             { return m_currentRMS; }
 float CompressorAudioProcessor::getTargetGainFactor()       { return m_blockTargetGainFactor; }
+float CompressorAudioProcessor::getCurrentOvershoot()       { return m_currentOvershoot; }
 
 AudioSampleBuffer CompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
 int CompressorAudioProcessor::getVisualBufferChannels()       { return visualizeBuffer.getNumChannels(); }

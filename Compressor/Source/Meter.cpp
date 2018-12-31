@@ -52,11 +52,15 @@ void Meter::drawEngagement (Graphics& g)
     
     g.setColour (Colours::red);
     Point <float> initCenterPoint   (bounds.getWidth() / 2, bounds.getHeight());
-    Point <float> initEndPoint      (0, bounds.getWidth() / 2);
+    Point <float> initEndPoint      (0, bounds.getWidth());
     Line  <float> initArrow         (initCenterPoint, initEndPoint);
     
     g.drawArrow (initArrow, 2.0f, 10.0f, 10.0f);
-   // initArrow.applyTransform (AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
+    
+    auto signal = normalize (m_incomingSignal, 0.0f, 1.0f);
+    
+    if (signal >= 0.0f && 1.0 >= signal)
+        initEndPoint.applyTransform (AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
 }
 
 float Meter::normalize (float incomingSignal)

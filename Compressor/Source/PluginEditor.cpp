@@ -97,7 +97,8 @@ void CompressorAudioProcessorEditor::timerCallback()
 {
     m_signalStreamViewer.pushBuffer (m_processor.getVisualBuffer());
     m_levelMeter->setIncomingSignal (m_processor.getCurrentdB());
-    m_engagementMeter->setIncomingSignal (m_processor.getCurrentdB());
+    if (m_processor.getCurrentRMS() > m_processor.getCurrentThresholdRMS())
+        m_engagementMeter->setIncomingSignal (m_processor.getCurrentOvershoot());
 }
 
 //==============================================================================

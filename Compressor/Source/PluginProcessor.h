@@ -79,6 +79,7 @@ public:
     float getCurrentThresholdRMS();
     float getCurrentRMS();
     float getTargetGainFactor();
+    float getCurrentOvershoot();
 
     //==============================================================================
     AudioSampleBuffer getVisualBuffer();
