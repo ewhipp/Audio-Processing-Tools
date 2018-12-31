@@ -92,15 +92,15 @@ private:
     AudioProcessorValueTreeState state;
     UndoManager                  undo;
     
-    float lastOvershoot;
-    float currentOvershoot;
-    float blockTargetGainFactor;
-    float currentGainFactor;
-    float currentRMS;
-    float thresholdRMS;
-    float currentdB;
+    float m_lastOvershoot;
+    float m_currentOvershoot;
+    float m_blockTargetGainFactor;
+    float m_currentGainFactor;
+    float m_currentRMS;
+    float m_thresholdRMS;
+    float m_currentdB;
     
-    std::unique_ptr<CompressorProcessor> compressor;
+    std::unique_ptr<CompressorProcessor> m_compressor;
     
     bool attackFlag;
     

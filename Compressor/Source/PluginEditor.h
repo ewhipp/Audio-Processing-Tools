@@ -32,29 +32,29 @@ public:
     void changeListenerCallback(ChangeBroadcaster* sender) override;
     
 private:
-    // Essentials
-    CompressorAudioProcessor& processor;
+    CompressorAudioProcessor& m_processor;
     
-    // Sliders / Labels
-    Label makeupGainLabel;
-    Slider makeupGainSlider;
+    Label       m_makeupGainLabel;
+    Slider      m_makeupGainSlider;
     
-    Label thresholdLabel;
-    Slider thresholdSlider;
+    Label       m_thresholdLabel;
+    Slider      m_thresholdSlider;
     
-    Label attackLabel;
-    Slider attackSlider;
+    Label       m_attackLabel;
+    Slider      m_attackSlider;
     
-    Label releaseLabel;
-    Slider releaseSlider;
+    Label       m_releaseLabel;
+    Slider      m_releaseSlider;
     
-    Label ratioLabel;
-    Slider ratioSlider;
+    Label       m_ratioLabel;
+    Slider      m_ratioSlider;
     
-    OwnedArray <SliderAttachment> attachments;
-    SharedResourcePointer <TooltipWindow> tooltipWindow;
+    TextButton  m_kneeButton;
+    
+    OwnedArray <SliderAttachment> m_attachments;
+    SharedResourcePointer <TooltipWindow> m_tooltipWindow;
         
-    AudioVisualiserComponent signalStreamViewer;
+    AudioVisualiserComponent m_signalStreamViewer;
     
    /* std::unique_ptr<AudioMeter> rmsValue;
     Label rmsValueLabel;
@@ -62,7 +62,6 @@ private:
     std::unique_ptr<AudioMeter> dBMeter;
     Label dBMeterLabel; */
     
-    Label engagementLabel;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CompressorAudioProcessorEditor)
 };

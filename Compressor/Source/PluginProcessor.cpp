@@ -57,9 +57,11 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     // We don't need AudioProcessorParameterGroup until this functionality is required
     // std::vector <std::unique_ptr <AudioProcessorParameterGroup> > params;
     
-    std::vector <std::unique_ptr <AudioParameterFloat> > params;
+    std::vector <std::unique_ptr <AudioProcessorParameterGroup> > params;
     
     // TODO: clean
+    
+    // Begin Float parameters
     auto attack
     = std::make_unique <AudioParameterFloat>
                                              (CompressorAudioProcessor::getParameterId (compParams::ATTACK), "Attack",
@@ -136,14 +138,30 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                    AudioProcessorParameter::inputMeter,
                                                    [](float value, int maximumStringLength) { return "1:" + String (value, 1); },
                                                    [](const String& text) { return text.substring(3).getFloatValue();
-                                                   });
+                                                });
     
-    // TODO : Clean
-    params.push_back (std::move (attack));
-    params.push_back (std::move (release));
-    params.push_back (std::move (threshold));
-    params.push_back (std::move (makeupGain));
-    params.push_back (std::move (ratio));
+   
+    // End float parameters
+    
+    // Begin Bool parameters
+    
+    auto knee = std::make_unique <AudioParameterBool>
+                                                  (CompressorAudioProcessor::getParameterId (compParams::KNEE), "Knee", false);
+    
+    // End Bool Parameters
+    
+    auto floatParams = std::make_unique <AudioProcessorParameterGroup> ("float-values", "Floats", "|",
+                                                                        std::move (attack),
+                                                                        std::move (release),
+                                                                        std::move (threshold),
+                                                                        std::move (makeupGain),
+                                                                        std::move (ratio));
+    params.push_back (std::move (floatParams));
+    
+    auto boolParams = std::make_unique <AudioProcessorParameterGroup> ("bool-values", "Bools", "|",
+                                                                       std::move (knee));
+    
+    params.push_back (std::move (boolParams));
     
     return { params.begin(), params.end() };
 }
@@ -163,7 +181,7 @@ CompressorAudioProcessor::CompressorAudioProcessor()
 state (*this, &undo, "PARAMS", createParameterLayout())
 {
     attackFlag = false;
-    lastOvershoot = -1;
+    m_lastOvershoot = -1;
     
     state.addParameterListener (getParameterId (compParams::ATTACK), this);
     state.addParameterListener (getParameterId (compParams::RELEASE), this);
@@ -245,8 +263,8 @@ void CompressorAudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void CompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    currentGainFactor = 1.0f;
-    compressor.reset (new CompressorProcessor(sampleRate, samplesPerBlock));
+    m_currentGainFactor = 1.0f;
+    m_compressor = std::make_unique <CompressorProcessor> (sampleRate, samplesPerBlock);
 }
 
 void CompressorAudioProcessor::releaseResources()
@@ -297,37 +315,37 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         const float* channelData = buffer.getReadPointer(channel);
-        currentRMS =   ampToRMS (buffer.getNumSamples(), channelData);
-        currentdB =    Decibels::gainToDecibels (currentRMS);
-        thresholdRMS = Decibels::decibelsToGain (*threshold);
-        currentOvershoot = (currentRMS - thresholdRMS);
+        m_currentRMS =   ampToRMS (buffer.getNumSamples(), channelData);
+        m_currentdB =    Decibels::gainToDecibels (m_currentRMS);
+        m_thresholdRMS = Decibels::decibelsToGain (*threshold);
+        m_currentOvershoot = (m_currentRMS - m_thresholdRMS);
         
-        if (currentRMS > thresholdRMS && currentOvershoot != lastOvershoot)
+        if (m_currentRMS > m_thresholdRMS && m_currentOvershoot != m_lastOvershoot)
         {
             attackFlag = true;
-            blockTargetGainFactor = compressor->beginAttack (currentGainFactor, *ratio, *attack,
-                                                             currentOvershoot, thresholdRMS, currentRMS);
+            m_blockTargetGainFactor = m_compressor->beginAttack (m_currentGainFactor, *ratio, *attack,
+                                                                 m_currentOvershoot, m_thresholdRMS, m_currentRMS);
         }
         
-        else if (currentRMS > thresholdRMS && currentOvershoot == lastOvershoot)
-            blockTargetGainFactor = compressor->continueAttack();
+        else if (m_currentRMS > m_thresholdRMS && m_currentOvershoot == m_lastOvershoot)
+            m_blockTargetGainFactor = m_compressor->continueAttack();
         
-        else if (currentRMS <= thresholdRMS && attackFlag)
+        else if (m_currentRMS <= m_thresholdRMS && attackFlag)
         {
             attackFlag = false;
-            blockTargetGainFactor = compressor->beginRelease (currentGainFactor, *release);
+            m_blockTargetGainFactor = m_compressor->beginRelease (m_currentGainFactor, *release);
         }
         
-        else if (currentRMS <= thresholdRMS && !attackFlag)
-            blockTargetGainFactor = compressor->continueRelease();
+        else if (m_currentRMS <= m_thresholdRMS && !attackFlag)
+            m_blockTargetGainFactor = m_compressor->continueRelease();
         
-        buffer.applyGainRamp (0, buffer.getNumSamples(), currentGainFactor, blockTargetGainFactor);
-        currentGainFactor = blockTargetGainFactor;
+        buffer.applyGainRamp (0, buffer.getNumSamples(), m_currentGainFactor, m_blockTargetGainFactor);
+        m_currentGainFactor = m_blockTargetGainFactor;
         
         // Convert the gain to a dB value first, then apply as a dB value.
         buffer.applyGain (Decibels::decibelsToGain (*makeupGain));
         
-        lastOvershoot = currentOvershoot;
+        m_lastOvershoot = m_currentOvershoot;
         visualizeBuffer.makeCopyOf(buffer);
     }
 }
@@ -389,6 +407,11 @@ void CompressorAudioProcessor::parameterChanged(const String& parameter, float n
         auto param = getParameterValue (getParameterId (compParams::RATIO));
         param = &newValue;
     }
+    else if (parameter == getParameterId (compParams::KNEE))
+    {
+        auto param = getParameterValue (getParameterId (compParams::KNEE));
+        param = &newValue;
+    }
 }
 
 //==============================================================================
@@ -397,11 +420,11 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new CompressorAudioProcessor();
 }
 
-float CompressorAudioProcessor::getCurrentdB() { return currentdB; }
-float CompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
-float CompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
-float CompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
-float CompressorAudioProcessor::getTargetGainFactor() { return blockTargetGainFactor; }
+float CompressorAudioProcessor::getCurrentdB() { return m_currentdB; }
+float CompressorAudioProcessor::getCurrentGainFactor() { return m_currentGainFactor; }
+float CompressorAudioProcessor::getCurrentThresholdRMS() { return m_thresholdRMS; }
+float CompressorAudioProcessor::getCurrentRMS() { return m_currentRMS; }
+float CompressorAudioProcessor::getTargetGainFactor() { return m_blockTargetGainFactor; }
 
 AudioSampleBuffer CompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
 int CompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }

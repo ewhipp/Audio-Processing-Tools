@@ -34,6 +34,8 @@
             <FILE id="altVuL" name="IMeter.h" compile="0" resource="0" file="Source/IMeter.h"/>
             <FILE id="TWfVie" name="LevelMeter.cpp" compile="1" resource="0" file="Source/LevelMeter.cpp"/>
             <FILE id="LWuAsE" name="LevelMeter.h" compile="0" resource="0" file="Source/LevelMeter.h"/>
+            <FILE id="mW2X4G" name="Meter.cpp" compile="1" resource="0" file="Source/Meter.cpp"/>
+            <FILE id="FknGLA" name="Meter.h" compile="0" resource="0" file="Source/Meter.h"/>
             <FILE id="yTlMcD" name="RMSMeter.cpp" compile="1" resource="0" file="Source/RMSMeter.cpp"/>
             <FILE id="FEMwdv" name="RMSMeter.h" compile="0" resource="0" file="Source/RMSMeter.h"/>
           </GROUP>

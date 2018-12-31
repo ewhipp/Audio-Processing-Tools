@@ -11,7 +11,7 @@
 #include "CompressorProcessor.h"
 
 CompressorProcessor::CompressorProcessor (float parentSampleRate, int userDeterminedBlockSize)
-    : blockSize (userDeterminedBlockSize), sampleRate (parentSampleRate) { }
+    : m_blockSize (userDeterminedBlockSize), m_sampleRate (parentSampleRate) { }
 
 CompressorProcessor::~CompressorProcessor() { }
 
@@ -21,26 +21,26 @@ float CompressorProcessor::beginAttack (float startingGainFactor, float ratioSli
     setStartingGainFactor (startingGainFactor);
     setTimeSinceAttack (0);
 
-    numberOfSamplesToApplyGain = calculateNumSamples (attackSlider, sampleRate, blockSize);
-    desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, ratioSlider);
-    gainFactor = calculateGainFactor (desiredGainFactor, currentRMS);
+    m_numberOfSamplesToApplyGain = calculateNumSamples (attackSlider, m_sampleRate, m_blockSize);
+    m_desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, ratioSlider);
+    m_gainFactor = calculateGainFactor (m_desiredGainFactor, currentRMS);
     
-    timeSinceAttack += blockSize;
+    m_timeSinceAttack += m_blockSize;
     
-    if (numberOfSamplesToApplyGain == 0)
-        return gainFactor;
+    if (m_numberOfSamplesToApplyGain == 0)
+        return m_gainFactor;
     else
-        return startingGainFactor - ((timeSinceAttack / numberOfSamplesToApplyGain) * (startingGainFactor - gainFactor));
+        return startingGainFactor - ((m_timeSinceAttack / m_numberOfSamplesToApplyGain) * (startingGainFactor - m_gainFactor));
 }
 
 float CompressorProcessor::continueAttack()
 {
-    timeSinceAttack += blockSize;
+    m_timeSinceAttack += m_blockSize;
     
-    if ((timeSinceAttack / numberOfSamplesToApplyGain) >= 1)
-        return gainFactor;
+    if ((m_timeSinceAttack / m_numberOfSamplesToApplyGain) >= 1)
+        return m_gainFactor;
     else
-        return startingGainFactor - ((timeSinceAttack / numberOfSamplesToApplyGain) * gainFactor);
+        return m_startingGainFactor - ((m_timeSinceAttack / m_numberOfSamplesToApplyGain) * m_gainFactor);
 }
 
 float CompressorProcessor::beginRelease(float startingGainFactor, float releaseSlider)
@@ -48,22 +48,30 @@ float CompressorProcessor::beginRelease(float startingGainFactor, float releaseS
     setStartingGainFactor (startingGainFactor);
     setTimeSinceRelease (0);
     
-    gainFactor = 1.0f;
-    numberOfSamplesToApplyGain = calculateNumSamples (releaseSlider, sampleRate, blockSize);
-    timeSinceRelease += blockSize;
+    m_gainFactor = 1.0f;
+    m_numberOfSamplesToApplyGain = calculateNumSamples (releaseSlider, m_sampleRate, m_blockSize);
+    m_timeSinceRelease += m_blockSize;
     
-    if (numberOfSamplesToApplyGain == 0)
-        return gainFactor;
+    if (m_numberOfSamplesToApplyGain == 0)
+        return m_gainFactor;
     else
-        return startingGainFactor + ((timeSinceRelease / numberOfSamplesToApplyGain) * (gainFactor - startingGainFactor));
+        return startingGainFactor + ((m_timeSinceRelease / m_numberOfSamplesToApplyGain) * (m_gainFactor - startingGainFactor));
 }
 
 float CompressorProcessor::continueRelease()
 {
-    timeSinceRelease += blockSize;
+    m_timeSinceRelease += m_blockSize;
     
-    if ((timeSinceRelease / numberOfSamplesToApplyGain) >= 1)
-        return gainFactor;
+    if ((m_timeSinceRelease / m_numberOfSamplesToApplyGain) >= 1)
+        return m_gainFactor;
     else
-        return startingGainFactor + ((timeSinceRelease / numberOfSamplesToApplyGain) * gainFactorRange);
+        return m_startingGainFactor + ((m_timeSinceRelease / m_numberOfSamplesToApplyGain) * m_gainFactorRange);
+}
+
+void CompressorProcessor::setKneeType (bool isActive, float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
+{
+    if (m_isActive)
+    {
+        engageHardKnee (<#float thresholdSlider#>, <#float ratioSlider#>, <#float incomingSignal#>, <#int kneeWidth#>)
+    }
 }

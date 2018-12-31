@@ -33,7 +33,7 @@ public:
      *
      * @return: The decreased signal level that should be reached after one block size.
     */
-    float beginAttack(float, float, float, float, float, float);
+    float beginAttack(float /* startingGainFactor */, float /* ratio */, float /* attack */, float /* overshoot */, float /* threshold */, float /* RMS */);
     
     /* 
      * Represents when our overshoot has not been recalculated and we are still
@@ -54,7 +54,7 @@ public:
      *
      * @return: The increased signal level that should be reached after one block size.
     */
-    float beginRelease(float, float);
+    float beginRelease(float /* startingGainFactor */, float /* releaseSlider */);
     
     /*
      * Represents when the signal stream value continues to be below it's natural
@@ -65,7 +65,7 @@ public:
     float continueRelease();
     
     // Setters
-    void setKneeType (bool);
+    void setKneeType (bool /* isActive */, float /* thresholdSlider */, float /* ratioSlider */, float /* incomingSignal */, int /* kneeWidth */);
     
 private:
     
@@ -154,7 +154,7 @@ private:
      */
     float engageHardKnee (float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
     {
-        if (applyHardKnee)
+        if (m_isActive)
         {
             if (incomingSignal > thresholdSlider + kneeWidth)
                 return ratioSlider / 1000;
@@ -172,68 +172,66 @@ private:
     /* SETTERS */
     void setBlockSize(int m)
     {
-        blockSize = m;
+        m_blockSize = m;
     }
     
     void setParentSampleRate (int n)
     {
-        sampleRate = n;
+        m_sampleRate = n;
     }
     
     void setTimeSinceRelease(int o)
     {
-        timeSinceRelease = o;
+        m_timeSinceRelease = o;
     }
     
     void setTimeSinceAttack(int l)
     {
-        timeSinceAttack = l;
+        m_timeSinceAttack = l;
     }
     
     void setStartingGainFactor(float m)
     {
-        startingGainFactor = m;
+        m_startingGainFactor = m;
     }
     
     /* GETTERS */
     int getBlockSize() const
     {
-        return blockSize;
+        return m_blockSize;
     }
     
     int getParentSampleRate() const
     {
-        return sampleRate;
+        return m_sampleRate;
     }
     
     int getTimeSinceRelease() const
     {
-        return timeSinceRelease;
+        return m_timeSinceRelease;
     }
     
     int getTimeSinceAttack() const
     {
-        return timeSinceAttack;
+        return m_timeSinceAttack;
     }
     
     float getStartingGainFactor() const
     {
-        return startingGainFactor;
+        return m_startingGainFactor;
     }
     
-    // VAR
-    float desiredGainFactor;
-    float gainFactor;
-    float numberOfSamplesToApplyGain;
-    float startingGainFactor;
-    float gainFactorRange;
-    float currentOvershoot;
+    float m_desiredGainFactor;
+    float m_gainFactor;
+    float m_numberOfSamplesToApplyGain;
+    float m_startingGainFactor;
+    float m_gainFactorRange;
     
-    int timeSinceRelease;
-    int timeSinceAttack;
-    int blockSize;
-    int sampleRate;
+    int m_timeSinceRelease;
+    int m_timeSinceAttack;
+    int m_blockSize;
+    int m_sampleRate;
     
-    bool applyHardKnee;
+    bool m_isActive;
 };
 

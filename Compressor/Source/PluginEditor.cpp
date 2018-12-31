@@ -14,53 +14,53 @@
 //==============================================================================
 CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioProcessor& parent)
 :   AudioProcessorEditor (&parent),
-    processor        (parent),
-    makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
-    thresholdSlider  (Slider::LinearVertical, Slider::TextBoxBelow),
-    attackSlider     (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    releaseSlider    (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    ratioSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    signalStreamViewer (processor.getTotalNumInputChannels())
+    m_processor        (parent),
+    m_makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
+    m_thresholdSlider  (Slider::LinearVertical, Slider::TextBoxBelow),
+    m_attackSlider     (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_releaseSlider    (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_ratioSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_signalStreamViewer (m_processor.getTotalNumInputChannels())
 {
     typedef CompressorAudioProcessor::CompressorParameters compParams;
-    tooltipWindow->setMillisecondsBeforeTipAppears (1000);
+    m_tooltipWindow->setMillisecondsBeforeTipAppears (1000);
     
-    attackLabel.setText(translate ("Attack"), dontSendNotification);
+    m_attackLabel.setText(translate ("Attack"), dontSendNotification);
     addAndMakeVisible (attackLabel);
     addAndMakeVisible (attackSlider);
-    attachments.add (new SliderAttachment (processor.getPluginState(), processor.getParameterId (compParams::ATTACK), attackSlider));
-    attackSlider.setTooltip ("Attack time");
+    m_attachments.add (new SliderAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::ATTACK), m_attackSlider));
+    m_attackSlider.setTooltip ("Attack time");
     
-    releaseLabel.setText (translate ("Release"), dontSendNotification);
+    m_releaseLabel.setText (translate ("Release"), dontSendNotification);
     addAndMakeVisible (releaseLabel);
     addAndMakeVisible (releaseSlider);
-    attachments.add (new SliderAttachment (processor.getPluginState(), processor.getParameterId (compParams::RELEASE), releaseSlider));
-    releaseSlider.setTooltip ("Release Time");
+    m_attachments.add (new SliderAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::RELEASE), m_releaseSlider));
+    m_releaseSlider.setTooltip ("Release Time");
     
-    ratioLabel.setText (translate ("Ratio"), dontSendNotification);
+    m_ratioLabel.setText (translate ("Ratio"), dontSendNotification);
     addAndMakeVisible (ratioLabel);
     addAndMakeVisible (ratioSlider);
-    attachments.add (new SliderAttachment (processor.getPluginState(), processor.getParameterId (compParams::RATIO), ratioSlider));
-    ratioSlider.setTooltip ("Ratio of Compression");
+    m_attachments.add (new SliderAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::RATIO), m_ratioSlider));
+    m_ratioSlider.setTooltip ("Ratio of Compression");
     
-    makeupGainLabel.setText(translate ("Make-up"), dontSendNotification);
+    m_makeupGainLabel.setText(translate ("Make-up"), dontSendNotification);
     addAndMakeVisible (makeupGainLabel);
     addAndMakeVisible (makeupGainSlider);
-    attachments.add (new SliderAttachment (processor.getPluginState(), processor.getParameterId (compParams::MAKEUPGAIN), makeupGainSlider));
-    makeupGainSlider.setTooltip ("Make-up gain");
+    m_attachments.add (new SliderAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::MAKEUPGAIN), m_makeupGainSlider));
+    m_makeupGainSlider.setTooltip ("Make-up gain");
     
-    thresholdLabel.setText(translate ("Threshold"), dontSendNotification);
+    m_thresholdLabel.setText(translate ("Threshold"), dontSendNotification);
     addAndMakeVisible(thresholdLabel);
     addAndMakeVisible(thresholdSlider);
-    attachments.add (new SliderAttachment (processor.getPluginState(), processor.getParameterId (compParams::THRESHOLD), thresholdSlider));
-    thresholdSlider.setTooltip ("Threshold of compression");
+    m_attachments.add (new SliderAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::THRESHOLD), m_thresholdSlider));
+    m_thresholdSlider.setTooltip ("Threshold of compression");
 
    // dBMeter.reset (new AudioMeter (2));
     
-    signalStreamViewer.setNumChannels (2);
-    signalStreamViewer.setColours (Colours::black, Colours::green);
-    signalStreamViewer.setRepaintRate (30);
-    addAndMakeVisible (signalStreamViewer);
+    m_signalStreamViewer.setNumChannels (2);
+    m_signalStreamViewer.setColours (Colours::black, Colours::green);
+    m_signalStreamViewer.setRepaintRate (30);
+    addAndMakeVisible (m_signalStreamViewer);
     
     processor.addChangeListener (this);
     startTimerHz(30);
@@ -79,11 +79,11 @@ CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor()
  *  - The dB meter.
  *  - The engagement meter.
  *
- * @see: AudioMeter, EngagementMeter, OpenGLAudioVisualiser
+ * @see: Meter
  */
 void CompressorAudioProcessorEditor::timerCallback()
 {
-    signalStreamViewer.pushBuffer (processor.getVisualBuffer());
+    m_signalStreamViewer.pushBuffer (m_processor.getVisualBuffer());
   //  dBMeter->setVisualMeterLevel  (processor.getCurrentdB());
   //  dBMeterLabel.setText(Decibels::toString (processor.getCurrentdB()), dontSendNotification);
 }
@@ -102,23 +102,23 @@ void CompressorAudioProcessorEditor::resized()
     Rectangle<int> pluginWindow = getLocalBounds();
     Rectangle<int> sliderLabelArea = pluginWindow.removeFromTop(50);
     
-    thresholdLabel.setBounds   (sliderLabelArea.removeFromLeft(100));
-    thresholdSlider.setBounds  (pluginWindow.removeFromLeft(100));
+    m_thresholdLabel.setBounds   (sliderLabelArea.removeFromLeft(100));
+    m_thresholdSlider.setBounds  (pluginWindow.removeFromLeft(100));
     
-    makeupGainLabel.setBounds  (sliderLabelArea.removeFromRight(70));
-    makeupGainSlider.setBounds (pluginWindow.removeFromRight(80));
+    m_makeupGainLabel.setBounds  (sliderLabelArea.removeFromRight(70));
+    m_makeupGainSlider.setBounds (pluginWindow.removeFromRight(80));
     
     Rectangle<int> parameterArea =      pluginWindow.removeFromBottom(100);
     Rectangle<int> parameterLabelArea = pluginWindow.removeFromBottom(25);
     
-    ratioLabel.setBounds    (parameterLabelArea.removeFromRight(70));
-    ratioSlider.setBounds   (parameterArea.removeFromRight(100));
+    m_ratioLabel.setBounds    (parameterLabelArea.removeFromRight(70));
+    m_ratioSlider.setBounds   (parameterArea.removeFromRight(100));
     
-    attackLabel.setBounds   (parameterLabelArea.removeFromRight(100));
-    attackSlider.setBounds  (parameterArea.removeFromRight(100));
+    m_attackLabel.setBounds   (parameterLabelArea.removeFromRight(100));
+    m_attackSlider.setBounds  (parameterArea.removeFromRight(100));
     
-    releaseLabel.setBounds  (parameterLabelArea.removeFromRight(110));
-    releaseSlider.setBounds (parameterArea.removeFromRight(100));
+    m_releaseLabel.setBounds  (parameterLabelArea.removeFromRight(110));
+    m_releaseSlider.setBounds (parameterArea.removeFromRight(100));
     
     // signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }
