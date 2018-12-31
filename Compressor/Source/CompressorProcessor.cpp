@@ -11,10 +11,7 @@
 #include "CompressorProcessor.h"
 
 CompressorProcessor::CompressorProcessor (float parentSampleRate, int userDeterminedBlockSize)
-{
-    sampleRate = parentSampleRate;
-    blockSize = userDeterminedBlockSize;
-}
+    : blockSize (userDeterminedBlockSize), sampleRate (parentSampleRate) { }
 
 CompressorProcessor::~CompressorProcessor() { }
 
