@@ -12,14 +12,23 @@
 #ifndef RMSMETER_H
 #define RMSMETER_H
 
-#include "Meter.h"
+#include "IMeter.h"
 
-class RMSMeter : public Meter
+class RMSMeter : public IMeter
 {
 public:
     RMSMeter (METER_TYPE type = METER_TYPE::RMS, float maximumValue = 1.0f, float minimumValue = 0.0f)
-    : Meter (type)
+    : m_type (type)
     {
+        try
+        {
+            setType (type);
+        }
+        catch (MeterInitializationException)
+        {
+            std::cerr << "Error initializing RMS Meter";
+        }
+        
         setMaximumValue (maximumValue);
         setMinimumValue (minimumValue);
     }
@@ -33,9 +42,12 @@ public:
     
     virtual const void setMinimumValue (float) override;
     virtual const void setMaximumValue (float) override;
+    
+    virtual const void setType (int) noexcept final;
+
         
 private:
-    
+    METER_TYPE m_type;
 };
 
 #endif

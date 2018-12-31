@@ -45,3 +45,14 @@ const void RMSMeter::setMaximumValue (float maximumValue)
     
     m_maximumValue = maximumValue;
 }
+
+
+const void RMSMeter::setType (int type = METER_TYPE::RMS) noexcept
+{
+    jassert (type == METER_TYPE::RMS);
+    
+    if (static_cast<int>(type) > static_cast<int>(METER_TYPE::MAX_METER_TYPES))
+        throw MeterInitializationException ("Meter type must be accepted value");
+        
+    m_type = static_cast<METER_TYPE>(type);
+}
