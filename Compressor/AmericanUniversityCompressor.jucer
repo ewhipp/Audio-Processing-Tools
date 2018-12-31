@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="fEophF" name="AmericanUniversityCompressor" displaySplashScreen="1"
-              reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
-              version="1.0.0" bundleIdentifier="com.yourcompany.AmericanUniversityCompressor"
-              includeBinaryInAppConfig="1" cppLanguageStandard="11" companyCopyright=""
-              buildVST="0" buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0"
-              buildAAX="1" buildStandalone="1" enableIAA="0" pluginName="AmericanUniversityCompressor"
-              pluginDesc="AmericanUniversityCompressor" pluginManufacturer="ewhipp"
-              pluginManufacturerCode="Manu" pluginCode="Feop" pluginChannelConfigs=""
-              pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
-              pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="AmericanUniversityCompressorAU"
-              pluginRTASCategory="" aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
+<JUCERPROJECT id="fEophF" name="Compressor" displaySplashScreen="1" reportAppUsage="1"
+              splashScreenColour="Light" projectType="audioplug" version="1.0.0"
+              bundleIdentifier="com.yourcompany.Compressor" includeBinaryInAppConfig="1"
+              companyCopyright="" buildVST="0" buildVST3="1" buildAU="1" buildAUv3="0"
+              buildRTAS="0" buildAAX="1" buildStandalone="1" enableIAA="0"
+              pluginName="Compressor" pluginDesc="Compressor built for American University Audio Technology students."
+              pluginManufacturer="ewhipp" pluginManufacturerCode="Manu" pluginCode="Feop"
+              pluginChannelConfigs="" pluginIsSynth="0" pluginWantsMidiIn="0"
+              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
+              pluginAUExportPrefix="AmericanUniversityCompressorAU" pluginRTASCategory=""
+              aaxIdentifier="com.yourcompany.AmericanUniversityCompressor"
               pluginAAXCategory="2" jucerVersion="5.4.1" pluginFormats="buildAAX,buildAU,buildStandalone,buildVST3">
-  <MAINGROUP id="hWDFt7" name="AmericanUniversityCompressor">
+  <MAINGROUP id="hWDFt7" name="Compressor">
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
       <GROUP id="{E980A44E-E1DA-EC0E-442B-FAAC7EE873B4}" name="modules">
         <GROUP id="{E5BE507E-AD86-450A-1109-0329DC4C52FE}" name="Processing">

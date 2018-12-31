@@ -10,9 +10,9 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-typedef AmericanUniversityCompressorAudioProcessor::CompressorParameters compParams;
+typedef CompressorAudioProcessor::CompressorParameters compParams;
 
-String AmericanUniversityCompressorAudioProcessor::getParameterId (size_t index)
+String CompressorAudioProcessor::getParameterId (size_t index)
 {
     switch (index)
     {
@@ -28,7 +28,7 @@ String AmericanUniversityCompressorAudioProcessor::getParameterId (size_t index)
     return "Unknown";
 }
 
-float* AmericanUniversityCompressorAudioProcessor::getParameterValue (String parameterId)
+float* CompressorAudioProcessor::getParameterValue (String parameterId)
 {
     if (parameterId == getParameterId (compParams::ATTACK))
         { return state.getRawParameterValue (getParameterId (compParams::ATTACK)); }
@@ -62,7 +62,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     // TODO: clean
     auto attack
     = std::make_unique <AudioParameterFloat>
-                                             (AmericanUniversityCompressorAudioProcessor::getParameterId (compParams::ATTACK), "Attack",
+                                             (CompressorAudioProcessor::getParameterId (compParams::ATTACK), "Attack",
                                                     NormalisableRange<float>(0.0f, 5000.0f, 0.001f), 0.0f, translate("Attack"),
                                                     AudioProcessorParameter::inputMeter,
                                                     [] (float value, int maximumStringLength)
@@ -86,7 +86,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     
     auto release
         = std::make_unique <AudioParameterFloat>
-                                                  (AmericanUniversityCompressorAudioProcessor::getParameterId (compParams::RELEASE), "Release",
+                                                  (CompressorAudioProcessor::getParameterId (compParams::RELEASE), "Release",
                                                      NormalisableRange<float>(0.0f, 5000.f, 0.001f), 300.f, translate("Release"),
                                                      AudioProcessorParameter::inputMeter,
                                                      [] (float value, int maximumStringLength)
@@ -110,7 +110,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     
     auto threshold
         = std::make_unique <AudioParameterFloat>
-                                                  (AmericanUniversityCompressorAudioProcessor::getParameterId (compParams::THRESHOLD), "Threshold",
+                                                  (CompressorAudioProcessor::getParameterId (compParams::THRESHOLD), "Threshold",
                                                        NormalisableRange<float>(-100.f, 0.0f, 1.0f), -16.0f, translate("Threshold"),
                                                        AudioProcessorParameter::inputMeter,
                                                        [] (float value, int maximumStringLength)
@@ -120,7 +120,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     
     auto makeupGain
         = std::make_unique <AudioParameterFloat>
-                                                  (AmericanUniversityCompressorAudioProcessor::getParameterId (compParams::MAKEUPGAIN), "Make-up Gain",
+                                                  (CompressorAudioProcessor::getParameterId (compParams::MAKEUPGAIN), "Make-up Gain",
                                                         NormalisableRange<float>(0.0f, 12.0f, 1.0f), 0.0f,
                                                         translate("Make-up Gain"),
                                                         AudioProcessorParameter::inputMeter,
@@ -130,7 +130,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                         { return Decibels::decibelsToGain(text.dropLastCharacters(3).getFloatValue()); });
     
     auto ratio = std::make_unique <AudioParameterFloat>
-                                                   (AmericanUniversityCompressorAudioProcessor::getParameterId (compParams::RATIO), "Ratio",
+                                                   (CompressorAudioProcessor::getParameterId (compParams::RATIO), "Ratio",
                                                    NormalisableRange<float>(1.0f, 10.f, 1.0f), 2.0f,
                                                    translate("Ratio"),
                                                    AudioProcessorParameter::inputMeter,
@@ -149,7 +149,7 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 }
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessor::AmericanUniversityCompressorAudioProcessor()
+CompressorAudioProcessor::CompressorAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -177,17 +177,17 @@ state (*this, &undo, "PARAMS", createParameterLayout())
 
 }
 
-AmericanUniversityCompressorAudioProcessor::~AmericanUniversityCompressorAudioProcessor()
+CompressorAudioProcessor::~CompressorAudioProcessor()
 {
 }
 
 //==============================================================================
-const String AmericanUniversityCompressorAudioProcessor::getName() const
+const String CompressorAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool AmericanUniversityCompressorAudioProcessor::acceptsMidi() const
+bool CompressorAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -196,7 +196,7 @@ bool AmericanUniversityCompressorAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool AmericanUniversityCompressorAudioProcessor::producesMidi() const
+bool CompressorAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -205,7 +205,7 @@ bool AmericanUniversityCompressorAudioProcessor::producesMidi() const
    #endif
 }
 
-bool AmericanUniversityCompressorAudioProcessor::isMidiEffect() const
+bool CompressorAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -214,48 +214,48 @@ bool AmericanUniversityCompressorAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double AmericanUniversityCompressorAudioProcessor::getTailLengthSeconds() const
+double CompressorAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int AmericanUniversityCompressorAudioProcessor::getNumPrograms()
+int CompressorAudioProcessor::getNumPrograms()
 {
     return 1;
 }
 
-int AmericanUniversityCompressorAudioProcessor::getCurrentProgram()
+int CompressorAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void AmericanUniversityCompressorAudioProcessor::setCurrentProgram (int index)
+void CompressorAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String AmericanUniversityCompressorAudioProcessor::getProgramName (int index)
+const String CompressorAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void AmericanUniversityCompressorAudioProcessor::changeProgramName (int index, const String& newName)
+void CompressorAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void AmericanUniversityCompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void CompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     currentGainFactor = 1.0f;
     compressor.reset (new CompressorProcessor(sampleRate, samplesPerBlock));
 }
 
-void AmericanUniversityCompressorAudioProcessor::releaseResources()
+void CompressorAudioProcessor::releaseResources()
 {
     
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool CompressorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -278,7 +278,7 @@ bool AmericanUniversityCompressorAudioProcessor::isBusesLayoutSupported (const B
 }
 #endif
 
-void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
@@ -333,36 +333,36 @@ void AmericanUniversityCompressorAudioProcessor::processBlock (AudioSampleBuffer
 }
 
 //==============================================================================
-bool AmericanUniversityCompressorAudioProcessor::hasEditor() const
+bool CompressorAudioProcessor::hasEditor() const
 {
     return true; 
 }
 
-AudioProcessorEditor* AmericanUniversityCompressorAudioProcessor::createEditor() 
+AudioProcessorEditor* CompressorAudioProcessor::createEditor() 
 {
-    return new AmericanUniversityCompressorAudioProcessorEditor (*this);
+    return new CompressorAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void AmericanUniversityCompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
+void CompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     MemoryOutputStream stream (destData, false);
     state.state.writeToStream (stream);
 }
 
-void AmericanUniversityCompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void CompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     ValueTree tree = ValueTree::readFromData (data, size_t (sizeInBytes));
     if (tree.isValid())
         state.state = tree;
 }
 
-AudioProcessorValueTreeState& AmericanUniversityCompressorAudioProcessor::getPluginState()
+AudioProcessorValueTreeState& CompressorAudioProcessor::getPluginState()
 {
     return state;
 }
 
-void AmericanUniversityCompressorAudioProcessor::parameterChanged(const String& parameter, float newValue)
+void CompressorAudioProcessor::parameterChanged(const String& parameter, float newValue)
 {
     if (parameter == getParameterId (compParams::ATTACK))
     {
@@ -394,15 +394,15 @@ void AmericanUniversityCompressorAudioProcessor::parameterChanged(const String& 
 //==============================================================================
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new AmericanUniversityCompressorAudioProcessor();
+    return new CompressorAudioProcessor();
 }
 
-float AmericanUniversityCompressorAudioProcessor::getCurrentdB() { return currentdB; }
-float AmericanUniversityCompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
-float AmericanUniversityCompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
-float AmericanUniversityCompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
-float AmericanUniversityCompressorAudioProcessor::getTargetGainFactor() { return blockTargetGainFactor; }
+float CompressorAudioProcessor::getCurrentdB() { return currentdB; }
+float CompressorAudioProcessor::getCurrentGainFactor() { return currentGainFactor; }
+float CompressorAudioProcessor::getCurrentThresholdRMS() { return thresholdRMS; }
+float CompressorAudioProcessor::getCurrentRMS() { return currentRMS; }
+float CompressorAudioProcessor::getTargetGainFactor() { return blockTargetGainFactor; }
 
-AudioSampleBuffer AmericanUniversityCompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
-int AmericanUniversityCompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
+AudioSampleBuffer CompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
+int CompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
 

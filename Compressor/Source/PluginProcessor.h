@@ -16,7 +16,7 @@
 //==============================================================================
 /**
 */
-class AmericanUniversityCompressorAudioProcessor  : public AudioProcessor,
+class CompressorAudioProcessor  :                   public AudioProcessor,
                                                     public AudioProcessorValueTreeState::Listener,
                                                     public ChangeBroadcaster
 {
@@ -34,8 +34,8 @@ public:
     };
     
     //==============================================================================
-    AmericanUniversityCompressorAudioProcessor();
-    ~AmericanUniversityCompressorAudioProcessor();
+    CompressorAudioProcessor();
+    ~CompressorAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -125,5 +125,5 @@ private:
     }
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CompressorAudioProcessor)
 };

@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor& parent)
+CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioProcessor& parent)
 :   AudioProcessorEditor (&parent),
     processor        (parent),
     makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
@@ -22,7 +22,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     ratioSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
     signalStreamViewer (processor.getTotalNumInputChannels())
 {
-    typedef AmericanUniversityCompressorAudioProcessor::CompressorParameters compParams;
+    typedef CompressorAudioProcessor::CompressorParameters compParams;
     tooltipWindow->setMillisecondsBeforeTipAppears (1000);
     
     attackLabel.setText(translate ("Attack"), dontSendNotification);
@@ -67,7 +67,7 @@ AmericanUniversityCompressorAudioProcessorEditor::AmericanUniversityCompressorAu
     setSize(580, 350);
 }
 
-AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorAudioProcessorEditor()
+CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor()
 {
   //  dBMeter             = nullptr;
   //  engagementMeter     = nullptr;
@@ -81,7 +81,7 @@ AmericanUniversityCompressorAudioProcessorEditor::~AmericanUniversityCompressorA
  *
  * @see: AudioMeter, EngagementMeter, OpenGLAudioVisualiser
  */
-void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
+void CompressorAudioProcessorEditor::timerCallback()
 {
     signalStreamViewer.pushBuffer (processor.getVisualBuffer());
   //  dBMeter->setVisualMeterLevel  (processor.getCurrentdB());
@@ -89,14 +89,14 @@ void AmericanUniversityCompressorAudioProcessorEditor::timerCallback()
 }
 
 //==============================================================================
-void AmericanUniversityCompressorAudioProcessorEditor::paint (Graphics& g)
+void CompressorAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::white);
     g.setFont (12.0f);
 }
 
-void AmericanUniversityCompressorAudioProcessorEditor::resized()
+void CompressorAudioProcessorEditor::resized()
 {
     
     Rectangle<int> pluginWindow = getLocalBounds();
@@ -123,7 +123,7 @@ void AmericanUniversityCompressorAudioProcessorEditor::resized()
     // signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
 }
 
-void AmericanUniversityCompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
+void CompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)
 {
     ignoreUnused (sender);
     repaint();

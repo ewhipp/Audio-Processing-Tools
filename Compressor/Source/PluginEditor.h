@@ -14,15 +14,15 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class AmericanUniversityCompressorAudioProcessorEditor  : public AudioProcessorEditor,
+class CompressorAudioProcessorEditor  : public AudioProcessorEditor,
                                                           public ChangeListener,
                                                           private Timer
 {
 public:
     typedef AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
     
-    AmericanUniversityCompressorAudioProcessorEditor (AmericanUniversityCompressorAudioProcessor&);
-    ~AmericanUniversityCompressorAudioProcessorEditor();
+    CompressorAudioProcessorEditor (CompressorAudioProcessor&);
+    ~CompressorAudioProcessorEditor();
 
     //==============================================================================
     
@@ -33,7 +33,7 @@ public:
     
 private:
     // Essentials
-    AmericanUniversityCompressorAudioProcessor& processor;
+    CompressorAudioProcessor& processor;
     
     // Sliders / Labels
     Label makeupGainLabel;
@@ -64,5 +64,5 @@ private:
     
     Label engagementLabel;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmericanUniversityCompressorAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CompressorAudioProcessorEditor)
 };
