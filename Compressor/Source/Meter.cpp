@@ -14,13 +14,49 @@ void Meter::paint (Graphics& g)
 {
     switch (m_type)
     {
-        case (METER_TYPE::LEVEL): /* drawLevel */ break;
-        case (METER_TYPE::VISUAL): /* drawVisual */ break;
-        case (METER_TYPE::ENGAGEMENT): /* drawEngagement */ break;
-        case (METER_TYPE::RMS): /* drawRMS */ break;
+        case (METER_TYPE::LEVEL):         drawBasicMeter (g); break;
+        case (METER_TYPE::VISUAL):     /* drawVisual */ break;
+        case (METER_TYPE::ENGAGEMENT):    drawEngagement (g); break;
+        case (METER_TYPE::RMS):           drawBasicMeter (g); break;
         case (METER_TYPE::MAX_METER_TYPES): throw MeterInitializationException ("Error creating meter. Please choose the correct meter you desire.");
         default: break;
     }
+    
+    DBG ("Meter Initialized");
+}
+
+void Meter::drawBasicMeter (Graphics& g)
+{
+    g.setColour (Colours::black);
+    auto bounds = getLocalBounds().toFloat();
+    g.fillRect (bounds);
+    
+    g.setColour (Colours::red);
+    g.addTransform (AffineTransform::verticalFlip ((float) bounds.getHeight()));
+    g.fillRect (bounds.getX(), bounds.getY(), (float) bounds.getWidth(), (float) bounds.getHeight() * normalize (m_incomingSignal));
+    DBG ("END DRAW BASIC METER");
+}
+
+void Meter::drawVisual (Graphics& g)
+{
+    
+}
+
+void Meter::drawEngagement (Graphics& g)
+{
+    DBG ("Engagement meter initialized");
+    
+    g.setColour(Colours::black);
+    auto bounds = getLocalBounds();
+    g.fillRect(bounds);
+    
+    g.setColour (Colours::red);
+    Point <float> initCenterPoint   (getWidth() / 2, getHeight());
+    Point <float> initEndPoint      (0, getWidth() / 2);
+    Line  <float> initArrow         (initCenterPoint, initEndPoint);
+    
+    g.drawArrow (initArrow, 0.1f, 1.0f, 1.0f);
+    initArrow.applyTransform(AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
 }
 
 float Meter::normalize(float incomingSignal)
@@ -35,9 +71,18 @@ float Meter::normalize(float incomingSignal)
     }
 }
 
-void Meter::setValue (float value)
+float Meter::normalize (float incomingSignal, float maximumValue, float minimumValue)
+{
+    return (incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue);
+}
+
+void Meter::setIncomingSignal (float value)
 {
     m_incomingSignal = value;
+    
+    DBG ("Incoming Signal");
+    DBG (m_incomingSignal);
+    repaint();
 }
 
 const void Meter::setMinimumValue (float minimumValue)

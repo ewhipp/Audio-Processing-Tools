@@ -14,13 +14,13 @@
 //==============================================================================
 CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioProcessor& parent)
 :   AudioProcessorEditor (&parent),
-    m_processor        (parent),
-    m_makeupGainSlider (Slider::LinearVertical, Slider::TextBoxBelow),
-    m_thresholdSlider  (Slider::LinearVertical, Slider::TextBoxBelow),
-    m_attackSlider     (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    m_releaseSlider    (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    m_ratioSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
-    m_kneeButton       ("Toggle Knee"),
+    m_processor          (parent),
+    m_makeupGainSlider   (Slider::LinearVertical, Slider::TextBoxBelow),
+    m_thresholdSlider    (Slider::LinearVertical, Slider::TextBoxBelow),
+    m_attackSlider       (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_releaseSlider      (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_ratioSlider        (Slider::RotaryHorizontalVerticalDrag, Slider::TextBoxBelow),
+    m_kneeButton         ("Toggle Knee"),
     m_signalStreamViewer (m_processor.getTotalNumInputChannels())
 {
     typedef CompressorAudioProcessor::CompressorParameters compParams;
@@ -59,29 +59,36 @@ CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioP
     addAndMakeVisible (m_kneeButton);
     m_buttonAttachments.add (new ButtonAttachment (m_processor.getPluginState(), m_processor.getParameterId (compParams::KNEE), m_kneeButton));
     m_kneeButton.setTooltip ("Engage hard knee");
-
-   // dBMeter.reset (new AudioMeter (2));
     
     m_signalStreamViewer.setNumChannels (2);
     m_signalStreamViewer.setColours (Colours::black, Colours::green);
     m_signalStreamViewer.setRepaintRate (30);
     addAndMakeVisible (m_signalStreamViewer);
     
+    m_levelMeter = std::make_unique <Meter> (IMeter::METER_TYPE::LEVEL);
+    addAndMakeVisible (m_levelMeter.get());
+    
+    m_engagementMeter = std::make_unique <Meter> (IMeter::METER_TYPE::ENGAGEMENT);
+    addAndMakeVisible (m_engagementMeter.get());
+    
+    DropShadow engagementMeterShadow;
+    DropShadow levelMeterShadow;
+    m_engagementShadower    = std::make_unique <DropShadower> (engagementMeterShadow);
+    m_levelShadower         = std::make_unique <DropShadower> (levelMeterShadow);
+    m_engagementShadower->setOwner (m_engagementMeter.get());
+    m_levelShadower->setOwner (m_levelMeter.get());
+    
     m_processor.addChangeListener (this);
     startTimerHz(30);
     setSize(580, 350);
 }
 
-CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor()
-{
-  //  dBMeter             = nullptr;
-  //  engagementMeter     = nullptr;
-}
+CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor() { }
 
 /*
  * Updates:
  *  - The signal stream viewer.
- *  - The dB meter.
+ *  - The level meter.
  *  - The engagement meter.
  *
  * @see: Meter
@@ -89,8 +96,8 @@ CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor()
 void CompressorAudioProcessorEditor::timerCallback()
 {
     m_signalStreamViewer.pushBuffer (m_processor.getVisualBuffer());
-  //  dBMeter->setVisualMeterLevel  (processor.getCurrentdB());
-  //  dBMeterLabel.setText(Decibels::toString (processor.getCurrentdB()), dontSendNotification);
+    m_levelMeter->setIncomingSignal (m_processor.getCurrentdB());
+    m_engagementMeter->setIncomingSignal (m_processor.getCurrentdB());
 }
 
 //==============================================================================
@@ -103,9 +110,12 @@ void CompressorAudioProcessorEditor::paint (Graphics& g)
 
 void CompressorAudioProcessorEditor::resized()
 {
-    
     Rectangle<int> pluginWindow = getLocalBounds();
     Rectangle<int> sliderLabelArea = pluginWindow.removeFromTop (50);
+    
+    m_levelMeter->setBounds (pluginWindow.removeFromLeft (25));
+    pluginWindow.removeFromLeft (10);
+    m_engagementMeter->setBounds (pluginWindow.removeFromLeft (100).removeFromTop (75));
     
     m_thresholdLabel.setBounds   (sliderLabelArea.removeFromLeft (100));
     m_thresholdSlider.setBounds  (pluginWindow.removeFromLeft (100));
@@ -125,9 +135,9 @@ void CompressorAudioProcessorEditor::resized()
     m_releaseLabel.setBounds  (parameterLabelArea.removeFromRight (110));
     m_releaseSlider.setBounds (parameterArea.removeFromRight (100));
     
-    m_kneeButton.setBounds (parameterArea.removeFromRight (100).removeFromBottom (70));
+    m_kneeButton.setBounds    (parameterArea.removeFromRight (100).removeFromBottom (70));
     
-    m_signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20) ;
+    m_signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20);
 }
 
 void CompressorAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* sender)

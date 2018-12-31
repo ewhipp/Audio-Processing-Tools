@@ -43,6 +43,17 @@ protected:
     float m_minimumValue;
     float m_maximumValue;
     
+public:
+    virtual void paint                   (Graphics&) = 0;
+    
+    virtual const void setMinimumValue       (float) = 0;
+    virtual const void setMaximumValue       (float) = 0;
+    
+    virtual void setIncomingSignal           (float) = 0;
+    virtual float normalize                  (float) = 0;
+    
+    virtual void const setType               (int)   = 0;
+    
     enum METER_TYPE
     {
         LEVEL = 0,
@@ -51,18 +62,6 @@ protected:
         RMS,
         MAX_METER_TYPES
     };
-    
-public:
-    virtual void paint                   (Graphics&) = 0;
-    
-    virtual const void setMinimumValue       (float) = 0;
-    virtual const void setMaximumValue       (float) = 0;
-    
-    virtual void setCurrentValue             (float) = 0;
-    virtual void setValue                    (float) = 0;
-    virtual float normalize                  (float) = 0;
-    
-    virtual void const setType               (int)   = 0;  
 };
 
 #endif

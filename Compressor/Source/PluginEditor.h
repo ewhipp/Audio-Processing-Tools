@@ -12,6 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "Meter.h"
 
 //==============================================================================
 class CompressorAudioProcessorEditor  :                   public AudioProcessorEditor,
@@ -58,11 +59,12 @@ private:
         
     AudioVisualiserComponent m_signalStreamViewer;
     
-   /* std::unique_ptr<AudioMeter> rmsValue;
-    Label rmsValueLabel;
+    std::unique_ptr <Meter> m_levelMeter;
+    std::unique_ptr <Meter> m_engagementMeter;
+    Label dBMeterLabel;
     
-    std::unique_ptr<AudioMeter> dBMeter;
-    Label dBMeterLabel; */
+    std::unique_ptr <DropShadower> m_levelShadower;
+    std::unique_ptr <DropShadower> m_engagementShadower;
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CompressorAudioProcessorEditor)

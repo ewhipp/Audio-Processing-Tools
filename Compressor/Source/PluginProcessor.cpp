@@ -59,8 +59,6 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
     
     std::vector <std::unique_ptr <AudioProcessorParameterGroup> > params;
     
-    // TODO: clean
-    
     // Begin Float parameters
     auto attack
     = std::make_unique <AudioParameterFloat>
@@ -136,18 +134,14 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                    NormalisableRange<float>(1.0f, 10.f, 1.0f), 2.0f,
                                                    translate("Ratio"),
                                                    AudioProcessorParameter::inputMeter,
-                                                   [](float value, int maximumStringLength) { return "1:" + String (value, 1); },
+                                                   [](float value, int maximumStringLength) { return "1:" + String (value, 0); },
                                                    [](const String& text) { return text.substring(3).getFloatValue();
                                                 });
-    
-   
     // End float parameters
     
     // Begin Bool parameters
-    
     auto knee = std::make_unique <AudioParameterBool>
                                                   (CompressorAudioProcessor::getParameterId (compParams::KNEE), "Knee", false);
-    
     // End Bool Parameters
     
     auto floatParams = std::make_unique <AudioProcessorParameterGroup> ("float-values", "Floats", "|",
@@ -188,8 +182,7 @@ state (*this, &undo, "PARAMS", createParameterLayout())
     state.addParameterListener (getParameterId (compParams::THRESHOLD), this);
     state.addParameterListener (getParameterId (compParams::MAKEUPGAIN), this);
     state.addParameterListener (getParameterId (compParams::RATIO), this);
-    // Add knee
-    // state.addParameterListener (getParameterId (compParams::KNEE), this);
+    state.addParameterListener (getParameterId (compParams::KNEE), this);
     
     state.state = ValueTree (JucePlugin_Name);
 
@@ -420,12 +413,12 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new CompressorAudioProcessor();
 }
 
-float CompressorAudioProcessor::getCurrentdB() { return m_currentdB; }
-float CompressorAudioProcessor::getCurrentGainFactor() { return m_currentGainFactor; }
-float CompressorAudioProcessor::getCurrentThresholdRMS() { return m_thresholdRMS; }
-float CompressorAudioProcessor::getCurrentRMS() { return m_currentRMS; }
-float CompressorAudioProcessor::getTargetGainFactor() { return m_blockTargetGainFactor; }
+float CompressorAudioProcessor::getCurrentdB()              { return m_currentdB; }
+float CompressorAudioProcessor::getCurrentGainFactor()      { return m_currentGainFactor; }
+float CompressorAudioProcessor::getCurrentThresholdRMS()    { return m_thresholdRMS; }
+float CompressorAudioProcessor::getCurrentRMS()             { return m_currentRMS; }
+float CompressorAudioProcessor::getTargetGainFactor()       { return m_blockTargetGainFactor; }
 
 AudioSampleBuffer CompressorAudioProcessor::getVisualBuffer() { return visualizeBuffer; }
-int CompressorAudioProcessor::getVisualBufferChannels() { return visualizeBuffer.getNumChannels(); }
+int CompressorAudioProcessor::getVisualBufferChannels()       { return visualizeBuffer.getNumChannels(); }
 
