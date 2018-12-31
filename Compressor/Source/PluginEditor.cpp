@@ -115,7 +115,8 @@ void CompressorAudioProcessorEditor::resized()
     
     m_levelMeter->setBounds (pluginWindow.removeFromLeft (25));
     pluginWindow.removeFromLeft (10);
-    m_engagementMeter->setBounds (pluginWindow.removeFromLeft (100).removeFromTop (75));
+    m_kneeButton.setBounds (sliderLabelArea.removeFromLeft (100));
+    m_engagementMeter->setBounds (pluginWindow.removeFromLeft (50).removeFromTop (50));
     
     m_thresholdLabel.setBounds   (sliderLabelArea.removeFromLeft (100));
     m_thresholdSlider.setBounds  (pluginWindow.removeFromLeft (100));
@@ -134,9 +135,7 @@ void CompressorAudioProcessorEditor::resized()
     
     m_releaseLabel.setBounds  (parameterLabelArea.removeFromRight (110));
     m_releaseSlider.setBounds (parameterArea.removeFromRight (100));
-    
-    m_kneeButton.setBounds    (parameterArea.removeFromRight (100).removeFromBottom (70));
-    
+        
     m_signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20);
 }
 

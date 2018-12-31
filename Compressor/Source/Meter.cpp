@@ -46,20 +46,20 @@ void Meter::drawEngagement (Graphics& g)
 {
     DBG ("Engagement meter initialized");
     
-    g.setColour(Colours::black);
-    auto bounds = getLocalBounds();
+    g.setColour (Colours::black);
+    auto bounds = getLocalBounds().toFloat();
     g.fillRect(bounds);
     
     g.setColour (Colours::red);
-    Point <float> initCenterPoint   (getWidth() / 2, getHeight());
-    Point <float> initEndPoint      (0, getWidth() / 2);
+    Point <float> initCenterPoint   (bounds.getWidth() / 2, bounds.getHeight());
+    Point <float> initEndPoint      (0, bounds.getWidth() / 2);
     Line  <float> initArrow         (initCenterPoint, initEndPoint);
     
-    g.drawArrow (initArrow, 0.1f, 1.0f, 1.0f);
-    initArrow.applyTransform(AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
+    g.drawArrow (initArrow, 2.0f, 10.0f, 10.0f);
+   // initArrow.applyTransform (AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
 }
 
-float Meter::normalize(float incomingSignal)
+float Meter::normalize (float incomingSignal)
 {
     if (m_type == METER_TYPE::LEVEL)
     {
@@ -79,10 +79,6 @@ float Meter::normalize (float incomingSignal, float maximumValue, float minimumV
 void Meter::setIncomingSignal (float value)
 {
     m_incomingSignal = value;
-    
-    DBG ("Incoming Signal");
-    DBG (m_incomingSignal);
-    repaint();
 }
 
 const void Meter::setMinimumValue (float minimumValue)
