@@ -15,39 +15,30 @@ void Meter::paint (Graphics& g)
     switch (m_type)
     {
         case (METER_TYPE::LEVEL):         drawBasicMeter (g); break;
-        case (METER_TYPE::VISUAL):     /* drawVisual */ break;
         case (METER_TYPE::ENGAGEMENT):    drawEngagement (g); break;
         case (METER_TYPE::RMS):           drawBasicMeter (g); break;
         case (METER_TYPE::MAX_METER_TYPES): throw MeterInitializationException ("Error creating meter. Please choose the correct meter you desire.");
         default: break;
     }
-    
-    DBG ("Meter Initialized");
 }
 
 void Meter::drawBasicMeter (Graphics& g)
 {
     g.setColour (Colours::black);
-    auto bounds = getLocalBounds().toFloat();
+    Rectangle <float> bounds = getLocalBounds().toFloat();
     g.fillRect (bounds);
     
-    g.setColour (Colours::red);
     g.addTransform (AffineTransform::verticalFlip ((float) bounds.getHeight()));
-    g.fillRect (bounds.getX(), bounds.getY(), (float) bounds.getWidth(), (float) bounds.getHeight() * normalize (m_incomingSignal));
-    DBG ("END DRAW BASIC METER");
-}
-
-void Meter::drawVisual (Graphics& g)
-{
+    g.setColour (Colours::red);
+    g.fillRect (bounds.getX(), bounds.getY(), (float) bounds.getWidth(), ((float) bounds.getHeight() * abs (m_incomingSignal) / 100));
     
+    DBG ("Basic Meter init");
 }
 
 void Meter::drawEngagement (Graphics& g)
 {
-    DBG ("Engagement meter initialized");
-    
     g.setColour (Colours::black);
-    auto bounds = getLocalBounds().toFloat();
+    Rectangle <float> bounds = getLocalBounds().toFloat();
     g.fillRect(bounds);
     
     g.setColour (Colours::red);
@@ -57,10 +48,14 @@ void Meter::drawEngagement (Graphics& g)
     
     g.drawArrow (initArrow, 2.0f, 10.0f, 10.0f);
     
-    auto signal = normalize (m_incomingSignal, 0.0f, 1.0f);
+    float signal = normalize (m_incomingSignal, 0.0f, 1.0f);
     
-    if (signal >= 0.0f && 1.0 >= signal)
-        initEndPoint.applyTransform (AffineTransform::rotation (normalize (m_incomingSignal, 0.0f, 1.0f)));
+    if (signal >= 0.0f && 1.0f >= signal)
+    {
+        initEndPoint.setX (initEndPoint.getX() + 50);
+    }
+    
+    DBG (std::to_string (signal).append ("is the signal in drawEngagement(Graphics&)"));    
 }
 
 float Meter::normalize (float incomingSignal)
@@ -82,7 +77,12 @@ float Meter::normalize (float incomingSignal, float maximumValue, float minimumV
 
 void Meter::setIncomingSignal (float value)
 {
-    m_incomingSignal = value;
+    if (value == m_incomingSignal) { return; } // Don't repaint unless we have to.
+    
+    m_incomingSignal = jlimit (m_minimumValue, m_maximumValue, value);
+    
+    DBG (std::to_string (m_incomingSignal).append (" is the m_incomingSignal is setIncomingSignal()"));
+    repaint();
 }
 
 const void Meter::setMinimumValue (float minimumValue)

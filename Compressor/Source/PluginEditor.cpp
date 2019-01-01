@@ -65,7 +65,7 @@ CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioP
     m_signalStreamViewer.setRepaintRate (30);
     addAndMakeVisible (m_signalStreamViewer);
     
-    m_levelMeter = std::make_unique <Meter> (IMeter::METER_TYPE::LEVEL);
+    m_levelMeter = std::make_unique <Meter> (IMeter::METER_TYPE::LEVEL, -100.0f, 0.0f);
     addAndMakeVisible (m_levelMeter.get());
     
     m_engagementMeter = std::make_unique <Meter> (IMeter::METER_TYPE::ENGAGEMENT);
@@ -97,8 +97,11 @@ void CompressorAudioProcessorEditor::timerCallback()
 {
     m_signalStreamViewer.pushBuffer (m_processor.getVisualBuffer());
     m_levelMeter->setIncomingSignal (m_processor.getCurrentdB());
+    
     if (m_processor.getCurrentRMS() > m_processor.getCurrentThresholdRMS())
         m_engagementMeter->setIncomingSignal (m_processor.getCurrentOvershoot());
+    else
+        m_engagementMeter->setIncomingSignal (0.0f);
 }
 
 //==============================================================================
@@ -136,6 +139,7 @@ void CompressorAudioProcessorEditor::resized()
     
     m_releaseLabel.setBounds  (parameterLabelArea.removeFromRight (110));
     m_releaseSlider.setBounds (parameterArea.removeFromRight (100));
+    
         
     m_signalStreamViewer.setBounds (172, 30, (getWidth() / 2) + 50, (getHeight() / 2) + 20);
 }

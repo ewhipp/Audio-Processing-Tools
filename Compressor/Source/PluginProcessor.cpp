@@ -312,7 +312,7 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         m_currentdB =    Decibels::gainToDecibels (m_currentRMS);
         m_thresholdRMS = Decibels::decibelsToGain (*threshold);
         m_currentOvershoot = (m_currentRMS - m_thresholdRMS);
-        
+                
         if (m_currentRMS > m_thresholdRMS && m_currentOvershoot != m_lastOvershoot)
         {
             attackFlag = true;

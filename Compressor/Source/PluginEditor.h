@@ -61,7 +61,6 @@ private:
     
     std::unique_ptr <Meter> m_levelMeter;
     std::unique_ptr <Meter> m_engagementMeter;
-    Label dBMeterLabel;
     
     std::unique_ptr <DropShadower> m_levelShadower;
     std::unique_ptr <DropShadower> m_engagementShadower;

@@ -18,13 +18,16 @@ class Meter :           public IMeter
 public:
     
 
-    Meter (METER_TYPE type): m_type (type)
+    Meter (METER_TYPE type, float minimumValue = 0.0f, float maximumValue = 1.0f)
+        : m_type (type)
     {
         DBG ("Initializing Meter");
         
         try
         {
             setType (m_type);
+            setMinimumValue (minimumValue);
+            setMaximumValue (maximumValue);
         }
         catch (MeterInitializationException)
         {

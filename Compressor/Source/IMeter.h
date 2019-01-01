@@ -57,7 +57,6 @@ public:
     enum METER_TYPE
     {
         LEVEL = 0,
-        VISUAL,
         ENGAGEMENT,
         RMS,
         MAX_METER_TYPES
