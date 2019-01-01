@@ -60,8 +60,8 @@ struct OpenGLAudioVisualiserComponent::ChannelInfo
     }
     
     OpenGLAudioVisualiserComponent& owner;
-    Array<Range<float>> levels;
-    Range<float> value;
+    Array <Range <float>> levels;
+    Range <float> value;
     int nextSample, subSample;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelInfo)

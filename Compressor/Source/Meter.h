@@ -17,16 +17,15 @@ class Meter :           public IMeter
 {
 public:
     
-    Meter (METER_TYPE type, float minimumValue = 0.0f, float maximumValue = 1.0f)
-        : m_type (type)
-    {
-        DBG ("Initializing Meter");
-        
+    Meter (const METER_TYPE type, const float minimumValue = 0.0f, const float maximumValue = 1.0f) : m_type (type)
+    {        
         try
         {
             setType (m_type);
             setMinimumValue (minimumValue);
             setMaximumValue (maximumValue);
+            
+            std::cout << static_cast <int> (m_type) << "\t" << minimumValue << "\t" << maximumValue << std::endl;
         }
         catch (MeterInitializationException)
         {

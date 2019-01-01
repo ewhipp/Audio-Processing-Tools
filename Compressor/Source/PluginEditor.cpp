@@ -79,8 +79,8 @@ CompressorAudioProcessorEditor::CompressorAudioProcessorEditor (CompressorAudioP
     m_levelShadower->setOwner (m_levelMeter.get());
     
     m_processor.addChangeListener (this);
-    startTimerHz(30);
-    setSize(580, 350);
+    startTimerHz (30);
+    setSize (580, 350);
 }
 
 CompressorAudioProcessorEditor::~CompressorAudioProcessorEditor() { }
@@ -114,8 +114,8 @@ void CompressorAudioProcessorEditor::paint (Graphics& g)
 
 void CompressorAudioProcessorEditor::resized()
 {
-    Rectangle<int> pluginWindow = getLocalBounds();
-    Rectangle<int> sliderLabelArea = pluginWindow.removeFromTop (50);
+    Rectangle <int> pluginWindow = getLocalBounds();
+    Rectangle <int> sliderLabelArea = pluginWindow.removeFromTop (50);
     
     m_levelMeter->setBounds (pluginWindow.removeFromLeft (25));
     pluginWindow.removeFromLeft (10);
@@ -128,8 +128,8 @@ void CompressorAudioProcessorEditor::resized()
     m_makeupGainLabel.setBounds  (sliderLabelArea.removeFromRight (70));
     m_makeupGainSlider.setBounds (pluginWindow.removeFromRight (80));
     
-    Rectangle<int> parameterArea =      pluginWindow.removeFromBottom (100);
-    Rectangle<int> parameterLabelArea = pluginWindow.removeFromBottom (25);
+    Rectangle <int> parameterArea =      pluginWindow.removeFromBottom (100);
+    Rectangle <int> parameterLabelArea = pluginWindow.removeFromBottom (25);
     
     m_ratioLabel.setBounds    (parameterLabelArea.removeFromRight (70));
     m_ratioSlider.setBounds   (parameterArea.removeFromRight (100));

@@ -30,9 +30,8 @@ void Meter::drawBasicMeter (Graphics& g)
     
     g.addTransform (AffineTransform::verticalFlip ((float) bounds.getHeight()));
     g.setColour (Colours::red);
-    g.fillRect (bounds.getX(), bounds.getY(), (float) bounds.getWidth(), ((float) bounds.getHeight() * abs (m_incomingSignal) / 100));
     
-    DBG ("Basic Meter init");
+    g.fillRect (bounds.getX(), bounds.getY(), (float) bounds.getWidth(), ((float) bounds.getHeight() * normalize (m_incomingSignal)));
 }
 
 void Meter::drawEngagement (Graphics& g)
@@ -51,36 +50,28 @@ void Meter::drawEngagement (Graphics& g)
     
     if (signal >= 0.0f && 1.0f >= signal)
     {
-        initEndPoint.setX (initEndPoint.getX() + 50);
+     //   initEndPoint.setX (initEndPoint.getX() + 50);
     }
-    
-    DBG (std::to_string (signal).append ("is the signal in drawEngagement(Graphics&)"));    
 }
 
 float Meter::normalize (float incomingSignal)
 {
     if (m_type == METER_TYPE::LEVEL)
-    {
         return abs ((incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue));
-    }
     else
-    {
         return (incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue);
-    }
 }
 
 float Meter::normalize (float incomingSignal, float maximumValue, float minimumValue)
 {
-    return (incomingSignal - minimumValue) / (maximumValue - minimumValue);
+    return (incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue);
 }
 
 void Meter::setIncomingSignal (float value)
 {
     if (value == m_incomingSignal) { return; } // Don't repaint unless the value has changed.
     
-    m_incomingSignal = jlimit (m_minimumValue, m_maximumValue, value);
-    
-    DBG (std::to_string (m_incomingSignal).append (" is the m_incomingSignal is setIncomingSignal()"));
+    (value >= m_minimumValue && m_maximumValue > value) ? m_incomingSignal = value : m_incomingSignal = 0.0f;
     repaint();
 }
 

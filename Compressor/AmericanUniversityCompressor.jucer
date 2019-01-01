@@ -16,16 +16,18 @@
     <GROUP id="{900D9973-A3FE-E5AA-2306-320EA66A3BDE}" name="Source">
       <GROUP id="{E980A44E-E1DA-EC0E-442B-FAAC7EE873B4}" name="modules">
         <GROUP id="{E5BE507E-AD86-450A-1109-0329DC4C52FE}" name="Processing">
-          <FILE id="atFis4" name="OpenGLAudioVisualiser.cpp" compile="1" resource="0"
-                file="Source/OpenGLAudioVisualiser.cpp"/>
-          <FILE id="GIHF6t" name="OpenGLAudioVisualiser.h" compile="0" resource="0"
-                file="Source/OpenGLAudioVisualiser.h"/>
           <FILE id="rAZzMJ" name="CompressorProcessor.cpp" compile="1" resource="0"
                 file="Source/CompressorProcessor.cpp"/>
           <FILE id="SzfGh9" name="CompressorProcessor.h" compile="0" resource="0"
                 file="Source/CompressorProcessor.h"/>
         </GROUP>
         <GROUP id="{E75EE1A3-6ADD-361D-2204-76F5C844B08B}" name="GUI">
+          <GROUP id="{0093862B-9E84-6AB8-D7B7-5A07A66B9338}" name="OpenGL">
+            <FILE id="atFis4" name="OpenGLAudioVisualiser.cpp" compile="1" resource="0"
+                  file="Source/OpenGLAudioVisualiser.cpp"/>
+            <FILE id="GIHF6t" name="OpenGLAudioVisualiser.h" compile="0" resource="0"
+                  file="Source/OpenGLAudioVisualiser.h"/>
+          </GROUP>
           <GROUP id="{05AA2C5A-73D6-805C-A45E-62446323919D}" name="Meter">
             <FILE id="altVuL" name="IMeter.h" compile="0" resource="0" file="Source/IMeter.h"/>
             <FILE id="mW2X4G" name="Meter.cpp" compile="1" resource="0" file="Source/Meter.cpp"/>

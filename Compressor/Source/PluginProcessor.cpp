@@ -294,7 +294,7 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     float* threshold  = getParameterValue (getParameterId (compParams::THRESHOLD));
     float* ratio      = getParameterValue (getParameterId (compParams::RATIO));
     float* makeupGain = getParameterValue (getParameterId (compParams::MAKEUPGAIN));
-    float*  knee       = getParameterValue (getParameterId (compParams::KNEE));
+    float* knee       = getParameterValue (getParameterId (compParams::KNEE));
     
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -327,7 +327,7 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
             m_blockTargetGainFactor = m_compressor->continueRelease();
         
         if (*knee)
-            m_compressor->engageHardKnee (*threshold, *ratio, channelData, 1)
+            m_compressor->engageHardKnee (*threshold, *ratio, *channelData, 1);
         
         buffer.applyGainRamp (0, buffer.getNumSamples(), m_currentGainFactor, m_blockTargetGainFactor);
         m_currentGainFactor = m_blockTargetGainFactor;
