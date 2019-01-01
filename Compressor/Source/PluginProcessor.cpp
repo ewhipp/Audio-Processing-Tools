@@ -137,12 +137,10 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
                                                    [](float value, int maximumStringLength) { return "1:" + String (value, 0); },
                                                    [](const String& text) { return text.substring(3).getFloatValue();
                                                 });
-    // End float parameters
     
     // Begin Bool parameters
     auto knee = std::make_unique <AudioParameterBool>
                                                   (CompressorAudioProcessor::getParameterId (compParams::KNEE), "Knee", false);
-    // End Bool Parameters
     
     auto floatParams = std::make_unique <AudioProcessorParameterGroup> ("float-values", "Floats", "|",
                                                                         std::move (attack),
@@ -185,7 +183,6 @@ state (*this, &undo, "PARAMS", createParameterLayout())
     state.addParameterListener (getParameterId (compParams::KNEE), this);
     
     state.state = ValueTree (JucePlugin_Name);
-
 }
 
 CompressorAudioProcessor::~CompressorAudioProcessor()
@@ -260,10 +257,7 @@ void CompressorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
     m_compressor = std::make_unique <CompressorProcessor> (sampleRate, samplesPerBlock);
 }
 
-void CompressorAudioProcessor::releaseResources()
-{
-    
-}
+void CompressorAudioProcessor::releaseResources() { }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool CompressorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -295,12 +289,12 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
     
-    auto attack     = getParameterValue (getParameterId (compParams::ATTACK));
-    auto release    = getParameterValue (getParameterId (compParams::RELEASE));
-    auto threshold  = getParameterValue (getParameterId (compParams::THRESHOLD));
-    auto ratio      = getParameterValue (getParameterId (compParams::RATIO));
-    auto makeupGain = getParameterValue (getParameterId (compParams::MAKEUPGAIN));
-    
+    float* attack     = getParameterValue (getParameterId (compParams::ATTACK));
+    float* release    = getParameterValue (getParameterId (compParams::RELEASE));
+    float* threshold  = getParameterValue (getParameterId (compParams::THRESHOLD));
+    float* ratio      = getParameterValue (getParameterId (compParams::RATIO));
+    float* makeupGain = getParameterValue (getParameterId (compParams::MAKEUPGAIN));
+    float*  knee       = getParameterValue (getParameterId (compParams::KNEE));
     
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
@@ -331,6 +325,9 @@ void CompressorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuff
         
         else if (m_currentRMS <= m_thresholdRMS && !attackFlag)
             m_blockTargetGainFactor = m_compressor->continueRelease();
+        
+        if (*knee)
+            m_compressor->engageHardKnee (*threshold, *ratio, channelData, 1)
         
         buffer.applyGainRamp (0, buffer.getNumSamples(), m_currentGainFactor, m_blockTargetGainFactor);
         m_currentGainFactor = m_blockTargetGainFactor;
@@ -364,6 +361,7 @@ void CompressorAudioProcessor::getStateInformation (MemoryBlock& destData)
 void CompressorAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     ValueTree tree = ValueTree::readFromData (data, size_t (sizeInBytes));
+    
     if (tree.isValid())
         state.state = tree;
 }

@@ -17,7 +17,6 @@ class Meter :           public IMeter
 {
 public:
     
-
     Meter (METER_TYPE type, float minimumValue = 0.0f, float maximumValue = 1.0f)
         : m_type (type)
     {
@@ -59,11 +58,11 @@ public:
      * @param g: The graphics context
      */
     void drawEngagement (Graphics& /* g */);
-    void drawVisual (Graphics& /* g */);
     
     // ==============================================================================
     virtual float normalize (float /* incomingSignal */) override;
     float normalize (float /* incomingSignal */, float /* maximumValue */, float /* minimumValue */);
+    
     virtual void setIncomingSignal   (float /* value */) override;
     virtual const void setMinimumValue (float /* value */) override;
     virtual const void setMaximumValue (float /* value */) override;

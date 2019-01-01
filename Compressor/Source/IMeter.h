@@ -29,6 +29,8 @@ public:
     explicit MeterInitializationException (const std::string& message): std::runtime_error (message) { }
     explicit MeterInitializationException (const char* message) : std::runtime_error (message) { }
     virtual ~MeterInitializationException() throw() { }
+    
+private:
 };
 
 
@@ -36,8 +38,7 @@ public:
  *  Interface for all meters.
  */
 class IMeter :          public Component
-{
-    
+{  
 protected:
     float m_incomingSignal;
     float m_minimumValue;
@@ -61,6 +62,8 @@ public:
         RMS,
         MAX_METER_TYPES
     };
+    
+private:
 };
 
 #endif

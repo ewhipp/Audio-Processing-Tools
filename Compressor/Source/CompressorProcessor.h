@@ -15,7 +15,7 @@
 class CompressorProcessor
 {
 public:
-    CompressorProcessor(float, int);
+    CompressorProcessor(float /* parentSampleRate */, int /* parentBlockSize */);
     
     ~CompressorProcessor();
    
@@ -41,7 +41,7 @@ public:
      *
      * @return: The decreased signal level that should be reached after one block size.
     */
-    float continueAttack ();
+    float continueAttack();
     
     /*
      * Represents when the signal stream value has reached the level the user
@@ -66,6 +66,38 @@ public:
     
     // Setters
     void setKneeType (bool /* isActive */, float /* thresholdSlider */, float /* ratioSlider */, float /* incomingSignal */, int /* kneeWidth */);
+    
+    /**
+     * A knee in compressor terms determines how effectively the compressor
+     * works when the threshold is breached. A hard knee will act as though
+     * the compressor is working normally. The softer the knee, the less
+     * intensive the compressor will react to crossing the threshold.
+     *
+     * TWO STATES: Soft vs. Hard
+     * Soft: The compressor acts normally as if there is no knee.
+     * Hard: @see example above.
+     *
+     * @param thresholdSlider: The threshold slider's value.
+     * @param rationSlider: The ratio slider's value.
+     * @param incomingSignal: The current stream of audio.
+     * @param kneeWidth: The window of affected audio.
+     */
+    float engageHardKnee (float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
+    {
+        if (m_isKneeActive)
+        {
+            if (incomingSignal > thresholdSlider + kneeWidth)
+                return ratioSlider / 1000;
+            else if (thresholdSlider + (kneeWidth / 2) >= incomingSignal && incomingSignal > thresholdSlider - (kneeWidth / 2))
+                return (ratioSlider - 1) / 1000;
+            else if (thresholdSlider - 3 >= incomingSignal && incomingSignal > thresholdSlider - 7)
+                return (ratioSlider  - 2) / 1000;
+            else
+                return 1.0f;
+        }
+        
+        return 1.0f;
+    }
     
 private:
     
@@ -131,44 +163,6 @@ private:
         return (blockSize > timeToWaste) ? 0.0f : timeToWaste;
     }
     
-    /**
-     * A knee in compressor terms determines how effectively the compressor
-     * works when the threshold is breached. A hard knee will act as though
-     * the compressor is working normally. The softer the knee, the less
-     * intensive the compressor will react to crossing the threshold.
-     *
-     * EXAMPLE:
-     * signals far below the Threshold are uncompressed (ratio of 1:1) < Knee width
-     * signals a bit below the Threshold are a bit compressed (ratio of 2:1) threshold signal - Knee width / 2
-     * signals at or right around the Threshold are more compressed (ratio of 3:1) threshold signal + Knee width / 2
-     * signals far above the Threshold are fully compressed (ratio of 4:1) > Knee width
-     *
-     * TWO STATES: Soft vs. Hard
-     * Soft: The compressor acts normally as if there is no knee.
-     * Hard: @see example above.
-     *
-     * @param thresholdSlider: The threshold slider's value.
-     * @param rationSlider: The ratio slider's value.
-     * @param incomingSignal: The current stream of audio.
-     * @param kneeWidth: The window of affected audio.
-     */
-    float engageHardKnee (float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
-    {
-        if (m_isActive)
-        {
-            if (incomingSignal > thresholdSlider + kneeWidth)
-                return ratioSlider / 1000;
-            else if (thresholdSlider + (kneeWidth / 2) >= incomingSignal && incomingSignal > thresholdSlider - (kneeWidth / 2))
-                return (ratioSlider - 1) / 1000;
-            else if (thresholdSlider - 3 >= incomingSignal && incomingSignal > thresholdSlider - 7)
-                return (ratioSlider  - 2) / 1000;
-            else
-                return 1.0f;
-        }
-        
-        return 1.0f;
-    }
-    
     /* SETTERS */
     void setBlockSize(int m)
     {
@@ -232,6 +226,6 @@ private:
     int m_blockSize;
     int m_sampleRate;
     
-    bool m_isActive;
+    bool m_isKneeActive;
 };
 

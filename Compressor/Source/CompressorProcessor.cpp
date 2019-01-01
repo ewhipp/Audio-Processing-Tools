@@ -22,8 +22,8 @@ float CompressorProcessor::beginAttack (float startingGainFactor, float ratioSli
     setTimeSinceAttack (0);
 
     m_numberOfSamplesToApplyGain = calculateNumSamples (attackSlider, m_sampleRate, m_blockSize);
-    m_desiredGainFactor = calculateDesiredGain (currentOvershoot, thresholdRMS, ratioSlider);
-    m_gainFactor = calculateGainFactor (m_desiredGainFactor, currentRMS);
+    m_desiredGainFactor          = calculateDesiredGain (currentOvershoot, thresholdRMS, ratioSlider);
+    m_gainFactor                 = calculateGainFactor (m_desiredGainFactor, currentRMS);
     
     m_timeSinceAttack += m_blockSize;
     
@@ -70,7 +70,7 @@ float CompressorProcessor::continueRelease()
 
 void CompressorProcessor::setKneeType (bool isActive, float thresholdSlider, float ratioSlider, float incomingSignal, int kneeWidth)
 {
-    if (m_isActive)
+    if (m_isKneeActive)
     {
         engageHardKnee (thresholdSlider, ratioSlider, incomingSignal, kneeWidth);
     }

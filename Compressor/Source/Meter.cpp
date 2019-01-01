@@ -45,7 +45,6 @@ void Meter::drawEngagement (Graphics& g)
     Point <float> initCenterPoint   (bounds.getWidth() / 2, bounds.getHeight());
     Point <float> initEndPoint      (0, bounds.getWidth());
     Line  <float> initArrow         (initCenterPoint, initEndPoint);
-    
     g.drawArrow (initArrow, 2.0f, 10.0f, 10.0f);
     
     float signal = normalize (m_incomingSignal, 0.0f, 1.0f);
@@ -72,12 +71,12 @@ float Meter::normalize (float incomingSignal)
 
 float Meter::normalize (float incomingSignal, float maximumValue, float minimumValue)
 {
-    return (incomingSignal - m_minimumValue) / (m_maximumValue - m_minimumValue);
+    return (incomingSignal - minimumValue) / (maximumValue - minimumValue);
 }
 
 void Meter::setIncomingSignal (float value)
 {
-    if (value == m_incomingSignal) { return; } // Don't repaint unless we have to.
+    if (value == m_incomingSignal) { return; } // Don't repaint unless the value has changed.
     
     m_incomingSignal = jlimit (m_minimumValue, m_maximumValue, value);
     
@@ -104,7 +103,7 @@ const void Meter::setMaximumValue (float maximumValue)
 const void Meter::setType (int type) noexcept
 {   
     if (static_cast<int>(type) > static_cast<int>(METER_TYPE::MAX_METER_TYPES))
-        throw MeterInitializationException ("Meter type must be accepted value");
+        throw MeterInitializationException ("Meter type must be of a specified type.");
     
     m_type = static_cast<METER_TYPE>(type);
 }
