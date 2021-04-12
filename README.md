@@ -1,4 +1,4 @@
-# Audio Processing Tools
+# Audio Processing Tools [ Deprecated ]
 
 This repository is a collection of work that was started by William Brent and Erik Whipp in the Spring of 2018 as a part of an independent study at the American University in Washington, DC.
 
